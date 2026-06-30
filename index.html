@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a0e1a">
+<title>룸메이커 · 방탈출 관리</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="룸메이커">
+<style>
+  :root{
+    --bg:#0a0e1a; --panel:#131a2e; --panel2:#1b2541; --border:#26314f;
+    --text:#e6ecf7; --dim:#8a96b3; --accent:#6c8cff; --accent2:#a06bff;
+    --ok:#2ecc71; --warn:#ffb020; --radius:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{
+    background:radial-gradient(1200px 600px at 50% -10%,#172044 0%,var(--bg) 60%);
+    color:var(--text);font-family:'Pretendard','Malgun Gothic','맑은 고딕',-apple-system,sans-serif;
+    min-height:100vh;padding:env(safe-area-inset-top) 16px 40px;
+  }
+  header{padding:26px 4px 14px;display:flex;align-items:center;gap:12px}
+  .logo{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));
+    display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 6px 20px rgba(108,140,255,.4)}
+  h1{font-size:1.25rem;font-weight:800;letter-spacing:-.01em}
+  .sub{font-size:.78rem;color:var(--dim);margin-top:2px}
+  .bar{display:flex;gap:10px;margin:6px 4px 18px;flex-wrap:wrap}
+  .stat{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:10px 14px;flex:1;min-width:90px}
+  .stat .n{font-size:1.4rem;font-weight:800}
+  .stat .l{font-size:.7rem;color:var(--dim);margin-top:2px}
+  .search{width:100%;background:var(--panel);border:1px solid var(--border);color:var(--text);
+    border-radius:14px;padding:13px 16px;font-size:.95rem;margin:0 0 18px}
+  .search::placeholder{color:var(--dim)}
+  .grid{display:grid;grid-template-columns:1fr;gap:14px}
+  @media(min-width:640px){.grid{grid-template-columns:1fr 1fr}}
+  @media(min-width:1000px){.grid{grid-template-columns:1fr 1fr 1fr}}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);
+    overflow:hidden;display:flex;flex-direction:column;transition:transform .15s,box-shadow .15s}
+  .card:active{transform:scale(.985)}
+  .cover{height:96px;display:flex;align-items:center;justify-content:center;font-size:44px;position:relative}
+  .badge{position:absolute;top:10px;right:10px;font-size:.66rem;font-weight:700;padding:4px 9px;border-radius:20px;
+    background:rgba(0,0,0,.35);backdrop-filter:blur(4px)}
+  .badge.done{color:#fff;background:rgba(46,204,113,.85)}
+  .badge.wip{color:#1a1200;background:rgba(255,176,32,.9)}
+  .body{padding:14px 16px 16px;flex:1;display:flex;flex-direction:column;gap:6px}
+  .ttl{font-size:1.05rem;font-weight:800;letter-spacing:-.01em}
+  .meta{font-size:.78rem;color:var(--dim)}
+  .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+  .tag{font-size:.68rem;color:var(--accent);background:rgba(108,140,255,.12);
+    border:1px solid rgba(108,140,255,.25);padding:3px 8px;border-radius:8px}
+  .actions{display:flex;gap:8px;margin-top:12px}
+  .btn{flex:1;border:none;border-radius:11px;padding:11px;font-size:.85rem;font-weight:700;cursor:pointer;
+    font-family:inherit}
+  .btn.play{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+  .btn.edit{background:var(--panel2);color:var(--text);border:1px solid var(--border)}
+  .empty{text-align:center;color:var(--dim);padding:50px 0;font-size:.9rem}
+  /* modal */
+  .ov{position:fixed;inset:0;background:rgba(4,7,16,.7);backdrop-filter:blur(6px);
+    display:none;align-items:flex-end;justify-content:center;z-index:50}
+  .ov.show{display:flex}
+  @media(min-width:640px){.ov{align-items:center}}
+  .sheet{background:var(--panel);border:1px solid var(--border);border-radius:22px 22px 0 0;width:100%;
+    max-width:460px;padding:22px 20px 30px}
+  @media(min-width:640px){.sheet{border-radius:22px}}
+  .sheet h3{font-size:1.1rem;margin-bottom:16px}
+  .fld{margin-bottom:14px}
+  .fld label{display:block;font-size:.75rem;color:var(--dim);margin-bottom:6px}
+  .fld input,.fld select,.fld textarea{width:100%;background:var(--bg);border:1px solid var(--border);
+    color:var(--text);border-radius:10px;padding:11px 13px;font-size:.9rem;font-family:inherit}
+  .fld textarea{resize:vertical;min-height:64px}
+  .row{display:flex;gap:8px;margin-top:18px}
+  .note{font-size:.72rem;color:var(--dim);margin-top:10px;line-height:1.5}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">🗝️</div>
+  <div>
+    <h1>룸메이커 관리</h1>
+    <div class="sub">방탈출 게임 라이브러리</div>
+  </div>
+</header>
+
+<div class="bar" id="stats"></div>
+<input class="search" id="search" placeholder="🔍 게임 검색 (제목·장르)">
+<div class="grid" id="grid"></div>
+<div class="empty" id="empty" style="display:none">검색 결과가 없어요.</div>
+
+<div class="ov" id="ov">
+  <div class="sheet">
+    <h3 id="m-title">게임 정보 편집</h3>
+    <div class="fld"><label>제목</label><input id="m-name"></div>
+    <div class="fld"><label>부제</label><input id="m-sub"></div>
+    <div class="fld"><label>장르</label><input id="m-genre"></div>
+    <div class="fld"><label>상태</label>
+      <select id="m-status"><option>완성</option><option>제작중</option><option>검수</option><option>보류</option></select>
+    </div>
+    <div class="fld"><label>메모</label><textarea id="m-memo" placeholder="기획 메모, 수정할 점 등"></textarea></div>
+    <div class="row">
+      <button class="btn edit" onclick="closeModal()">취소</button>
+      <button class="btn play" onclick="saveEdit()">저장</button>
+    </div>
+    <div class="note">메모·상태 변경은 이 기기에 저장됩니다. (전체 동기화는 다음 단계)</div>
+  </div>
+</div>
+
+<script>
+let GAMES=[], EDIT=null;
+const LS='roommaker_overrides';
+const ov=()=>JSON.parse(localStorage.getItem(LS)||'{}');
+const setOv=o=>localStorage.setItem(LS,JSON.stringify(o));
+
+function merged(g){const o=ov()[g.id]||{};return {...g,...o};}
+
+async function load(){
+  try{
+    const r=await fetch('registry.json?'+Date.now());
+    const data=await r.json();
+    GAMES=data.games||[];
+  }catch(e){ document.getElementById('grid').innerHTML='<div class="empty">registry.json을 불러올 수 없어요.</div>'; return; }
+  render();
+}
+
+function render(){
+  const q=(document.getElementById('search').value||'').toLowerCase();
+  const list=GAMES.map(merged).filter(g=>
+    !q||g.title.toLowerCase().includes(q)||(g.genre||'').toLowerCase().includes(q));
+  const done=GAMES.map(merged).filter(g=>g.status==='완성').length;
+  document.getElementById('stats').innerHTML=
+    `<div class="stat"><div class="n">${GAMES.length}</div><div class="l">전체 게임</div></div>
+     <div class="stat"><div class="n">${done}</div><div class="l">완성</div></div>
+     <div class="stat"><div class="n">${GAMES.length-done}</div><div class="l">진행중</div></div>`;
+  const grid=document.getElementById('grid');
+  document.getElementById('empty').style.display=list.length?'none':'block';
+  grid.innerHTML=list.map(g=>{
+    const wip=g.status!=='완성';
+    return `<div class="card">
+      <div class="cover" style="background:linear-gradient(135deg,${g.accent}33,${g.accent}0a)">
+        <span>${g.emoji||'🎮'}</span>
+        <span class="badge ${wip?'wip':'done'}">${g.status}</span>
+      </div>
+      <div class="body">
+        <div class="ttl">${g.title}</div>
+        <div class="meta">${g.subtitle||''}</div>
+        <div class="tags">
+          ${g.genre?`<span class="tag">${g.genre}</span>`:''}
+          ${g.puzzles?`<span class="tag">퍼즐 ${g.puzzles}</span>`:''}
+        </div>
+        <div class="actions">
+          <button class="btn play" onclick="play('${g.file}')">▶ 플레이</button>
+          <button class="btn edit" onclick="openEdit('${g.id}')">✎ 편집</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function play(f){ window.open(f,'_blank'); }
+
+function openEdit(id){
+  const g=merged(GAMES.find(x=>x.id===id));
+  EDIT=id;
+  m_name.value=g.title; m_sub.value=g.subtitle||''; m_genre.value=g.genre||'';
+  m_status.value=g.status; m_memo.value=g.memo||'';
+  document.getElementById('m-title').textContent=g.title+' 편집';
+  document.getElementById('ov').classList.add('show');
+}
+function closeModal(){document.getElementById('ov').classList.remove('show');}
+function saveEdit(){
+  const o=ov();
+  o[EDIT]={title:m_name.value,subtitle:m_sub.value,genre:m_genre.value,
+    status:m_status.value,memo:m_memo.value};
+  setOv(o); closeModal(); render();
+}
+['m-name','m-sub','m-genre','m-status','m-memo'].forEach(id=>window[id.replace('-','_')]=document.getElementById(id));
+document.getElementById('search').addEventListener('input',render);
+document.getElementById('ov').addEventListener('click',e=>{if(e.target.id==='ov')closeModal();});
+load();
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}
+</script>
+</body>
+</html>

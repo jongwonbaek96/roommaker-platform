@@ -1,0 +1,2189 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>🎓 마법학교 졸업은 글렀어요!</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Noto+Serif+KR:wght@300;400;700;900&family=MedievalSharp&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gold:#ffd700;--gold2:#ffb300;--gold-glow:rgba(255,215,0,0.4);
+  --purple-dark:#0d0520;--purple-mid:#1a0a2e;--purple:#2d1458;--purple-light:#4a2080;
+  --purple-bright:#9b59b6;--purple-pale:#c39bd3;--purple-ghost:#e8d5ff;
+  --text:#f0e6ff;--text-dim:#d4b8ff;--text-muted:#9b7cc0;
+  --green:#27ae60;--red:#e74c3c;--blue:#2980b9;
+  --modal-bg:rgba(13,5,32,0.97);
+  --font-title:'Cinzel',serif;
+  --font-body:'Noto Serif KR',serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  background:radial-gradient(ellipse at 20% 50%,#1e0840 0%,#0d0520 40%,#150830 100%);
+  font-family:var(--font-body),'Malgun Gothic',sans-serif;
+  color:var(--text);height:100vh;overflow:hidden;display:flex;flex-direction:column;
+}
+.screen{display:none;width:100%;height:100vh;flex-direction:column;align-items:center;justify-content:center;}
+.screen.active{display:flex;}
+
+/* ── INTRO ── */
+#screen-intro{
+  background:radial-gradient(ellipse at center top,#2d1060 0%,#0d0520 50%,#150830 100%);
+  position:relative;overflow:hidden;
+}
+#screen-intro::before{
+  content:'';position:absolute;inset:0;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Ccircle cx='50' cy='50' r='1' fill='%23ffffff' opacity='0.6'/%3E%3Ccircle cx='150' cy='120' r='1.5' fill='%23ffd700' opacity='0.5'/%3E%3Ccircle cx='250' cy='80' r='1' fill='%23ffffff' opacity='0.4'/%3E%3Ccircle cx='350' cy='200' r='2' fill='%23c39bd3' opacity='0.5'/%3E%3Ccircle cx='100' cy='300' r='1' fill='%23ffffff' opacity='0.3'/%3E%3Ccircle cx='320' cy='350' r='1.5' fill='%23ffd700' opacity='0.4'/%3E%3Ccircle cx='200' cy='250' r='1' fill='%23ffffff' opacity='0.5'/%3E%3Ccircle cx='380' cy='100' r='1' fill='%23c39bd3' opacity='0.6'/%3E%3Ccircle cx='30' cy='200' r='2' fill='%23ffffff' opacity='0.3'/%3E%3Ccircle cx='280' cy='320' r='1' fill='%23ffd700' opacity='0.5'/%3E%3C/svg%3E") repeat;
+  animation:twinkle 4s ease-in-out infinite alternate;pointer-events:none;
+}
+@keyframes twinkle{0%{opacity:0.6}100%{opacity:1}}
+
+.intro-box{
+  background:linear-gradient(160deg,rgba(45,20,88,0.95),rgba(13,5,32,0.98));
+  border:3px solid var(--gold);border-radius:20px;padding:44px;max-width:620px;
+  text-align:center;position:relative;z-index:1;
+  box-shadow:0 0 60px rgba(255,215,0,0.25),0 0 120px rgba(155,89,182,0.2),inset 0 1px 0 rgba(255,215,0,0.1);
+}
+.intro-box::before{
+  content:'';position:absolute;inset:-1px;border-radius:20px;
+  background:linear-gradient(135deg,rgba(255,215,0,0.15),transparent 40%,transparent 60%,rgba(155,89,182,0.1));
+  pointer-events:none;
+}
+.intro-title{
+  font-family:var(--font-title);font-size:2.4em;font-weight:900;
+  color:var(--gold);letter-spacing:2px;
+  text-shadow:0 0 30px rgba(255,215,0,0.7),0 0 60px rgba(255,215,0,0.3);
+  margin-bottom:8px;line-height:1.2;
+}
+.intro-sub{
+  font-size:0.95em;color:var(--purple-pale);margin-bottom:22px;
+  font-style:italic;letter-spacing:1px;opacity:0.9;
+}
+.intro-story{
+  background:rgba(0,0,0,0.4);
+  border-left:3px solid var(--purple-bright);
+  border-radius:0 10px 10px 0;
+  padding:16px 18px;font-size:0.87em;line-height:1.9;
+  text-align:left;color:var(--purple-ghost);margin-bottom:22px;
+  box-shadow:inset 0 0 20px rgba(155,89,182,0.05);
+}
+.intro-story p{margin-bottom:9px;}
+
+.btn{
+  background:linear-gradient(135deg,#5c1a7a,#8e44ad);
+  color:#fff;border:2px solid var(--gold);
+  padding:13px 32px;font-size:0.95em;font-weight:700;
+  border-radius:10px;cursor:pointer;
+  font-family:var(--font-body);letter-spacing:1px;
+  transition:all 0.25s;position:relative;overflow:hidden;
+  box-shadow:0 4px 15px rgba(0,0,0,0.3);
+}
+.btn::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,215,0,0.1),transparent);
+  opacity:0;transition:opacity 0.25s;
+}
+.btn:hover{
+  background:linear-gradient(135deg,#8e44ad,#bb77d4);
+  box-shadow:0 0 20px var(--gold-glow),0 6px 20px rgba(0,0,0,0.4);
+  transform:translateY(-2px);
+}
+.btn:hover::after{opacity:1;}
+.btn:active{transform:translateY(0);}
+.btn.red{background:linear-gradient(135deg,#7b1e1e,#c0392b);}
+.btn.red:hover{background:linear-gradient(135deg,#c0392b,#e74c3c);}
+.btn.green{background:linear-gradient(135deg,#145a32,#1e8449);}
+.btn.green:hover{background:linear-gradient(135deg,#1e8449,#27ae60);}
+.btn.gray{background:linear-gradient(135deg,#333,#555);}
+.btn.gray:hover{background:linear-gradient(135deg,#555,#777);}
+
+/* ── GAME SCREEN ── */
+#screen-game{flex-direction:row;align-items:stretch;padding:0;}
+#room-panel{flex:1;position:relative;overflow:hidden;min-width:0;}
+#room-svg{width:100%;height:100%;}
+#side-panel{
+  width:230px;
+  background:linear-gradient(180deg,#12052a 0%,#0d0520 100%);
+  border-left:2px solid var(--purple-light);
+  display:flex;flex-direction:column;padding:14px;gap:10px;overflow-y:auto;
+  box-shadow:-4px 0 20px rgba(0,0,0,0.5);
+}
+.side-title{
+  font-family:var(--font-title);color:var(--gold);font-weight:700;
+  font-size:0.82em;text-align:center;letter-spacing:2px;
+  border-bottom:1px solid var(--purple-light);padding-bottom:8px;
+  text-shadow:0 0 10px var(--gold-glow);
+}
+.room-label{
+  background:linear-gradient(135deg,rgba(45,20,88,0.8),rgba(26,10,46,0.9));
+  border:1px solid var(--purple-bright);border-radius:10px;
+  padding:10px;font-size:0.8em;text-align:center;color:var(--text-dim);
+  box-shadow:0 2px 10px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.05);
+}
+.room-label span{display:block;font-weight:900;color:var(--gold);font-size:1em;margin-bottom:3px;font-family:var(--font-body);}
+.inventory-area{
+  background:rgba(0,0,0,0.4);border:1px solid var(--purple-light);
+  border-radius:8px;padding:8px;min-height:55px;font-size:0.76em;
+  color:var(--text-muted);line-height:1.6;
+}
+.puzzle-list{display:flex;flex-direction:column;gap:4px;}
+.puzzle-chip{
+  background:rgba(13,5,32,0.7);border:1px solid var(--purple-light);
+  border-radius:6px;padding:6px 8px;font-size:0.73em;color:var(--text-dim);
+  display:flex;align-items:center;gap:6px;transition:all 0.2s;
+}
+.puzzle-chip.solved{border-color:var(--green);color:var(--green);background:rgba(30,80,30,0.3);}
+.puzzle-chip .dot{width:8px;height:8px;border-radius:50%;background:#444;flex-shrink:0;transition:all 0.3s;}
+.puzzle-chip.solved .dot{background:var(--green);box-shadow:0 0 6px var(--green);}
+
+#intercom-bar{
+  position:fixed;top:0;left:0;right:0;
+  background:linear-gradient(90deg,#4a0e6b,#1e0840,#4a0e6b);
+  color:var(--gold);padding:11px 24px;font-size:0.88em;font-weight:700;
+  text-align:center;z-index:200;transform:translateY(-100%);
+  transition:transform 0.5s cubic-bezier(0.34,1.56,0.64,1);
+  border-bottom:2px solid var(--gold);
+  box-shadow:0 4px 20px rgba(0,0,0,0.5);
+  font-family:var(--font-body);letter-spacing:0.5px;
+}
+#intercom-bar.show{transform:translateY(0);}
+#intercom-bar span{font-style:italic;font-weight:400;color:rgba(255,255,255,0.9);margin-left:8px;}
+
+/* ── MODAL ── */
+#modal-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,0.8);backdrop-filter:blur(4px);
+  z-index:300;align-items:center;justify-content:center;
+}
+#modal-overlay.active{display:flex;}
+.modal-box{
+  background:linear-gradient(160deg,#150830 0%,#0d0520 100%);
+  border:2px solid var(--gold);border-radius:18px;
+  padding:28px;max-width:580px;width:92%;max-height:88vh;
+  overflow-y:auto;position:relative;
+  box-shadow:0 0 60px rgba(255,215,0,0.2),0 20px 60px rgba(0,0,0,0.7),inset 0 1px 0 rgba(255,215,0,0.1);
+}
+.modal-box::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+  border-radius:18px 18px 0 0;
+}
+.modal-box h2{
+  font-family:var(--font-body);color:var(--gold);font-size:1.15em;font-weight:900;
+  margin-bottom:14px;padding-bottom:10px;
+  border-bottom:1px solid rgba(74,32,128,0.8);
+  text-shadow:0 0 15px var(--gold-glow);letter-spacing:0.5px;
+}
+.modal-close{
+  position:absolute;top:14px;right:16px;background:rgba(74,32,128,0.5);
+  border:1px solid var(--purple-light);color:var(--text-muted);
+  font-size:1.1em;cursor:pointer;line-height:1;
+  width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  transition:all 0.2s;
+}
+.modal-close:hover{color:var(--gold);border-color:var(--gold);background:rgba(155,89,182,0.3);}
+.doc-content{font-size:0.84em;line-height:1.9;color:var(--purple-ghost);white-space:pre-wrap;font-family:var(--font-body);}
+.doc-content strong{color:var(--gold);font-weight:700;}
+.doc-content em{color:var(--purple-pale);}
+
+/* ── PUZZLE UI ── */
+.puzzle-desc{
+  background:rgba(0,0,0,0.35);
+  border-left:3px solid var(--purple-bright);
+  border-radius:0 10px 10px 0;
+  padding:14px 16px;font-size:0.84em;line-height:1.8;
+  color:var(--text-dim);margin-bottom:16px;
+  box-shadow:inset 0 0 15px rgba(155,89,182,0.05);
+}
+.hint-section{margin:12px 0;}
+.hint-btn{
+  background:linear-gradient(135deg,rgba(45,20,88,0.8),rgba(26,10,46,0.9));
+  border:1px solid var(--purple-bright);color:var(--purple-pale);
+  padding:8px 16px;font-size:0.79em;border-radius:8px;cursor:pointer;
+  font-family:var(--font-body);letter-spacing:0.5px;transition:all 0.2s;
+}
+.hint-btn:hover{border-color:var(--gold);color:var(--gold);box-shadow:0 0 10px var(--gold-glow);}
+.hint-box{
+  background:rgba(0,0,0,0.5);border:1px solid rgba(123,45,139,0.6);
+  border-radius:8px;padding:12px 14px;margin-top:8px;
+  font-size:0.81em;color:var(--text-dim);display:none;line-height:1.7;
+  border-left:3px solid var(--purple-bright);
+}
+.hint-box.visible{display:block;}
+.puzzle-input{
+  width:100%;padding:12px;
+  background:rgba(0,0,0,0.5);
+  border:2px solid var(--purple-light);border-radius:10px;
+  color:var(--text);font-size:1.15em;text-align:center;
+  font-family:var(--font-body);margin-bottom:12px;
+  transition:border-color 0.2s,box-shadow 0.2s;letter-spacing:3px;
+}
+.puzzle-input:focus{outline:none;border-color:var(--purple-bright);box-shadow:0 0 15px rgba(155,89,182,0.3);}
+.result-msg{
+  padding:12px;border-radius:8px;font-size:0.87em;text-align:center;
+  margin-top:10px;display:none;font-weight:700;letter-spacing:0.5px;
+}
+.result-msg.ok{background:rgba(30,80,30,0.4);border:1px solid var(--green);color:#2ecc71;display:block;box-shadow:0 0 15px rgba(39,174,96,0.2);}
+.result-msg.fail{background:rgba(80,20,20,0.4);border:1px solid var(--red);color:#e74c3c;display:block;}
+
+/* ── OX QUIZ ── */
+.ox-question{
+  background:linear-gradient(135deg,rgba(10,5,25,0.8),rgba(20,10,40,0.8));
+  border:1px solid var(--purple-light);border-radius:10px;
+  padding:14px 16px;margin-bottom:10px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.3);
+}
+.ox-question p{font-size:0.87em;margin-bottom:10px;line-height:1.7;color:var(--purple-ghost);}
+.ox-btns{display:flex;gap:8px;}
+.ox-btn{
+  flex:1;padding:10px 6px;border-radius:8px;cursor:pointer;
+  font-size:0.95em;font-weight:900;font-family:var(--font-body);
+  border:2px solid transparent;transition:all 0.2s;letter-spacing:1px;
+}
+.ox-btn.O{background:rgba(20,50,20,0.7);border-color:var(--green);color:#2ecc71;}
+.ox-btn.X{background:rgba(50,15,15,0.7);border-color:var(--red);color:#e74c3c;}
+.ox-btn.selected{opacity:1;transform:scale(1.06);box-shadow:0 0 14px rgba(255,215,0,0.35);}
+.ox-btn:not(.selected){opacity:0.45;}
+.ox-btn:hover{opacity:0.85;transform:translateY(-1px);}
+.ox-progress{font-size:0.78em;color:var(--text-muted);margin-bottom:8px;letter-spacing:1px;}
+
+/* ── SEQUENCE BUTTONS ── */
+.seq-display{
+  background:rgba(0,0,0,0.4);border:1px solid var(--purple-light);
+  border-radius:10px;padding:12px;text-align:center;margin-bottom:12px;
+  font-size:0.84em;color:var(--text-muted);min-height:44px;
+  font-family:var(--font-body);letter-spacing:1px;
+}
+.seq-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:12px;}
+.seq-btn{
+  width:76px;height:76px;border-radius:12px;
+  border:3px solid rgba(255,255,255,0.15);cursor:pointer;
+  transition:all 0.15s;font-size:0.78em;font-weight:700;
+  color:#fff;font-family:var(--font-body);
+  box-shadow:0 4px 10px rgba(0,0,0,0.4);
+}
+.seq-btn.red-btn{background:linear-gradient(135deg,#8b1a1a,#c0392b);}
+.seq-btn.blue-btn{background:linear-gradient(135deg,#1a4a8b,#2980b9);}
+.seq-btn.green-btn{background:linear-gradient(135deg,#1a6a1a,#27ae60);}
+.seq-btn.yellow-btn{background:linear-gradient(135deg,#8b6a10,#f39c12);color:#000;}
+.seq-btn:hover:not(:disabled){transform:translateY(-3px) scale(1.05);box-shadow:0 8px 20px rgba(0,0,0,0.5);}
+.seq-btn.flash{border-color:#fff;box-shadow:0 0 25px rgba(255,255,255,0.8);transform:scale(1.12);}
+.seq-btn:disabled{cursor:not-allowed;opacity:0.55;}
+.seq-status{font-size:0.81em;color:var(--purple-pale);text-align:center;margin-bottom:8px;letter-spacing:0.5px;}
+
+/* ── STAMPS ── */
+.stamp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;}
+.stamp-item{
+  background:rgba(10,5,25,0.8);border:2px solid var(--purple-light);
+  border-radius:10px;padding:8px;cursor:pointer;text-align:center;
+  transition:all 0.2s;box-shadow:0 2px 6px rgba(0,0,0,0.4);
+}
+.stamp-item:hover{border-color:var(--purple-bright);transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,0.5);}
+.stamp-item.selected{border-color:var(--gold);background:rgba(45,20,88,0.9);box-shadow:0 0 15px var(--gold-glow);}
+.stamp-item svg{width:62px;height:62px;}
+.stamp-label{font-size:0.68em;color:var(--text-muted);margin-top:4px;}
+
+/* ── BOOK SORT ── */
+.book-list{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
+.book-item{
+  background:rgba(10,5,25,0.7);border:1.5px solid var(--purple-light);
+  border-radius:10px;padding:10px 14px;cursor:pointer;font-size:0.84em;
+  transition:all 0.2s;display:flex;align-items:center;gap:10px;
+  font-family:var(--font-body);
+}
+.book-item:hover{border-color:var(--purple-bright);background:rgba(50,20,90,0.5);transform:translateX(3px);}
+.book-item.selected{border-color:var(--gold);background:rgba(60,30,10,0.6);}
+.book-item.placed{border-color:var(--green);background:rgba(20,50,20,0.4);cursor:default;opacity:0.75;}
+.book-num{
+  width:22px;height:22px;border-radius:50%;
+  background:linear-gradient(135deg,var(--purple),var(--purple-bright));
+  color:var(--gold);font-size:0.7em;font-weight:900;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.sort-slots{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
+.sort-slot{
+  background:rgba(0,0,0,0.3);border:1.5px dashed var(--purple-light);
+  border-radius:10px;padding:10px 14px;font-size:0.79em;
+  color:#444;min-height:42px;display:flex;align-items:center;
+  font-family:var(--font-body);
+}
+.sort-slot.filled{border-style:solid;border-color:var(--green);color:var(--green);background:rgba(20,50,20,0.3);}
+
+/* ── MATCH ── */
+.match-area{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.match-col{display:flex;flex-direction:column;gap:6px;}
+.match-item{
+  background:rgba(10,5,25,0.7);border:1.5px solid var(--purple-light);
+  border-radius:10px;padding:10px 8px;font-size:0.79em;cursor:pointer;
+  transition:all 0.2s;text-align:center;font-family:var(--font-body);
+  box-shadow:0 2px 6px rgba(0,0,0,0.3);line-height:1.4;
+}
+.match-item:hover{border-color:var(--purple-bright);transform:scale(1.03);}
+.match-item.selected{border-color:var(--gold);background:rgba(60,30,10,0.6);box-shadow:0 0 10px var(--gold-glow);}
+.match-item.matched{border-color:var(--green);background:rgba(20,50,20,0.4);cursor:default;box-shadow:0 0 8px rgba(39,174,96,0.3);}
+.match-item.wrong{border-color:var(--red);animation:shake 0.3s;}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.match-lines{position:relative;height:10px;}
+
+/* ── STARS ── */
+#star-canvas{display:block;margin:0 auto 12px;background:#050a1a;border:2px solid #4a2080;border-radius:8px;cursor:crosshair;}
+
+/* ── FIND (P15) ── */
+#find-canvas{display:block;margin:0 auto 12px;cursor:pointer;}
+
+/* ── END SCREEN ── */
+#screen-end{
+  background:radial-gradient(ellipse at center,#2d1060 0%,#0d0520 60%);
+  position:relative;overflow:hidden;
+}
+#screen-end::before{
+  content:'✨🌟⭐💫✨🌟⭐💫✨🌟⭐💫✨🌟⭐💫';
+  position:absolute;top:-10px;left:0;right:0;font-size:1.5em;
+  letter-spacing:8px;opacity:0.3;animation:float 6s ease-in-out infinite;
+  white-space:nowrap;
+}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.end-box{
+  background:linear-gradient(160deg,rgba(45,20,88,0.97),rgba(13,5,32,0.99));
+  border:3px solid var(--gold);border-radius:20px;padding:44px;max-width:560px;
+  text-align:center;position:relative;z-index:1;
+  box-shadow:0 0 80px rgba(255,215,0,0.35),0 0 160px rgba(155,89,182,0.2);
+}
+.end-title{
+  font-family:var(--font-title);font-size:2.6em;font-weight:900;
+  color:var(--gold);margin-bottom:10px;letter-spacing:3px;
+  text-shadow:0 0 40px rgba(255,215,0,0.8);
+}
+.end-story{
+  font-size:0.86em;line-height:1.9;color:var(--purple-ghost);
+  margin:16px 0;text-align:left;
+  background:rgba(0,0,0,0.35);padding:16px 18px;border-radius:10px;
+  border-left:3px solid var(--purple-bright);
+}
+.confetti{font-size:2em;margin-bottom:12px;}
+
+/* ── ROOM SVG HOTSPOTS ── */
+.hotspot{cursor:pointer;}
+.hotspot:hover rect,.hotspot:hover circle,.hotspot:hover polygon{filter:brightness(1.3);}
+.hotspot-label{font-size:11px;fill:#ffd700;font-weight:700;pointer-events:none;text-shadow:1px 1px 2px #000;}
+.solved-badge{font-size:18px;pointer-events:none;}
+
+/* ── 파티클 애니메이션 키프레임 ── */
+@keyframes particleUp{
+  0%{transform:translateY(0) rotate(0deg) scale(1);opacity:1;}
+  100%{transform:translateY(-110vh) rotate(720deg) scale(0.3);opacity:0;}
+}
+@keyframes modalIn{
+  0%{opacity:0;transform:scale(0.88) translateY(20px);}
+  100%{opacity:1;transform:scale(1) translateY(0);}
+}
+@keyframes hotspotPulse{
+  0%,100%{filter:brightness(1);}
+  50%{filter:brightness(1.25);}
+}
+.modal-box{animation:modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1);}
+.hotspot:hover g rect,.hotspot:hover>rect{filter:brightness(1.3);}
+.hotspot{transition:filter 0.15s;}
+
+/* ── 버튼 매직 hover ── */
+.btn:hover{animation:none;}
+.hint-btn:hover{transform:translateY(-1px);}
+
+/* scrollbar */
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:var(--purple-dark);}
+::-webkit-scrollbar-thumb{background:var(--purple-light);border-radius:3px;}
+::-webkit-scrollbar-thumb:hover{background:var(--purple-bright);}
+
+/* ── ROOM HOTSPOT LABEL FONT ── */
+.hotspot-label{font-size:11px;fill:var(--gold);font-weight:700;pointer-events:none;}
+</style>
+</head>
+<body>
+
+<!-- INTRO SCREEN -->
+<div id="screen-intro" class="screen active">
+  <div class="intro-box" style="display:flex;gap:28px;align-items:flex-start;max-width:720px;padding:36px;">
+    <!-- 교장 선생님 캐릭터 SVG -->
+    <div style="flex-shrink:0;">
+      <svg width="120" height="170" viewBox="0 0 120 170" xmlns="http://www.w3.org/2000/svg">
+        <!-- 가운 -->
+        <path d="M20,110 Q10,170 15,170 L105,170 Q110,170 100,110 Q80,125 60,125 Q40,125 20,110Z" fill="#2d0d5e"/>
+        <path d="M20,110 Q10,170 15,170 L60,170 L60,125 Q40,125 20,110Z" fill="#3a1278"/>
+        <!-- 가운 별 장식 -->
+        <text x="35" y="150" font-size="10" fill="#ffd700" opacity="0.8">★</text>
+        <text x="70" y="140" font-size="8" fill="#ffd700" opacity="0.6">✦</text>
+        <text x="55" y="158" font-size="9" fill="#c39bd3" opacity="0.7">✦</text>
+        <!-- 목 -->
+        <rect x="52" y="95" width="16" height="18" rx="5" fill="#f5c89a"/>
+        <!-- 얼굴 -->
+        <ellipse cx="60" cy="78" rx="28" ry="30" fill="#f5c89a"/>
+        <!-- 수염 -->
+        <path d="M38,88 Q45,100 60,102 Q75,100 82,88 Q75,110 60,112 Q45,110 38,88Z" fill="white" opacity="0.9"/>
+        <path d="M45,95 Q52,106 60,108 Q68,106 75,95" fill="none" stroke="#ddd" stroke-width="1.5"/>
+        <!-- 눈썹 -->
+        <path d="M44,68 Q52,64 56,67" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round"/>
+        <path d="M64,67 Q68,64 76,68" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round"/>
+        <!-- 눈 -->
+        <ellipse cx="52" cy="74" rx="5" ry="5.5" fill="white"/>
+        <circle cx="53" cy="74" r="3.5" fill="#3a2060"/>
+        <circle cx="54" cy="73" r="1" fill="white"/>
+        <ellipse cx="68" cy="74" rx="5" ry="5.5" fill="white"/>
+        <circle cx="69" cy="74" r="3.5" fill="#3a2060"/>
+        <circle cx="70" cy="73" r="1" fill="white"/>
+        <!-- 코 -->
+        <ellipse cx="60" cy="82" rx="4" ry="3" fill="#e8a88a"/>
+        <!-- 입 (당황한 표정) -->
+        <path d="M50,90 Q55,95 60,94 Q65,95 70,90" fill="none" stroke="#c07050" stroke-width="2" stroke-linecap="round"/>
+        <!-- 땀방울 -->
+        <path d="M82,60 Q84,65 80,68 Q76,65 78,60 Z" fill="#88ccff" opacity="0.8"/>
+        <!-- 마법사 모자 -->
+        <path d="M32,55 L60,5 L88,55Z" fill="#1a0840"/>
+        <rect x="25" y="53" width="70" height="10" rx="5" fill="#2d1060"/>
+        <!-- 모자 별 -->
+        <text x="50" y="40" font-size="10" fill="#ffd700">★</text>
+        <text x="64" y="28" font-size="7" fill="#c39bd3">✦</text>
+        <!-- 스마트폰 -->
+        <rect x="75" y="105" width="20" height="32" rx="3" fill="#222" stroke="#444" stroke-width="1"/>
+        <rect x="77" y="108" width="16" height="24" rx="1" fill="#4a8acc" opacity="0.8"/>
+        <text x="85" y="122" text-anchor="middle" font-size="8" fill="#fff">📱</text>
+        <text x="85" y="132" text-anchor="middle" font-size="6" fill="#ffdd44">게임중</text>
+      </svg>
+      <div style="text-align:center;font-size:0.72em;color:var(--purple-pale);margin-top:4px;font-style:italic;">홍구름달 교장</div>
+    </div>
+    <!-- 우측 텍스트 -->
+    <div style="flex:1;">
+      <div class="intro-title" style="font-size:1.9em;text-align:left;">마법학교<br>졸업은 글렀어요!</div>
+      <div class="intro-sub" style="text-align:left;margin-bottom:14px;">— 화려한마법학교 7년차의 위기 —</div>
+      <div class="intro-story">
+        <p>🎓 오늘은 당신이 7년 동안 다닌 <strong>화려한마법학교</strong>의 졸업식 날.</p>
+        <p>설레는 마음으로 강당에 들어서려는 순간...</p>
+        <p>📢 <em>"삐— 비상사태! 교장 선생님이 졸업식 잠금 해제 코드를 잊어버리셨습니다!"</em></p>
+        <p>교장 선생님이 간밤에 스마트폰 게임을 하다 메모를 잃어버리셨다고. 학부모들은 교문 밖에서 기다리는 중...</p>
+        <p>🔑 <strong>단서를 모아 15개 잠금장치를 해제하고 탈출하세요!</strong></p>
+      </div>
+      <button class="btn" onclick="startGame()" style="width:100%;margin-top:4px;">🎓 졸업하러 가기!</button>
+    </div>
+  </div>
+</div>
+
+<!-- GAME SCREEN -->
+<div id="screen-game" class="screen">
+  <div id="room-panel">
+    <svg id="room-svg" viewBox="0 0 760 560" preserveAspectRatio="xMidYMid meet"></svg>
+  </div>
+  <div id="side-panel">
+    <div class="side-title" style="display:flex;align-items:center;justify-content:center;gap:6px;">
+      <svg width="22" height="22" viewBox="0 0 22 22"><path d="M5,10 L11,1 L17,10Z" fill="#2d1060"/><rect x="3" y="9" width="16" height="3" rx="1.5" fill="#3d1880"/><rect x="9" y="12" width="4" height="8" fill="#2d1060"/><circle cx="11" cy="7" r="1.5" fill="#ffd700"/></svg>
+      화려한마법학교
+    </div>
+    <div class="room-label">
+      <span id="room-name-label">1층 입학처</span>
+      <div id="room-desc-label" style="font-size:0.8em;color:#888;">현재 위치</div>
+    </div>
+    <div style="font-size:0.75em;color:#888;margin-top:4px;">📋 해결한 퍼즐</div>
+    <div class="puzzle-list" id="puzzle-list"></div>
+    <div style="font-size:0.75em;color:#888;margin-top:8px;">🎒 인벤토리</div>
+    <div class="inventory-area" id="inv-area">아직 아무것도 없음</div>
+    <div style="margin-top:auto;padding-top:8px;">
+      <button class="btn gray" style="width:100%;font-size:0.75em;padding:8px;" onclick="showHelp()">❓ 도움말</button>
+    </div>
+  </div>
+</div>
+
+<!-- END SCREEN -->
+<div id="screen-end" class="screen">
+  <div class="end-box">
+    <div class="end-title">🎓 졸업 성공!</div>
+    <div class="confetti">🎉🎊✨🎓🎉</div>
+    <div class="end-story" id="end-story-text"></div>
+    <button class="btn" onclick="location.reload()">🔄 다시 하기</button>
+  </div>
+</div>
+
+<!-- INTERCOM BAR -->
+<div id="intercom-bar">📢 교내 방송 <span id="intercom-text"></span></div>
+
+<!-- MODAL OVERLAY -->
+<div id="modal-overlay">
+  <div class="modal-box" id="modal-box">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+   GAME STATE
+═══════════════════════════════════════════ */
+const GS = {
+  room: 1,
+  solved: {},
+  hintShown: {},   // puzzleId → count shown
+  inventory: [],
+  intercoms: 0,
+  lastWrong: {}
+};
+
+/* ═══════════════════════════════════════════
+   MEMOS (documents to read)
+═══════════════════════════════════════════ */
+const MEMOS = {
+  M_HISTORY: {
+    title: '📜 화려한마법학교 역사 안내판',
+    content: `<strong>화려한마법학교 (Hwaryeo Academy of Magic)</strong>
+
+설립: <strong>1917년</strong> 3월 2일
+
+창립자: 마법사 홍길동의 17대손 홍빛나래
+
+"눈부신 마법은 성실한 노력에서 비롯된다"
+— 건학이념 —
+
+현재 재학생 수: 37명 (전교생 수가 매우 적음)
+교직원 수: 12명 (교장 포함)
+
+올해로 설립 <strong>109주년</strong>을 맞이하는 유서 깊은 마법학교입니다.
+7년 과정을 수료하면 '정식 마법사' 자격이 주어집니다.
+
+<em>※ 비상 잠금장치 비밀번호는 개교년도 끝 두 자리와 오늘 날짜를 조합합니다.</em>
+<em>   (오늘은 3월 2일입니다.)</em>`
+  },
+  M_CALENDAR: {
+    title: '📅 3월 달력',
+    content: `<strong>2026년 3월</strong>
+
+  일  월  화  수  목  금  토
+  1   <strong>2</strong>   3   4   5   6   7
+  8   9  10  11  12  13  14
+ 15  16  17  18  19  20  21
+ 22  23  24  25  26  27  28
+ 29  30  31
+
+🎓 <strong>3월 2일 — 졸업식</strong>
+🌸 3월 15일 — 신입생 입학식
+🏖 3월 21일 — 봄방학 시작`
+  },
+  M_ELEMENT: {
+    title: '🔮 마법 4원소 차트',
+    content: `<strong>화려한마법학교 원소 분류표</strong>
+
+┌─────────────┬──────────────┐
+│  원소        │  대응 색상    │
+├─────────────┼──────────────┤
+│ 🔥 불 (Fire) │  <strong>빨간색 (Red)</strong>  │
+│ 💧 물 (Water)│  <strong>파란색 (Blue)</strong> │
+│ 🌿 땅 (Earth)│  <strong>초록색 (Green)</strong>│
+│ 🌪 바람(Wind)│  <strong>노란색 (Yellow)</strong>│
+└─────────────┴──────────────┘
+
+마법진 활성화 순서: 불 → 물 → 땅 → 바람
+(창립자 홍빛나래가 정한 규칙에 따름)
+
+<em>※ 학교 입구 마법진은 4원소 순서대로 눌러야 활성화됩니다.</em>`
+  },
+  M_RULES: {
+    title: '📋 마법학교 생활규칙표',
+    content: `<strong>화려한마법학교 재학생 생활규칙</strong>
+(위반 시 점수 차감 및 방과후 청소 벌칙)
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+제1조. 복도 및 실내에서의 빗자루 비행은 <strong>엄격히 금지</strong>합니다.
+       (운동장에서만 허용, 2층 이상 비행 금지)
+
+제2조. 수업 시간 중 주문은 <strong>반드시 큰 소리로</strong> 외쳐야 합니다.
+       (속삭임 주문은 오작동 위험 있음)
+
+제3조. 실험실에서 폭발 위험 실험 시 환기창은 <strong>반드시 열어야</strong> 합니다.
+       (닫힌 상태로 실험 시 건물 붕괴 위험)
+
+제4조. 교내에서 마법 동물 <strong>호롱이(불꽃나방)는 허용</strong>합니다.
+       단, 기숙사 외 장소에서는 케이지에 넣어야 합니다.
+
+제5조. 파란색 마법(감정 조종류)은 <strong>특별 허가증 없이 사용 불가</strong>합니다.
+       허가증 발급은 교장실에 신청하세요.
+━━━━━━━━━━━━━━━━━━━━━━━━`
+  },
+  M_STAMP: {
+    title: '📄 복도 공문서 — 공식 도장 사용 안내',
+    content: `<strong>화려한마법학교 공식 문서 처리 지침</strong>
+
+본교 공식 문서에는 반드시 <strong>교장 공인 도장</strong>을 사용해야 합니다.
+가짜 도장 사용 시 마법 위조죄로 처벌받습니다.
+
+공식 도장의 특징:
+1. <strong>별 문양 3개</strong> 포함 (2개나 4개는 가짜)
+2. <strong>홍두깨 문양</strong> 중앙에 위치 (학교 상징)
+3. <strong>테두리 없음</strong> (테두리 있는 도장은 구버전 폐기 도장)
+4. <strong>왕관 마크</strong> 상단에 위치
+
+위 4가지 조건을 모두 만족하는 도장만이 유효합니다.
+
+<em>※ 졸업증명서 발급을 위해서는 이 도장이 찍힌 서류가 필요합니다.</em>`
+  },
+  M_LOCKER: {
+    title: '📌 사물함 배정 안내문',
+    content: `<strong>7학년 졸업반 사물함 번호 안내</strong>
+
+올해 졸업반 사물함 번호는 다음 조건을 모두 만족하는 수입니다:
+
+조건 1: <strong>짝수</strong>일 것
+조건 2: <strong>소수(prime number)가 아닐 것</strong>
+조건 3: <strong>10보다 크고 20보다 작을 것</strong>
+조건 4: <strong>각 자리 숫자의 합이 5일 것</strong>
+
+       (예: 24는 2+4=6이므로 불가)
+
+<em>∑ 조건 4개를 모두 만족하는 유일한 숫자를 찾으세요!</em>`
+  },
+  M_BROADCAST: {
+    title: '📻 교내 방송 시간표',
+    content: `<strong>화려한마법학교 교내 방송 시간표</strong>
+
+정규 방송은 2시간 간격으로 진행됩니다.
+
+  09:00 — 1교시 시작 안내
+  11:00 — 3교시 시작 안내
+  13:00 — 점심시간 안내
+  <strong>??:00</strong> — 5교시 시작 안내  ← 현재 잠금된 채널
+  17:00 — 하교 안내
+
+잠긴 채널을 열려면 몇 시 방송인지 숫자로 입력하세요.
+
+<em>패턴: 9, 11, 13, ?, 17 (2씩 증가)</em>`
+  },
+  M_TROPHY: {
+    title: '🏆 트로피 케이스 안내판',
+    content: `<strong>전교 마법 경진대회 수상 기록</strong>
+
+역대 수상 현황 (최근 9회):
+
+1회: 🥇 금메달 — 박하늘 (3학년)
+2회: 🥈 은메달 — 이별빛 (5학년)
+3회: 🥉 동메달 — 최달님 (4학년)
+4회: 🥇 금메달 — 강구름 (6학년)
+5회: 🥈 은메달 — 정바람 (3학년)
+6회: 🥉 동메달 — 윤별꽃 (7학년)
+7회: 🥇 금메달 — 한빛나 (5학년)
+8회: 🥈 은메달 — 조달빛 (4학년)
+9회: <strong>🥉 ??? 메달</strong> — 수상자 미정
+
+<em>패턴을 보면 9회차 메달이 무엇인지 알 수 있습니다.</em>`
+  },
+  M_LIBRARY_RULES: {
+    title: '📚 도서관 이용 규칙',
+    content: `<strong>화려한마법학교 도서관 이용 안내</strong>
+
+도서 배열 규칙:
+1. <strong>마법 관련 책</strong>은 앞쪽 (A구역)
+2. <strong>일반 교양 책</strong>은 뒤쪽 (B구역)
+3. 각 구역 내에서는 <strong>가나다순</strong> 배열
+
+현재 제자리를 벗어난 책 5권:
+• 마법약기초
+• 변신술완전정복
+• 빗자루타는법
+• 물리학개론
+• 한국근현대사
+
+위 책들을 올바른 순서로 꽂아야 자물쇠가 열립니다.
+
+<em>※ 마법책: 가나다순 / 일반책: 가나다순 / 마법책 먼저!</em>`
+  },
+  M_RECIPE: {
+    title: '🧪 실험실 칠판 — 오늘의 레시피',
+    content: `<strong>마법 성장촉진제 레시피 (1회 분량)</strong>
+
+재료:
+  • 요정 꽃가루   .... <strong>2 티스푼</strong>
+  • 달빛이슬       .... <strong>1 컵</strong> × 3회 투입
+
+<em>※ 단위 환산표 참고!</em>
+
+총 티스푼 수를 입력하면 레시피 잠금이 해제됩니다.`
+  },
+  M_UNITS: {
+    title: '📏 단위 환산표',
+    content: `<strong>마법 재료 단위 환산표</strong>
+
+┌──────────────┬──────────────┐
+│ 단위          │ 환산          │
+├──────────────┼──────────────┤
+│ 1 컵 (Cup)   │ <strong>= 3 티스푼</strong>   │
+│ 1 큰술       │ = 1.5 티스푼  │
+│ 1 리터       │ = 100 티스푼  │
+│ 1 방울       │ = 0.1 티스푼  │
+└──────────────┴──────────────┘
+
+<em>예: 2컵 = 6티스푼</em>`
+  },
+  M_INGREDIENTS: {
+    title: '📖 실험 교과서 — 주문별 핵심 재료',
+    content: `<strong>마법약학 교과서 부록 — 주문별 필수 재료</strong>
+
+┌──────────────┬─────────────────┐
+│  주문 (마법)  │  핵심 재료       │
+├──────────────┼─────────────────┤
+│ 부유 주문     │  <strong>깃털가루</strong>        │
+│ 변신 주문     │  <strong>달빛고등어</strong>       │
+│ 투명 주문     │  <strong>도마뱀털</strong>        │
+│ 폭발 주문     │  <strong>라면스프</strong> ⚠️     │
+└──────────────┴─────────────────┘
+
+<em>⚠️ 라면스프는 실제 라면 스프가 아닌 마법 성분 명칭입니다.</em>
+<em>    절대 먹지 마세요. (3학년 김모 군 사건 참조)</em>`
+  },
+  M_SAFETY: {
+    title: '⚠️ 실험실 안전수칙 포스터',
+    content: `<strong>실험실 안전수칙 (필독!)</strong>
+
+1. 실험 전 반드시 <strong>보호 고글을 착용</strong>하시오.
+   (눈 보호는 기본 중의 기본!)
+
+2. 마법 약재는 <strong>절대 맨손으로 만지지 마시오.</strong>
+   (마법 장갑 착용 필수)
+
+3. 폭발 위험 실험은 <strong>방호벽 뒤에서</strong> 실시하시오.
+   (5미터 이상 거리 유지)
+
+4. 실험 중 이상한 냄새 발생 시 <strong>즉시 대피</strong>하시오.
+   (마법 가스는 무색무취일 수 있음 — 미각으로 확인 금지)
+
+5. 실험 후 모든 마법 잔류물은 <strong>중화제로 처리</strong>하시오.
+   (하수구 무단 투기 시 지하수 마법 오염 우려)`
+  },
+  M_STARMAP: {
+    title: '🌟 마법탑 별자리 지도',
+    content: `<strong>화려한마법학교 수호 별자리 — 빛나래자리</strong>
+
+별자리 활성화 순서 (창립자 지정):
+
+   ①번 별 → ②번 별 → ③번 별
+      → ④번 별 → ⑤번 별 → ⑥번 별
+
+번호 순서대로 클릭하면 별자리 잠금이 해제됩니다.
+
+<em>※ 각 별에는 작은 번호가 표시되어 있습니다.</em>
+<em>    지도와 비교하여 올바른 순서를 찾으세요.</em>`
+  },
+  M_PRINCIPAL: {
+    title: '🖼 명예의 전당 — 역대 교장',
+    content: `<strong>화려한마법학교 역대 교장 목록</strong>
+
+초대: 홍빛나래 (1917~1952)
+2대: 홍달빛   (1952~1978)
+3대: 홍별나래 (1978~2003)
+4대 (현): <strong>홍구름달 교장</strong>
+          취임: <strong>2003년</strong>
+
+"졸업생 여러분을 진심으로 축하합니다!
+ ...아, 잠금 코드를 잊어버렸군요. 미안합니다."
+— 홍구름달 교장의 졸업식 메시지 (녹음본)
+
+<em>현재 교장 취임 후 몇 년이 지났는지 계산하면
+ 마지막 잠금 힌트를 얻을 수 있습니다.</em>`
+  },
+  M_GRAFFITI: {
+    title: '✏️ 벽의 낙서 메모',
+    content: `<strong>[누군가가 벽에 남긴 낙서]</strong>
+
+"이 학교를 졸업하고 싶은 후배에게"
+
+진짜 탈출은 단순하다.
+화려한 마법 잠금장치들은 전부 <strong>가짜</strong>다.
+진짜 출구는 바로 눈앞에 있다.
+
+눈에 보이지 않는 것을 찾아라.
+복잡하게 생각하지 마라.
+<strong>문 오른쪽 아래 구석을 자세히 봐라.</strong>
+
+— 1기 졸업생 일동 —
+
+P.S. 비상구 스티커는 퇴색해서 잘 안 보입니다.
+     하지만 분명히 있습니다.`
+  }
+};
+
+/* ═══════════════════════════════════════════
+   PUZZLES
+═══════════════════════════════════════════ */
+const PUZZLES = {
+  P1: {
+    id:'P1', room:1, label:'입학처 자물쇠',
+    title:'🔒 비상 입학처 자물쇠',
+    desc:'입학처 문에 달린 4자리 숫자 자물쇠가 잠겨 있습니다. 이 자물쇠는 학교 비상용으로 특별한 번호로 잠겨 있다고 합니다. 안내판을 보면 뭔가 힌트가 있을 것 같은데...',
+    type:'number', answer:'1732',
+    hints:['개교 연도와 오늘 날짜를 잘 살펴보세요.','1917년의 끝 두 자리는 17입니다.','오늘은 3월 2일 → 32. 따라서 정답은 17+32.']
+  },
+  P2: {
+    id:'P2', room:1, label:'마법진 패널',
+    title:'🔮 4원소 마법진 활성화',
+    desc:'입학처 벽에 마법진 패널이 있습니다. 4개의 색상 버튼이 있는데, 올바른 순서로 눌러야 활성화된다고 합니다. 원소 차트를 참고해야 할 것 같습니다.',
+    type:'sequence', answer:['red','blue','green','yellow'],
+    seqLabels:['불🔥','물💧','땅🌿','바람🌪'],
+    seqColors:['red-btn','blue-btn','green-btn','yellow-btn'],
+    hints:['4원소 차트를 먼저 읽어보세요.','불→물→땅→바람 순서입니다.','빨간색→파란색→초록색→노란색 순서로 누르세요.']
+  },
+  P3: {
+    id:'P3', room:1, label:'규칙 검사기',
+    title:'📋 학교규칙 OX 검사기',
+    desc:'입학처 한쪽에 마법 규칙 검사기가 놓여 있습니다. 화면에 규칙이 표시되면 맞으면 O, 틀리면 X를 선택하는 장치입니다. 5문항 중 4개 이상 맞혀야 통과입니다.',
+    type:'ox',
+    questions:[
+      {q:'복도 및 실내에서 빗자루 비행은 언제든지 허용된다.', a:'X'},
+      {q:'수업 시간 중 주문은 반드시 큰 소리로 외쳐야 한다.', a:'O'},
+      {q:'실험실에서 폭발 실험을 할 때 환기창을 닫아야 한다.', a:'X'},
+      {q:'교내에서 마법 동물 호롱이(불꽃나방)를 키울 수 있다.', a:'O'},
+      {q:'파란색 마법(감정 조종)은 허가 없이 자유롭게 사용 가능하다.', a:'X'}
+    ],
+    passScore:4,
+    hints:['생활규칙표를 먼저 읽어보세요.','빗자루 비행, 환기창, 파란 마법에 관한 규칙을 확인하세요.','1번X, 2번O, 3번X, 4번O, 5번X 입니다.']
+  },
+  P4: {
+    id:'P4', room:2, label:'공문서 도장함',
+    title:'📮 공식 도장 선택',
+    desc:'복도 게시판 옆 도장함이 잠겨 있습니다. 8개의 도장 중 진짜 교장 공인 도장을 선택해야 열린다고 합니다. 공문서에 도장 특징이 적혀 있다고 들었는데...',
+    type:'stamp', answer:'stamp_4',
+    hints:['복도 공문서를 읽으세요.','공식 도장은: 별 3개 + 홍두깨 + 테두리 없음 + 왕관입니다.','4번 도장(위에서 오른쪽 첫 번째)을 선택하세요.']
+  },
+  P5: {
+    id:'P5', room:2, label:'사물함 자물쇠',
+    title:'🔢 졸업반 사물함 번호',
+    desc:'복도 사물함 중 졸업반 사물함이 잠겨 있습니다. 게시판에 번호 조건이 적혀 있다고 합니다. 조건을 모두 만족하는 두 자리 숫자를 찾아야 합니다.',
+    type:'number', answer:'14',
+    hints:['10보다 크고 20보다 작은 짝수를 먼저 나열해보세요.','짝수: 12,14,16,18 중 소수가 아닌 것 (모두 해당)','각 자리 합이 5인 것: 1+4=5 → 14!']
+  },
+  P6: {
+    id:'P6', room:2, label:'방송 채널 잠금',
+    title:'📻 방송 시간표 채널',
+    desc:'복도 스피커 옆 채널 잠금 장치입니다. 특정 시간대 방송 채널이 잠겨 있습니다. 방송 시간표의 패턴을 파악하면 몇 시인지 알 수 있습니다.',
+    type:'number', answer:'15',
+    hints:['방송 시간표를 읽어보세요.','9, 11, 13, ?, 17 — 규칙이 보이나요?','2씩 증가하는 패턴입니다. 13+2=15.']
+  },
+  P7: {
+    id:'P7', room:2, label:'트로피 케이스',
+    title:'🏆 수상 메달 패턴',
+    desc:'트로피 케이스 안쪽에 잠금 버튼이 있습니다. 역대 수상 메달 패턴을 파악하고 9회차 메달이 무엇인지 선택해야 열립니다.',
+    type:'medal', answer:'bronze',
+    hints:['트로피 안내판에서 역대 메달 패턴을 확인하세요.','금→은→동→금→은→동→금→은→? 입니다.','패턴이 금은동 반복이므로 9회차는 동(bronze)메달입니다.']
+  },
+  P8: {
+    id:'P8', room:3, label:'도서관 자물쇠',
+    title:'📚 도서관 책 정렬',
+    desc:'도서관 입구 자물쇠가 책 5권을 올바른 순서로 꽂아야 열립니다. 도서관 규칙판에 배열 방법이 적혀 있습니다.',
+    type:'sort',
+    items:['마법약기초','변신술완전정복','빗자루타는법','물리학개론','한국근현대사'],
+    answer:['마법약기초','변신술완전정복','빗자루타는법','물리학개론','한국근현대사'],
+    hints:['도서관 규칙판을 읽으세요.','마법책 3권 → 일반책 2권 순서. 각 그룹은 가나다순입니다.','마(마법약기초)→변(변신술)→빗(빗자루)→물(물리학)→한(한국근현대사)']
+  },
+  P9: {
+    id:'P9', room:3, label:'레시피 자물쇠',
+    title:'🧪 레시피 계산',
+    desc:'실험실 레시피 자물쇠입니다. 칠판의 레시피 재료 총 티스푼 수를 계산해서 입력하면 열립니다. 단위 환산표도 참고하세요.',
+    type:'number', answer:'5',
+    hints:['칠판 레시피와 단위 환산표를 확인하세요.','요정꽃가루 2티스푼 + 달빛이슬 1컵×3회 투입. 1컵=3티스푼.','2 + (1×3) = 2 + 3 = 5 티스푼!']
+  },
+  P10: {
+    id:'P10', room:3, label:'재료 연결',
+    title:'⚗️ 주문-재료 매칭',
+    desc:'실험대 위에 4개의 주문과 4개의 재료가 뒤섞여 있습니다. 교과서를 참고해 각 주문에 맞는 재료를 연결해야 합니다.',
+    type:'match',
+    left:['부유 주문','변신 주문','투명 주문','폭발 주문'],
+    right:['달빛고등어','도마뱀털','라면스프','깃털가루'],
+    answer:{0:3, 1:0, 2:1, 3:2},
+    hints:['실험 교과서 부록을 확인하세요.','부유=깃털가루, 변신=달빛고등어, 투명=도마뱀털.','폭발 주문의 재료는 라면스프입니다.']
+  },
+  P11: {
+    id:'P11', room:3, label:'안전 검사기',
+    title:'🧯 실험실 안전 OX',
+    desc:'실험실 안전 검사기입니다. 5가지 안전 규칙이 맞는지 틀린지 판단해야 합니다. 4개 이상 맞혀야 통과됩니다.',
+    type:'ox',
+    questions:[
+      {q:'실험 전 반드시 보호 고글을 착용해야 한다.', a:'O'},
+      {q:'마법 약재는 맨손으로 직접 만져도 괜찮다.', a:'X'},
+      {q:'폭발 위험 실험은 방호벽 뒤에서 해야 한다.', a:'O'},
+      {q:'실험 중 이상한 냄새가 나면 즉시 대피해야 한다.', a:'O'},
+      {q:'실험 후 마법 잔류물은 중화제로 처리해야 한다.', a:'O'}
+    ],
+    passScore:4,
+    hints:['안전수칙 포스터를 읽어보세요.','2번 문항: 맨손은 위험합니다.','O,X,O,O,O 입니다.']
+  },
+  P12: {
+    id:'P12', room:4, label:'별자리 잠금',
+    title:'🌟 별자리 활성화',
+    desc:'마법탑 천장에 별자리 잠금장치가 있습니다. 6개의 별을 올바른 순서로 클릭해야 합니다. 벽의 별자리 지도에 순서가 표시되어 있습니다.',
+    type:'stars',
+    hints:['별자리 지도를 먼저 확인하세요.','각 별에 작은 번호가 있습니다. 1번부터 순서대로 클릭하세요.','①→②→③→④→⑤→⑥ 순서로 클릭!']
+  },
+  P13: {
+    id:'P13', room:4, label:'기억력 시험',
+    title:'🎮 마법 시퀀스 기억',
+    desc:'마법탑 벽면의 기억력 시험 장치입니다. 빛나는 순서를 기억하고 그대로 따라 눌러야 합니다. 레벨 1과 레벨 2를 통과해야 합니다.',
+    type:'simon',
+    levels:[
+      ['red','yellow','blue'],
+      ['green','red','yellow','blue']
+    ],
+    hints:['천천히 따라하면 됩니다. 빛이 꺼진 후 같은 순서로 누르세요.','레벨1: 빨강→노랑→파랑','레벨2: 초록→빨강→노랑→파랑']
+  },
+  P14: {
+    id:'P14', room:4, label:'명예의 전당 잠금',
+    title:'🎖 교장 재임 기간',
+    desc:'명예의 전당 아래 잠금 패널이 있습니다. 현재 교장이 취임한 지 몇 년이 되었는지 입력해야 합니다. 역대 교장 명판을 확인하세요.',
+    type:'number', answer:'23',
+    hints:['명예의 전당 액자를 읽으세요.','현재 교장은 2003년에 취임했습니다.','현재는 2026년. 2026 - 2003 = 23년!']
+  },
+  P15: {
+    id:'P15', room:4, label:'최후의 출구',
+    title:'🚪 진짜 탈출구 찾기',
+    desc:'마법탑 꼭대기까지 왔지만 화려한 자물쇠 5개가 모두 막혀 있습니다. 하지만 어딘가에 진짜 출구가 있다고 합니다. 벽의 낙서 메모를 잘 읽어보세요...',
+    type:'find',
+    hints:['화려한 잠금장치들은 전부 가짜입니다.','낙서 메모에 "눈에 보이지 않는 것"이라고 했습니다.','문 오른쪽 아래 구석의 비상구 스티커를 찾아 클릭하세요!']
+  }
+};
+
+/* ═══════════════════════════════════════════
+   INTERCOM LINES
+═══════════════════════════════════════════ */
+const INTERCOMS = [
+  '📢 교장 선생님: "학생 여러분 정말 미안합니다... 분명히 어딘가에 적어뒀는데..."',
+  '📢 교무처장: "비상 잠금장치는 학교 곳곳에 연결되어 있습니다. 하나씩 해제하면 됩니다!"',
+  '📢 교장 선생님: "잠깐... 나 지금 모바일 게임 하면 안 되는 거 맞죠? (게임 효과음)"',
+  '📢 학교 방송: "졸업생 여러분, 화이팅! 부모님들 교문 앞에서 두 시간째 기다리고 계십니다..."',
+  '📢 교장 선생님: "야, 야, 야!! 나 방금 기억났어!! ...아 다시 까먹었다. 미안."',
+  '📢 교무처장: "실험실은 오늘도 안전하게 이용해주세요. 지난주 폭발 사고는 잊어주시길..."',
+  '📢 교장 선생님: "퍼즐을 다 풀면 문이 열립니다! 학교 설계가 좀 특이하긴 한데..."',
+];
+
+/* ═══════════════════════════════════════════
+   ROOM DEFINITIONS
+═══════════════════════════════════════════ */
+function getRoomData(roomNum) {
+  const rooms = {
+    1: {name:'1층 입학처', desc:'Room 1/4',
+      hotspots:[
+        {id:'M_HISTORY', x:60, y:60, w:120, h:80, label:'📜 역사 안내판', type:'memo'},
+        {id:'M_CALENDAR', x:220, y:60, w:80, h:80, label:'📅 달력', type:'memo'},
+        {id:'M_ELEMENT', x:340, y:60, w:110, h:80, label:'🔮 원소 차트', type:'memo'},
+        {id:'M_RULES', x:490, y:60, w:120, h:80, label:'📋 규칙표', type:'memo'},
+        {id:'P1', x:60, y:200, w:110, h:70, label:'🔒 자물쇠 P1', type:'puzzle'},
+        {id:'P2', x:220, y:200, w:110, h:70, label:'🔮 마법진 P2', type:'puzzle'},
+        {id:'P3', x:380, y:200, w:130, h:70, label:'📋 검사기 P3', type:'puzzle'},
+      ]
+    },
+    2: {name:'2층 복도', desc:'Room 2/4',
+      hotspots:[
+        {id:'M_STAMP', x:60, y:60, w:130, h:80, label:'📄 공문서', type:'memo'},
+        {id:'M_LOCKER', x:230, y:60, w:120, h:80, label:'📌 사물함안내', type:'memo'},
+        {id:'M_BROADCAST', x:390, y:60, w:120, h:80, label:'📻 방송시간표', type:'memo'},
+        {id:'M_TROPHY', x:550, y:60, w:120, h:80, label:'🏆 트로피안내', type:'memo'},
+        {id:'P4', x:60, y:200, w:110, h:70, label:'📮 도장함 P4', type:'puzzle'},
+        {id:'P5', x:220, y:200, w:110, h:70, label:'🔢 사물함 P5', type:'puzzle'},
+        {id:'P6', x:380, y:200, w:110, h:70, label:'📻 채널 P6', type:'puzzle'},
+        {id:'P7', x:540, y:200, w:110, h:70, label:'🏆 트로피 P7', type:'puzzle'},
+      ]
+    },
+    3: {name:'3층 도서관+실험실', desc:'Room 3/4',
+      hotspots:[
+        {id:'M_LIBRARY_RULES', x:60, y:60, w:120, h:80, label:'📚 도서관규칙', type:'memo'},
+        {id:'M_RECIPE', x:220, y:60, w:110, h:80, label:'🧪 레시피칠판', type:'memo'},
+        {id:'M_UNITS', x:370, y:60, w:110, h:80, label:'📏 단위환산표', type:'memo'},
+        {id:'M_INGREDIENTS', x:520, y:60, w:120, h:80, label:'📖 교과서', type:'memo'},
+        {id:'M_SAFETY', x:145, y:160, w:120, h:80, label:'⚠️ 안전수칙', type:'memo'},
+        {id:'P8', x:60, y:300, w:110, h:70, label:'📚 책정렬 P8', type:'puzzle'},
+        {id:'P9', x:220, y:300, w:110, h:70, label:'🧪 레시피 P9', type:'puzzle'},
+        {id:'P10', x:380, y:300, w:110, h:70, label:'⚗️ 매칭 P10', type:'puzzle'},
+        {id:'P11', x:540, y:300, w:110, h:70, label:'🧯 안전 P11', type:'puzzle'},
+      ]
+    },
+    4: {name:'마법탑 꼭대기', desc:'Room 4/4',
+      hotspots:[
+        {id:'M_STARMAP', x:60, y:60, w:120, h:80, label:'🌟 별자리지도', type:'memo'},
+        {id:'M_PRINCIPAL', x:220, y:60, w:130, h:80, label:'🖼 명예의전당', type:'memo'},
+        {id:'M_GRAFFITI', x:390, y:60, w:120, h:80, label:'✏️ 낙서메모', type:'memo'},
+        {id:'P12', x:60, y:200, w:110, h:70, label:'🌟 별자리 P12', type:'puzzle'},
+        {id:'P13', x:220, y:200, w:110, h:70, label:'🎮 기억력 P13', type:'puzzle'},
+        {id:'P14', x:380, y:200, w:110, h:70, label:'🎖 전당잠금 P14', type:'puzzle'},
+        {id:'P15', x:540, y:200, w:140, h:70, label:'🚪 탈출구 P15', type:'puzzle'},
+      ]
+    }
+  };
+  return rooms[roomNum];
+}
+
+/* ═══════════════════════════════════════════
+   RENDER ROOM SVG
+═══════════════════════════════════════════ */
+function getRoomBackground(roomNum) {
+  switch(roomNum) {
+    case 1: return `
+      <!-- ROOM 1: 입학처 — 마법 현관 홀 -->
+      <defs>
+        <radialGradient id="r1bg" cx="50%" cy="40%">
+          <stop offset="0%" stop-color="#2a0d5e"/>
+          <stop offset="100%" stop-color="#0d0520"/>
+        </radialGradient>
+        <pattern id="r1tile" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+          <rect width="40" height="40" fill="#150830"/>
+          <rect x="1" y="1" width="18" height="18" fill="#1a0a3a" rx="1"/>
+          <rect x="21" y="21" width="18" height="18" fill="#1a0a3a" rx="1"/>
+          <rect x="21" y="1" width="18" height="18" fill="#0f0620" rx="1"/>
+          <rect x="1" y="21" width="18" height="18" fill="#0f0620" rx="1"/>
+        </pattern>
+      </defs>
+      <!-- 바닥 -->
+      <rect width="760" height="560" fill="url(#r1bg)"/>
+      <rect x="0" y="390" width="760" height="170" fill="url(#r1tile)" opacity="0.8"/>
+      <rect x="0" y="388" width="760" height="4" fill="#3a1a7a" opacity="0.8"/>
+      <!-- 뒷벽 -->
+      <rect x="0" y="0" width="760" height="392" fill="#150830"/>
+      <!-- 아치형 천장 -->
+      <ellipse cx="380" cy="0" rx="300" ry="80" fill="#1e0a40" opacity="0.7"/>
+      <!-- 마법진 바닥 -->
+      <circle cx="380" cy="430" r="120" fill="none" stroke="#4a1880" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.6"/>
+      <circle cx="380" cy="430" r="90" fill="none" stroke="#6a28b0" stroke-width="1" opacity="0.5"/>
+      <circle cx="380" cy="430" r="60" fill="none" stroke="#9b59b6" stroke-width="0.8" opacity="0.4"/>
+      <!-- 별 8각형 -->
+      <polygon points="380,315 395,345 425,345 402,365 412,395 380,378 348,395 358,365 335,345 365,345" fill="none" stroke="#ffd700" stroke-width="1" opacity="0.3"/>
+      <!-- 왼쪽 벽 기둥 -->
+      <rect x="0" y="0" width="60" height="395" fill="#0f0620"/>
+      <rect x="55" y="0" width="8" height="395" fill="#2a0d5e" opacity="0.8"/>
+      <rect x="20" y="50" width="20" height="300" rx="4" fill="#1a0840" opacity="0.6"/>
+      <!-- 오른쪽 벽 기둥 -->
+      <rect x="700" y="0" width="60" height="395" fill="#0f0620"/>
+      <rect x="697" y="0" width="8" height="395" fill="#2a0d5e" opacity="0.8"/>
+      <rect x="720" y="50" width="20" height="300" rx="4" fill="#1a0840" opacity="0.6"/>
+      <!-- 입학처 현판 -->
+      <rect x="240" y="20" width="280" height="55" rx="6" fill="#1a0840" stroke="#ffd700" stroke-width="2"/>
+      <rect x="244" y="24" width="272" height="47" rx="4" fill="none" stroke="rgba(255,215,0,0.3)" stroke-width="1"/>
+      <text x="380" y="48" text-anchor="middle" font-size="16" font-weight="bold" fill="#ffd700" font-family="serif">✦ 화려한마법학교 입학처 ✦</text>
+      <text x="380" y="64" text-anchor="middle" font-size="10" fill="#c39bd3">Hwaryeo Academy of Magic — Admissions</text>
+      <!-- 왼쪽 횃불 -->
+      <rect x="70" y="130" width="8" height="40" rx="2" fill="#4a3020"/>
+      <ellipse cx="74" cy="128" rx="8" ry="14" fill="#ff6600" opacity="0.9"/>
+      <ellipse cx="74" cy="122" rx="5" ry="10" fill="#ffaa00" opacity="0.8"/>
+      <ellipse cx="74" cy="118" rx="3" ry="6" fill="#ffdd00" opacity="0.7"/>
+      <!-- 오른쪽 횃불 -->
+      <rect x="682" y="130" width="8" height="40" rx="2" fill="#4a3020"/>
+      <ellipse cx="686" cy="128" rx="8" ry="14" fill="#ff6600" opacity="0.9"/>
+      <ellipse cx="686" cy="122" rx="5" ry="10" fill="#ffaa00" opacity="0.8"/>
+      <ellipse cx="686" cy="118" rx="3" ry="6" fill="#ffdd00" opacity="0.7"/>
+      <!-- 횃불 빛 효과 -->
+      <radialGradient id="torch1" cx="74" cy="120" r="80" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stop-color="#ff8800" stop-opacity="0.15"/>
+        <stop offset="100%" stop-color="#ff8800" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="torch2" cx="686" cy="120" r="80" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stop-color="#ff8800" stop-opacity="0.15"/>
+        <stop offset="100%" stop-color="#ff8800" stop-opacity="0"/>
+      </radialGradient>
+      <circle cx="74" cy="120" r="80" fill="url(#torch1)"/>
+      <circle cx="686" cy="120" r="80" fill="url(#torch2)"/>
+      <!-- 입학처 창문 -->
+      <rect x="180" y="80" width="100" height="130" rx="50" fill="#0a1a40" stroke="#3a1a7a" stroke-width="2"/>
+      <rect x="195" y="95" width="70" height="100" rx="35" fill="#1a2a50" opacity="0.6"/>
+      <line x1="230" y1="95" x2="230" y2="195" stroke="#3a1a7a" stroke-width="1.5"/>
+      <line x1="195" y1="145" x2="265" y2="145" stroke="#3a1a7a" stroke-width="1.5"/>
+      <!-- 오른쪽 창문 -->
+      <rect x="480" y="80" width="100" height="130" rx="50" fill="#0a1a40" stroke="#3a1a7a" stroke-width="2"/>
+      <rect x="495" y="95" width="70" height="100" rx="35" fill="#1a2a50" opacity="0.6"/>
+      <line x1="530" y1="95" x2="530" y2="195" stroke="#3a1a7a" stroke-width="1.5"/>
+      <line x1="495" y1="145" x2="565" y2="145" stroke="#3a1a7a" stroke-width="1.5"/>
+      <!-- 별빛 창문 -->
+      <circle cx="215" cy="115" r="2" fill="#fffacd" opacity="0.8"/>
+      <circle cx="248" cy="108" r="1.5" fill="#fffacd" opacity="0.6"/>
+      <circle cx="235" cy="160" r="1" fill="#fffacd" opacity="0.5"/>
+      <circle cx="515" cy="115" r="2" fill="#fffacd" opacity="0.8"/>
+      <circle cx="548" cy="108" r="1.5" fill="#fffacd" opacity="0.6"/>
+      <circle cx="535" cy="160" r="1" fill="#fffacd" opacity="0.5"/>
+    `;
+    case 2: return `
+      <!-- ROOM 2: 복도 — 1층 긴 복도 -->
+      <defs>
+        <linearGradient id="r2bg" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#0a1428"/>
+          <stop offset="60%" stop-color="#0d1a35"/>
+          <stop offset="100%" stop-color="#060e1a"/>
+        </linearGradient>
+        <linearGradient id="r2floor" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#1a2540"/>
+          <stop offset="100%" stop-color="#0a1020"/>
+        </linearGradient>
+      </defs>
+      <!-- 배경 -->
+      <rect width="760" height="560" fill="url(#r2bg)"/>
+      <!-- 바닥 -->
+      <rect x="0" y="400" width="760" height="160" fill="url(#r2floor)"/>
+      <!-- 바닥 타일 줄 -->
+      <line x1="0" y1="400" x2="760" y2="400" stroke="#2a3a5a" stroke-width="3"/>
+      <line x1="0" y1="430" x2="760" y2="430" stroke="#1a2a40" stroke-width="1"/>
+      <line x1="0" y1="460" x2="760" y2="460" stroke="#1a2a40" stroke-width="1"/>
+      <line x1="0" y1="490" x2="760" y2="490" stroke="#1a2a40" stroke-width="1"/>
+      <!-- 원근감 줄 바닥 -->
+      <line x1="380" y1="300" x2="0" y2="560" stroke="#1a2a40" stroke-width="0.5" opacity="0.4"/>
+      <line x1="380" y1="300" x2="190" y2="560" stroke="#1a2a40" stroke-width="0.5" opacity="0.3"/>
+      <line x1="380" y1="300" x2="570" y2="560" stroke="#1a2a40" stroke-width="0.5" opacity="0.3"/>
+      <line x1="380" y1="300" x2="760" y2="560" stroke="#1a2a40" stroke-width="0.5" opacity="0.4"/>
+      <!-- 왼쪽 사물함 -->
+      <rect x="0" y="200" width="55" height="205" fill="#0a1a30" stroke="#1a3050" stroke-width="1"/>
+      <rect x="5" y="205" width="45" height="95" rx="2" fill="#0d2040" stroke="#1a3050" stroke-width="1"/>
+      <rect x="5" y="305" width="45" height="95" rx="2" fill="#0d2040" stroke="#1a3050" stroke-width="1"/>
+      <circle cx="27" cy="252" r="4" fill="#2a4060"/>
+      <circle cx="27" cy="352" r="4" fill="#2a4060"/>
+      <!-- 오른쪽 사물함 -->
+      <rect x="705" y="200" width="55" height="205" fill="#0a1a30" stroke="#1a3050" stroke-width="1"/>
+      <rect x="710" y="205" width="45" height="95" rx="2" fill="#0d2040" stroke="#1a3050" stroke-width="1"/>
+      <rect x="710" y="305" width="45" height="95" rx="2" fill="#0d2040" stroke="#1a3050" stroke-width="1"/>
+      <circle cx="733" cy="252" r="4" fill="#2a4060"/>
+      <circle cx="733" cy="352" r="4" fill="#2a4060"/>
+      <!-- 원근감 복도 끝 문 -->
+      <rect x="300" y="120" width="160" height="280" rx="80" fill="#060e1a" stroke="#1a3060" stroke-width="2" opacity="0.9"/>
+      <rect x="320" y="140" width="120" height="240" rx="60" fill="#0a1428" stroke="#1a3060" stroke-width="1" opacity="0.8"/>
+      <!-- 복도 천장 조명 -->
+      <ellipse cx="200" cy="30" rx="30" ry="10" fill="#1a3060" opacity="0.8"/>
+      <line x1="200" y1="0" x2="200" y2="30" stroke="#1a3060" stroke-width="3"/>
+      <ellipse cx="200" cy="35" rx="15" ry="6" fill="#4a7acc" opacity="0.4"/>
+      <radialGradient id="lamp1" cx="200" cy="35" r="100" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stop-color="#4a7acc" stop-opacity="0.2"/>
+        <stop offset="100%" stop-color="#4a7acc" stop-opacity="0"/>
+      </radialGradient>
+      <circle cx="200" cy="35" r="100" fill="url(#lamp1)"/>
+      <ellipse cx="560" cy="30" rx="30" ry="10" fill="#1a3060" opacity="0.8"/>
+      <line x1="560" y1="0" x2="560" y2="30" stroke="#1a3060" stroke-width="3"/>
+      <ellipse cx="560" cy="35" rx="15" ry="6" fill="#4a7acc" opacity="0.4"/>
+      <radialGradient id="lamp2" cx="560" cy="35" r="100" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stop-color="#4a7acc" stop-opacity="0.2"/>
+        <stop offset="100%" stop-color="#4a7acc" stop-opacity="0"/>
+      </radialGradient>
+      <circle cx="560" cy="35" r="100" fill="url(#lamp2)"/>
+      <!-- 벽 띠 장식 -->
+      <rect x="0" y="185" width="760" height="8" fill="#1a3060" opacity="0.6"/>
+      <rect x="0" y="395" width="760" height="8" fill="#1a3060" opacity="0.6"/>
+      <!-- 명패 -->
+      <rect x="290" y="20" width="180" height="40" rx="4" fill="#0d1a35" stroke="#2a4070" stroke-width="1.5"/>
+      <text x="380" y="36" text-anchor="middle" font-size="11" fill="#4a7acc" font-weight="bold">🏫 2층 복도</text>
+      <text x="380" y="52" text-anchor="middle" font-size="9" fill="#2a4060">Hwaryeo Academy — 2F Corridor</text>
+    `;
+    case 3: return `
+      <!-- ROOM 3: 도서관+실험실 -->
+      <defs>
+        <linearGradient id="r3bg" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#081a10"/>
+          <stop offset="100%" stop-color="#050f08"/>
+        </linearGradient>
+        <linearGradient id="r3shelf" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#3a2010"/>
+          <stop offset="100%" stop-color="#4a2a15"/>
+        </linearGradient>
+      </defs>
+      <!-- 배경 -->
+      <rect width="760" height="560" fill="url(#r3bg)"/>
+      <!-- 바닥 -->
+      <rect x="0" y="410" width="760" height="150" fill="#0a1a0c"/>
+      <line x1="0" y1="410" x2="760" y2="410" stroke="#1a4020" stroke-width="3"/>
+      <!-- 왼쪽 큰 책장 -->
+      <rect x="0" y="50" width="130" height="370" fill="url(#r3shelf)" stroke="#5a3020" stroke-width="2"/>
+      <rect x="5" y="55" width="120" height="2" fill="#6a4030"/>
+      <rect x="5" y="115" width="120" height="2" fill="#5a3020"/>
+      <rect x="5" y="175" width="120" height="2" fill="#5a3020"/>
+      <rect x="5" y="235" width="120" height="2" fill="#5a3020"/>
+      <rect x="5" y="295" width="120" height="2" fill="#5a3020"/>
+      <rect x="5" y="355" width="120" height="2" fill="#5a3020"/>
+      <!-- 책 (색깔별) -->
+      <rect x="8" y="60" width="10" height="52" rx="1" fill="#8b2020"/><rect x="19" y="65" width="8" height="47" rx="1" fill="#204880"/><rect x="28" y="62" width="12" height="50" rx="1" fill="#206840"/><rect x="41" y="67" width="9" height="45" rx="1" fill="#806020"/><rect x="51" y="60" width="11" height="52" rx="1" fill="#601a60"/><rect x="63" y="64" width="8" height="48" rx="1" fill="#1a6860"/><rect x="72" y="61" width="13" height="51" rx="1" fill="#883018"/>
+      <rect x="8" y="120" width="9" height="52" rx="1" fill="#204880"/><rect x="18" y="122" width="11" height="50" rx="1" fill="#206840"/><rect x="30" y="119" width="8" height="53" rx="1" fill="#8b2020"/><rect x="39" y="124" width="12" height="48" rx="1" fill="#806020"/><rect x="52" y="120" width="10" height="52" rx="1" fill="#601a60"/><rect x="63" y="122" width="9" height="50" rx="1" fill="#1a6860"/>
+      <rect x="8" y="180" width="11" height="52" rx="1" fill="#8b4010"/><rect x="20" y="182" width="9" height="50" rx="1" fill="#204080"/><rect x="30" y="180" width="13" height="52" rx="1" fill="#1a6020"/><rect x="44" y="183" width="8" height="49" rx="1" fill="#884018"/><rect x="53" y="180" width="10" height="52" rx="1" fill="#6a1a6a"/>
+      <rect x="8" y="240" width="8" height="52" rx="1" fill="#c0a020"/><rect x="17" y="242" width="12" height="50" rx="1" fill="#204880"/><rect x="30" y="240" width="9" height="52" rx="1" fill="#8b2020"/><rect x="40" y="243" width="11" height="49" rx="1" fill="#206840"/>
+      <!-- 오른쪽 책장 -->
+      <rect x="630" y="50" width="130" height="370" fill="url(#r3shelf)" stroke="#5a3020" stroke-width="2"/>
+      <rect x="635" y="55" width="120" height="2" fill="#6a4030"/>
+      <rect x="635" y="115" width="120" height="2" fill="#5a3020"/>
+      <rect x="635" y="175" width="120" height="2" fill="#5a3020"/>
+      <rect x="635" y="235" width="120" height="2" fill="#5a3020"/>
+      <rect x="635" y="295" width="120" height="2" fill="#5a3020"/>
+      <rect x="635" y="355" width="120" height="2" fill="#5a3020"/>
+      <rect x="638" y="60" width="10" height="52" rx="1" fill="#206840"/><rect x="649" y="65" width="8" height="47" rx="1" fill="#8b2020"/><rect x="658" y="62" width="12" height="50" rx="1" fill="#204880"/><rect x="671" y="67" width="9" height="45" rx="1" fill="#601a60"/><rect x="681" y="60" width="11" height="52" rx="1" fill="#806020"/><rect x="693" y="64" width="8" height="48" rx="1" fill="#1a6860"/><rect x="702" y="61" width="13" height="51" rx="1" fill="#8b2020"/>
+      <rect x="638" y="120" width="9" height="52" rx="1" fill="#601a60"/><rect x="648" y="122" width="11" height="50" rx="1" fill="#8b2020"/><rect x="660" y="119" width="8" height="53" rx="1" fill="#204880"/><rect x="669" y="124" width="12" height="48" rx="1" fill="#206840"/><rect x="682" y="120" width="10" height="52" rx="1" fill="#806020"/><rect x="693" y="122" width="9" height="50" rx="1" fill="#1a6860"/>
+      <rect x="638" y="180" width="11" height="52" rx="1" fill="#8b4010"/><rect x="650" y="182" width="9" height="50" rx="1" fill="#1a6020"/><rect x="660" y="180" width="13" height="52" rx="1" fill="#204080"/><rect x="674" y="183" width="8" height="49" rx="1" fill="#884018"/><rect x="683" y="180" width="10" height="52" rx="1" fill="#6a1a6a"/>
+      <!-- 실험대 -->
+      <rect x="130" y="330" width="500" height="12" rx="3" fill="#2a4030" stroke="#3a5040" stroke-width="1"/>
+      <rect x="140" y="342" width="480" height="70" rx="2" fill="#1a3020" stroke="#2a4030" stroke-width="1"/>
+      <!-- 플라스크/비커 -->
+      <rect x="160" y="295" width="14" height="38" rx="2" fill="rgba(0,200,100,0.3)" stroke="#2adc80" stroke-width="1.5"/>
+      <ellipse cx="167" cy="295" rx="7" ry="4" fill="none" stroke="#2adc80" stroke-width="1.5"/>
+      <ellipse cx="167" cy="292" rx="4" ry="2" fill="rgba(0,200,100,0.5)"/>
+      <rect x="200" y="280" width="18" height="53" rx="2" fill="rgba(80,100,255,0.3)" stroke="#6080ff" stroke-width="1.5"/>
+      <ellipse cx="209" cy="280" rx="9" ry="5" fill="none" stroke="#6080ff" stroke-width="1.5"/>
+      <!-- 가마솥 -->
+      <ellipse cx="350" cy="320" rx="40" ry="15" fill="#1a2820" stroke="#2a4830" stroke-width="2"/>
+      <ellipse cx="350" cy="310" rx="35" ry="30" fill="#0f1e18" stroke="#2a4830" stroke-width="2"/>
+      <ellipse cx="350" cy="280" rx="30" ry="10" fill="rgba(100,200,50,0.4)" stroke="#60c030" stroke-width="1"/>
+      <!-- 연기 -->
+      <path d="M345,272 Q340,260 345,248 Q350,236 345,224" fill="none" stroke="rgba(100,200,50,0.3)" stroke-width="3"/>
+      <path d="M355,272 Q362,258 355,246 Q348,234 355,222" fill="none" stroke="rgba(100,200,50,0.2)" stroke-width="2"/>
+      <!-- 칠판 -->
+      <rect x="200" y="40" width="360" height="200" rx="4" fill="#0a1f10" stroke="#1a4020" stroke-width="3"/>
+      <rect x="206" y="46" width="348" height="188" fill="#0c2212" rx="2"/>
+      <text x="380" y="75" text-anchor="middle" font-size="12" fill="#2ecc71" opacity="0.8">📚 도서관 &amp; 실험실</text>
+      <line x1="220" y1="100" x2="540" y2="100" stroke="#1a4020" stroke-width="1" stroke-dasharray="3,3"/>
+      <text x="240" y="125" font-size="10" fill="#27ae60" opacity="0.7">수업: 마법약조제 101</text>
+      <text x="240" y="145" font-size="10" fill="#27ae60" opacity="0.7">준비물: 달빛이슬 1컵 × 3</text>
+      <text x="240" y="165" font-size="10" fill="#27ae60" opacity="0.7">+ 요정꽃가루 2 티스푼</text>
+      <!-- 분필 선반 -->
+      <rect x="200" y="238" width="360" height="8" rx="2" fill="#1a4020"/>
+      <rect x="210" y="234" width="10" height="6" rx="1" fill="#ddddcc"/>
+      <rect x="224" y="234" width="10" height="6" rx="1" fill="#eeeedd"/>
+    `;
+    case 4: return `
+      <!-- ROOM 4: 마법탑 꼭대기 -->
+      <defs>
+        <radialGradient id="r4bg" cx="50%" cy="30%">
+          <stop offset="0%" stop-color="#1a0808"/>
+          <stop offset="70%" stop-color="#0d0305"/>
+          <stop offset="100%" stop-color="#080010"/>
+        </radialGradient>
+        <radialGradient id="r4window" cx="50%" cy="50%">
+          <stop offset="0%" stop-color="#0a0820"/>
+          <stop offset="60%" stop-color="#050410"/>
+          <stop offset="100%" stop-color="#020208"/>
+        </radialGradient>
+      </defs>
+      <!-- 배경 -->
+      <rect width="760" height="560" fill="url(#r4bg)"/>
+      <!-- 돌벽 패턴 -->
+      <rect x="0" y="0" width="100" height="560" fill="#100508" opacity="0.9"/>
+      <rect x="660" y="0" width="100" height="560" fill="#100508" opacity="0.9"/>
+      <!-- 돌 블록 -->
+      <rect x="5" y="50" width="85" height="40" rx="2" fill="#1a0808" stroke="#2a0f0f" stroke-width="1" opacity="0.8"/>
+      <rect x="5" y="95" width="85" height="40" rx="2" fill="#150606" stroke="#2a0f0f" stroke-width="1" opacity="0.8"/>
+      <rect x="5" y="140" width="85" height="40" rx="2" fill="#1a0808" stroke="#2a0f0f" stroke-width="1" opacity="0.8"/>
+      <rect x="5" y="185" width="85" height="40" rx="2" fill="#150606" stroke="#2a0f0f" stroke-width="1" opacity="0.8"/>
+      <rect x="5" y="230" width="85" height="40" rx="2" fill="#1a0808" stroke="#2a0f0f" stroke-width="1" opacity="0.8"/>
+      <rect x="5" y="275" width="85" height="40" rx="2" fill="#150606" stroke="#2a0f0f" stroke-width="1" opacity="0.8"/>
+      <rect x="5" y="320" width="85" height="40" rx="2" fill="#1a0808" stroke="#2a0f0f" stroke-width="1" opacity="0.8"/>
+      <rect x="5" y="365" width="85" height="40" rx="2" fill="#150606" stroke="#2a0f0f" stroke-width="1" opacity="0.8"/>
+      <rect x="670" y="50" width="85" height="40" rx="2" fill="#1a0808" stroke="#2a0f0f" stroke-width="1" opacity="0.8"/>
+      <rect x="670" y="95" width="85" height="40" rx="2" fill="#150606" stroke="#2a0f0f" stroke-width="1" opacity="0.8"/>
+      <rect x="670" y="140" width="85" height="40" rx="2" fill="#1a0808" stroke="#2a0f0f" stroke-width="1" opacity="0.8"/>
+      <rect x="670" y="185" width="85" height="40" rx="2" fill="#150606" stroke="#2a0f0f" stroke-width="1" opacity="0.8"/>
+      <rect x="670" y="230" width="85" height="40" rx="2" fill="#1a0808" stroke="#2a0f0f" stroke-width="1" opacity="0.8"/>
+      <rect x="670" y="275" width="85" height="40" rx="2" fill="#150606" stroke="#2a0f0f" stroke-width="1" opacity="0.8"/>
+      <rect x="670" y="320" width="85" height="40" rx="2" fill="#1a0808" stroke="#2a0f0f" stroke-width="1" opacity="0.8"/>
+      <!-- 큰 아치형 창문 (밤하늘) -->
+      <rect x="230" y="40" width="300" height="260" rx="150" fill="url(#r4window)" stroke="#3a1010" stroke-width="3"/>
+      <!-- 별 -->
+      <circle cx="280" cy="90" r="1.5" fill="#fffacd" opacity="0.9"/>
+      <circle cx="320" cy="70" r="2" fill="#fffacd" opacity="0.8"/>
+      <circle cx="360" cy="55" r="1" fill="#fffacd" opacity="0.7"/>
+      <circle cx="400" cy="75" r="1.5" fill="#fffacd" opacity="0.9"/>
+      <circle cx="440" cy="90" r="2" fill="#fffacd" opacity="0.7"/>
+      <circle cx="480" cy="65" r="1" fill="#fffacd" opacity="0.8"/>
+      <circle cx="300" cy="130" r="1.5" fill="#c39bd3" opacity="0.8"/>
+      <circle cx="380" cy="100" r="3" fill="#ffd700" opacity="0.9"/>
+      <circle cx="420" cy="140" r="1" fill="#fffacd" opacity="0.6"/>
+      <circle cx="340" cy="150" r="1.5" fill="#fffacd" opacity="0.7"/>
+      <circle cx="460" cy="120" r="2" fill="#fffacd" opacity="0.8"/>
+      <circle cx="250" cy="160" r="1" fill="#c39bd3" opacity="0.6"/>
+      <circle cx="500" cy="160" r="1.5" fill="#fffacd" opacity=" 0.7"/>
+      <!-- 달 -->
+      <circle cx="450" cy="90" r="22" fill="#fffaee" opacity="0.15"/>
+      <circle cx="455" cy="87" r="20" fill="#0a0820" opacity="0.7"/>
+      <!-- 별자리 연결선 -->
+      <line x1="320" y1="70" x2="380" y2="100" stroke="rgba(255,215,0,0.2)" stroke-width="1"/>
+      <line x1="380" y1="100" x2="400" y2="75" stroke="rgba(255,215,0,0.2)" stroke-width="1"/>
+      <line x1="400" y1="75" x2="440" y2="90" stroke="rgba(255,215,0,0.2)" stroke-width="1"/>
+      <line x1="320" y1="70" x2="300" y2="130" stroke="rgba(255,215,0,0.15)" stroke-width="1"/>
+      <!-- 탑 현판 -->
+      <rect x="260" y="14" width="240" height="36" rx="4" fill="#1a0808" stroke="#8b2020" stroke-width="1.5"/>
+      <text x="380" y="29" text-anchor="middle" font-size="11" fill="#cc4444" font-weight="bold">⚡ 마법탑 꼭대기 ⚡</text>
+      <text x="380" y="44" text-anchor="middle" font-size="9" fill="#882222">Magic Tower — Final Chamber</text>
+      <!-- 바닥 -->
+      <rect x="100" y="415" width="560" height="145" fill="#0d0305"/>
+      <line x1="100" y1="415" x2="660" y2="415" stroke="#2a0808" stroke-width="2"/>
+      <!-- 바닥 오각형 마법진 -->
+      <polygon points="380,320 460,375 430,460 330,460 300,375" fill="none" stroke="#8b2020" stroke-width="1.5" stroke-dasharray="5,3" opacity="0.5"/>
+      <circle cx="380" cy="390" r="80" fill="none" stroke="#6a1010" stroke-width="1" stroke-dasharray="3,5" opacity="0.4"/>
+      <!-- 왼쪽 횃불 (빨간불) -->
+      <rect x="108" y="320" width="8" height="50" rx="2" fill="#3a1010"/>
+      <ellipse cx="112" cy="318" rx="9" ry="16" fill="#cc2200" opacity="0.9"/>
+      <ellipse cx="112" cy="310" rx="6" ry="11" fill="#ee4400" opacity="0.8"/>
+      <ellipse cx="112" cy="304" rx="4" ry="7" fill="#ff8800" opacity="0.7"/>
+      <!-- 오른쪽 횃불 -->
+      <rect x="644" y="320" width="8" height="50" rx="2" fill="#3a1010"/>
+      <ellipse cx="648" cy="318" rx="9" ry="16" fill="#cc2200" opacity="0.9"/>
+      <ellipse cx="648" cy="310" rx="6" ry="11" fill="#ee4400" opacity="0.8"/>
+      <ellipse cx="648" cy="304" rx="4" ry="7" fill="#ff8800" opacity="0.7"/>
+      <!-- 붉은 빛 효과 -->
+      <radialGradient id="rtorch1" cx="112" cy="310" r="120" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stop-color="#cc2200" stop-opacity="0.2"/>
+        <stop offset="100%" stop-color="#cc2200" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="rtorch2" cx="648" cy="310" r="120" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stop-color="#cc2200" stop-opacity="0.2"/>
+        <stop offset="100%" stop-color="#cc2200" stop-opacity="0"/>
+      </radialGradient>
+      <circle cx="112" cy="310" r="120" fill="url(#rtorch1)"/>
+      <circle cx="648" cy="310" r="120" fill="url(#rtorch2)"/>
+    `;
+    default: return `<rect width="760" height="560" fill="#0d0520"/>`;
+  }
+}
+
+function renderRoom(roomNum) {
+  const rd = getRoomData(roomNum);
+  const svg = document.getElementById('room-svg');
+
+  let html = getRoomBackground(roomNum);
+
+  // Draw hotspots
+  rd.hotspots.forEach(h => {
+    const solved = GS.solved[h.id];
+    const isMemo = h.type === 'memo';
+    const borderColor = solved ? '#27ae60' : (isMemo ? '#9b59b6' : '#ffd700');
+    const fillColor = solved ? 'rgba(20,60,20,0.75)' : (isMemo ? 'rgba(50,15,90,0.75)' : 'rgba(60,35,10,0.8)');
+    const glowColor = solved ? 'rgba(39,174,96,0.3)' : (isMemo ? 'rgba(155,89,182,0.25)' : 'rgba(255,215,0,0.25)');
+    const cx = h.x + h.w/2;
+    const cy = h.y + h.h/2;
+    const emoji = solved ? '✅' : (isMemo ? '📜' : '🔒');
+
+    html += `
+      <g class="hotspot" onclick="onHotspot('${h.id}')" data-id="${h.id}" style="cursor:pointer">
+        <!-- glow -->
+        <rect x="${h.x-3}" y="${h.y-3}" width="${h.w+6}" height="${h.h+6}" rx="11"
+          fill="${glowColor}" opacity="0.5"/>
+        <!-- main -->
+        <rect x="${h.x}" y="${h.y}" width="${h.w}" height="${h.h}" rx="8"
+          fill="${fillColor}" stroke="${borderColor}" stroke-width="1.5"/>
+        <!-- inner highlight -->
+        <rect x="${h.x+2}" y="${h.y+2}" width="${h.w-4}" height="12" rx="4"
+          fill="rgba(255,255,255,0.04)"/>
+        <!-- icon -->
+        <text x="${cx}" y="${cy-4}" text-anchor="middle" font-size="15">${emoji}</text>
+        <!-- label -->
+        <text x="${cx}" y="${cy+12}" text-anchor="middle"
+          fill="${solved ? '#2ecc71' : (isMemo ? '#c39bd3' : '#ffd700')}"
+          font-size="10" font-weight="bold">${h.label}</text>
+      </g>
+    `;
+  });
+
+  // Navigation
+  if (roomNum > 1) {
+    html += `
+      <g class="hotspot" onclick="goRoom(${roomNum-1})" style="cursor:pointer">
+        <rect x="8" y="508" width="90" height="38" rx="8" fill="rgba(30,10,60,0.85)" stroke="#9b59b6" stroke-width="1.5"/>
+        <text x="53" y="523" text-anchor="middle" fill="#c39bd3" font-size="11" font-weight="bold">◀ 이전</text>
+        <text x="53" y="538" text-anchor="middle" fill="#666" font-size="9">Room ${roomNum-1}</text>
+      </g>
+    `;
+  }
+  if (roomNum < 4 && isRoomCleared(roomNum)) {
+    html += `
+      <g class="hotspot" onclick="goRoom(${roomNum+1})" style="cursor:pointer">
+        <rect x="660" y="505" width="95" height="42" rx="8" fill="rgba(10,50,20,0.9)" stroke="#27ae60" stroke-width="2"/>
+        <rect x="661" y="506" width="93" height="10" rx="4" fill="rgba(255,255,255,0.04)"/>
+        <text x="708" y="522" text-anchor="middle" fill="#2ecc71" font-size="11" font-weight="bold">다음 ▶</text>
+        <text x="708" y="537" text-anchor="middle" fill="#888" font-size="9">Room ${roomNum+1} 입장</text>
+      </g>
+    `;
+  } else if (roomNum < 4) {
+    const puzzlesInRoom = Object.values(PUZZLES).filter(p=>p.room===roomNum);
+    const remaining = puzzlesInRoom.filter(p=>!GS.solved[p.id]).length;
+    html += `
+      <g style="cursor:not-allowed">
+        <rect x="630" y="508" width="120" height="38" rx="8" fill="rgba(30,10,10,0.7)" stroke="#444" stroke-width="1"/>
+        <text x="690" y="523" text-anchor="middle" fill="#666" font-size="10">🔒 다음 방 잠김</text>
+        <text x="690" y="538" text-anchor="middle" fill="#444" font-size="9">${remaining}개 남음</text>
+      </g>
+    `;
+  }
+
+  svg.innerHTML = html;
+  document.getElementById('room-name-label').textContent = rd.name;
+  document.getElementById('room-desc-label').textContent = rd.desc;
+  updatePuzzleList();
+}
+
+function isRoomCleared(roomNum) {
+  return Object.values(PUZZLES)
+    .filter(p=>p.room===roomNum)
+    .every(p=>GS.solved[p.id]);
+}
+
+function updatePuzzleList() {
+  const list = document.getElementById('puzzle-list');
+  list.innerHTML = '';
+  Object.values(PUZZLES).forEach(p => {
+    const chip = document.createElement('div');
+    chip.className = 'puzzle-chip' + (GS.solved[p.id] ? ' solved' : '');
+    chip.innerHTML = `<div class="dot"></div><span>${p.label}</span>`;
+    if (p.room !== GS.room) chip.style.opacity='0.4';
+    list.appendChild(chip);
+  });
+}
+
+/* ═══════════════════════════════════════════
+   HOTSPOT CLICK
+═══════════════════════════════════════════ */
+function onHotspot(id) {
+  if (MEMOS[id]) {
+    showMemo(id);
+  } else if (PUZZLES[id]) {
+    if (GS.solved[id]) {
+      showMsg(`✅ <strong>${PUZZLES[id].label}</strong> — 이미 해결됨!`);
+    } else {
+      openPuzzle(id);
+    }
+  }
+  maybeIntercom();
+}
+
+function showMemo(id) {
+  const m = MEMOS[id];
+  showModal(`<h2>${m.title}</h2><div class="doc-content">${m.content}</div>`);
+}
+
+function showMsg(html) {
+  showModal(`<div style="padding:20px;font-size:0.9em;line-height:1.8;">${html}</div>`);
+}
+
+function goRoom(n) {
+  fadeRoomTransition(()=>{
+    GS.room = n;
+    renderRoom(n);
+    maybeIntercom();
+  });
+}
+
+/* ═══════════════════════════════════════════
+   MODAL
+═══════════════════════════════════════════ */
+function showModal(html) {
+  document.getElementById('modal-content').innerHTML = html;
+  document.getElementById('modal-overlay').classList.add('active');
+}
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('active');
+}
+document.getElementById('modal-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+});
+
+/* ═══════════════════════════════════════════
+   PUZZLE DISPATCHER
+═══════════════════════════════════════════ */
+function openPuzzle(id) {
+  const p = PUZZLES[id];
+  let html = `<h2>${p.title}</h2>
+    <div class="puzzle-desc">${p.desc}</div>
+    <div class="hint-section">
+      <button class="hint-btn" onclick="showHint('${id}')">💡 힌트 보기 (${GS.hintShown[id]||0}/${p.hints.length})</button>
+      ${(GS.hintShown[id]||0) > 0 ? renderShownHints(id) : ''}
+    </div>
+    <div id="puzzle-ui-${id}">`;
+
+  switch(p.type) {
+    case 'number': html += renderNumberUI(id); break;
+    case 'sequence': html += renderSequenceUI(id); break;
+    case 'ox': html += renderOXUI(id); break;
+    case 'stamp': html += renderStampUI(id); break;
+    case 'medal': html += renderMedalUI(id); break;
+    case 'sort': html += renderSortUI(id); break;
+    case 'match': html += renderMatchUI(id); break;
+    case 'stars': html += renderStarsUI(id); break;
+    case 'simon': html += renderSimonUI(id); break;
+    case 'find': html += renderFindUI(id); break;
+  }
+
+  html += `</div><div id="result-${id}" class="result-msg"></div>`;
+  showModal(html);
+
+  // Post-render init
+  if (p.type === 'stars') setTimeout(()=>initStars(id),50);
+  if (p.type === 'find') setTimeout(()=>initFind(id),50);
+  if (p.type === 'sort') initSort(id);
+  if (p.type === 'match') initMatch(id);
+  if (p.type === 'simon') initSimon(id);
+  if (p.type === 'ox') initOX(id);
+}
+
+function renderShownHints(id) {
+  const p = PUZZLES[id];
+  const n = GS.hintShown[id] || 0;
+  let h = '';
+  for (let i=0; i<n; i++) {
+    h += `<div class="hint-box visible">💡 힌트 ${i+1}: ${p.hints[i]}</div>`;
+  }
+  return h;
+}
+
+function showHint(id) {
+  const p = PUZZLES[id];
+  const n = GS.hintShown[id] || 0;
+  if (n < p.hints.length) {
+    GS.hintShown[id] = n + 1;
+  }
+  openPuzzle(id); // re-render
+}
+
+/* ── NUMBER PUZZLE ── */
+function renderNumberUI(id) {
+  return `<input class="puzzle-input" id="num-${id}" type="text" maxlength="6" placeholder="숫자 입력..." onkeydown="if(event.key==='Enter')checkNumber('${id}')">
+  <button class="btn" onclick="checkNumber('${id}')">✅ 확인</button>`;
+}
+function checkNumber(id) {
+  const val = document.getElementById('num-'+id).value.trim();
+  const p = PUZZLES[id];
+  if (val === p.answer) {
+    solvePuzzle(id, '정답입니다! 🎉 잠금이 해제되었습니다!');
+  } else {
+    showWrong(id, '틀렸습니다. 다시 시도해보세요!');
+  }
+}
+
+/* ── SEQUENCE PUZZLE (P2 element buttons) ── */
+const seqState = {};
+function renderSequenceUI(id) {
+  const p = PUZZLES[id];
+  seqState[id] = [];
+  const btns = p.seqColors.map((cls,i)=>
+    `<button class="seq-btn ${cls}" id="seqbtn-${id}-${i}" onclick="seqClick('${id}',${i},'${p.answer[i]}')" >
+      ${p.seqLabels[i]}</button>`
+  ).join('');
+  return `<div class="seq-status" id="seq-status-${id}">원소를 올바른 순서대로 누르세요!</div>
+  <div class="seq-btns">${btns}</div>
+  <div id="seq-display-${id}" class="seq-display" style="min-height:30px;"></div>
+  <button class="btn gray" style="margin-top:8px;" onclick="seqReset('${id}')">🔄 초기화</button>`;
+}
+
+function seqClick(id, idx, colorKey) {
+  const p = PUZZLES[id];
+  if (!seqState[id]) seqState[id] = [];
+  seqState[id].push(colorKey);
+  const n = seqState[id].length;
+  // Check so far
+  for (let i=0; i<n; i++) {
+    if (seqState[id][i] !== p.answer[i]) {
+      document.getElementById('seq-display-'+id).textContent = '❌ 순서가 틀렸습니다!';
+      seqState[id] = [];
+      return;
+    }
+  }
+  if (n === p.answer.length) {
+    solvePuzzle(id, '4원소 마법진 활성화! ✨ 문이 열립니다!');
+  } else {
+    document.getElementById('seq-display-'+id).textContent = `${n}/${p.answer.length} 완료...`;
+  }
+}
+function seqReset(id) {
+  seqState[id] = [];
+  const el = document.getElementById('seq-display-'+id);
+  if (el) el.textContent = '초기화됨. 다시 시도하세요!';
+}
+
+/* ── OX QUIZ ── */
+const oxState = {};
+function renderOXUI(id) {
+  return `<div id="ox-container-${id}"></div>
+  <button class="btn" id="ox-submit-${id}" onclick="submitOX('${id}')" style="margin-top:8px;">📝 제출</button>`;
+}
+function initOX(id) {
+  const p = PUZZLES[id];
+  oxState[id] = new Array(p.questions.length).fill(null);
+  const container = document.getElementById('ox-container-'+id);
+  if (!container) return;
+  container.innerHTML = p.questions.map((q,i)=>`
+    <div class="ox-question">
+      <div class="ox-progress">${i+1}/${p.questions.length}</div>
+      <p>${q.q}</p>
+      <div class="ox-btns">
+        <button class="ox-btn O" id="oxO-${id}-${i}" onclick="selectOX('${id}',${i},'O')">⭕ 맞다</button>
+        <button class="ox-btn X" id="oxX-${id}-${i}" onclick="selectOX('${id}',${i},'X')">❌ 틀리다</button>
+      </div>
+    </div>`).join('');
+}
+function selectOX(id, idx, val) {
+  oxState[id][idx] = val;
+  const oBtn = document.getElementById(`oxO-${id}-${idx}`);
+  const xBtn = document.getElementById(`oxX-${id}-${idx}`);
+  if (val==='O') { oBtn.classList.add('selected'); xBtn.classList.remove('selected'); }
+  else { xBtn.classList.add('selected'); oBtn.classList.remove('selected'); }
+}
+function submitOX(id) {
+  const p = PUZZLES[id];
+  const answers = oxState[id];
+  if (answers.includes(null)) { showWrong(id,'모든 문항에 답하세요!'); return; }
+  let correct = 0;
+  answers.forEach((a,i)=>{ if(a===p.questions[i].a) correct++; });
+  if (correct >= p.passScore) {
+    solvePuzzle(id, `${correct}/${p.questions.length} 정답! 🎉 통과!`);
+  } else {
+    showWrong(id, `${correct}/${p.questions.length} 정답 — ${p.passScore}개 이상 필요합니다. 다시!`);
+    setTimeout(()=>initOX(id), 800);
+    oxState[id] = new Array(p.questions.length).fill(null);
+  }
+}
+
+/* ── STAMP PUZZLE ── */
+// Stamp data: [stars, hasHongdugae, hasBorder, hasCrown]
+const STAMP_DEFS = [
+  {stars:2, hdg:true,  border:false, crown:true,  label:'도장 1'},
+  {stars:3, hdg:false, border:true,  crown:true,  label:'도장 2'},
+  {stars:3, hdg:true,  border:true,  crown:false, label:'도장 3'},
+  {stars:3, hdg:true,  border:false, crown:true,  label:'도장 4 ✓'},
+  {stars:4, hdg:true,  border:false, crown:true,  label:'도장 5'},
+  {stars:3, hdg:true,  border:true,  crown:true,  label:'도장 6'},
+  {stars:2, hdg:false, border:false, crown:false, label:'도장 7'},
+  {stars:3, hdg:true,  border:false, crown:false, label:'도장 8'},
+];
+let selectedStamp = null;
+function renderStampUI(id) {
+  selectedStamp = null;
+  const items = STAMP_DEFS.map((s,i)=>`
+    <div class="stamp-item" id="stamp-item-${i}" onclick="selectStamp(${i})">
+      ${drawStampSVG(s)}
+      <div class="stamp-label">${s.label.replace(' ✓','')}</div>
+    </div>`).join('');
+  return `<div style="font-size:0.82em;color:#888;margin-bottom:8px;">공식 도장 조건: 별3개 + 홍두깨 + 테두리없음 + 왕관</div>
+  <div class="stamp-grid">${items}</div>
+  <button class="btn" onclick="checkStamp('${id}')">✅ 선택 확인</button>`;
+}
+function drawStampSVG(s) {
+  let svg = `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">`;
+  // border
+  if (s.border) svg += `<circle cx="30" cy="30" r="28" fill="none" stroke="#ffd700" stroke-width="3"/>`;
+  // crown
+  if (s.crown) svg += `<text x="30" y="18" text-anchor="middle" font-size="12">👑</text>`;
+  // hongdugae (rolling pin symbol)
+  if (s.hdg) svg += `<rect x="18" y="27" width="24" height="6" rx="3" fill="#c39bd3"/>`;
+  // stars
+  const starPos = [[30,50],[20,42],[40,42],[15,30],[45,30]];
+  for(let i=0;i<Math.min(s.stars,5);i++) {
+    svg += `<text x="${starPos[i][0]}" y="${starPos[i][1]}" text-anchor="middle" font-size="10">⭐</text>`;
+  }
+  svg += `</svg>`;
+  return svg;
+}
+function selectStamp(i) {
+  selectedStamp = i;
+  document.querySelectorAll('.stamp-item').forEach((el,idx)=>{
+    el.classList.toggle('selected', idx===i);
+  });
+}
+function checkStamp(id) {
+  if (selectedStamp === null) { showWrong(id,'도장을 선택하세요!'); return; }
+  const stampKey = 'stamp_'+(selectedStamp+1);
+  if (stampKey === PUZZLES[id].answer) {
+    solvePuzzle(id,'공식 도장 인증! 📮 자물쇠가 열렸습니다!');
+  } else {
+    showWrong(id,'가짜 도장입니다! 공문서 안내를 다시 확인하세요.');
+  }
+}
+
+/* ── MEDAL PUZZLE ── */
+function renderMedalUI(id) {
+  return `<div style="font-size:0.85em;color:#c39bd3;margin-bottom:12px;">역대 수상 패턴: 금🥇 → 은🥈 → 동🥉 → 금 → 은 → 동 → ...<br>9회차는?</div>
+  <div style="display:flex;gap:10px;justify-content:center;margin-bottom:12px;">
+    <button class="btn" onclick="checkMedal('${id}','gold')" style="background:linear-gradient(135deg,#b8860b,#ffd700);color:#000;">🥇 금메달</button>
+    <button class="btn" onclick="checkMedal('${id}','silver')" style="background:linear-gradient(135deg,#707070,#c0c0c0);color:#000;">🥈 은메달</button>
+    <button class="btn" onclick="checkMedal('${id}','bronze')" style="background:linear-gradient(135deg,#8b4513,#cd7f32);">🥉 동메달</button>
+  </div>`;
+}
+function checkMedal(id, choice) {
+  if (choice === PUZZLES[id].answer) {
+    solvePuzzle(id,'🥉 동메달! 패턴 분석 성공! 케이스가 열렸습니다!');
+  } else {
+    showWrong(id,'패턴을 다시 확인하세요. 금→은→동→금→은→동→...');
+  }
+}
+
+/* ── SORT PUZZLE ── */
+const sortState = {};
+function renderSortUI(id) {
+  return `<div style="font-size:0.82em;color:#888;margin-bottom:8px;">올바른 순서로 클릭하면 슬롯에 꽂힙니다.</div>
+  <div id="sort-items-${id}" class="book-list"></div>
+  <div style="font-size:0.8em;color:#888;margin:8px 0;">▼ 꽂은 순서</div>
+  <div id="sort-slots-${id}" class="sort-slots"></div>
+  <button class="btn gray" style="margin-top:8px;" onclick="sortReset('${id}')">🔄 초기화</button>
+  <button class="btn" style="margin-top:8px;" onclick="checkSort('${id}')">✅ 확인</button>`;
+}
+function initSort(id) {
+  const p = PUZZLES[id];
+  sortState[id] = {placed:[], available:[...p.items]};
+  renderSortUI_update(id);
+}
+function renderSortUI_update(id) {
+  const p = PUZZLES[id];
+  const st = sortState[id];
+  const itemsEl = document.getElementById('sort-items-'+id);
+  const slotsEl = document.getElementById('sort-slots-'+id);
+  if (!itemsEl) return;
+  itemsEl.innerHTML = st.available.map((b,i)=>`
+    <div class="book-item" onclick="sortPlace('${id}','${b}')">
+      <div class="book-num">${['🔮','🔮','🔮','📘','📘'][p.items.indexOf(b)]}</div>
+      ${b}
+    </div>`).join('');
+  slotsEl.innerHTML = Array(5).fill(0).map((_,i)=>`
+    <div class="sort-slot ${i<st.placed.length?'filled':''}">
+      ${i<st.placed.length ? `<span>${i+1}. ${st.placed[i]}</span>` : `<span>${i+1}. (비어 있음)</span>`}
+    </div>`).join('');
+}
+function sortPlace(id, book) {
+  const st = sortState[id];
+  const idx = st.available.indexOf(book);
+  if (idx < 0) return;
+  st.available.splice(idx,1);
+  st.placed.push(book);
+  renderSortUI_update(id);
+}
+function sortReset(id) {
+  const p = PUZZLES[id];
+  sortState[id] = {placed:[], available:[...p.items]};
+  renderSortUI_update(id);
+}
+function checkSort(id) {
+  const p = PUZZLES[id];
+  const st = sortState[id];
+  if (st.placed.length < p.answer.length) { showWrong(id,'모든 책을 꽂아주세요!'); return; }
+  const ok = st.placed.every((b,i)=>b===p.answer[i]);
+  if (ok) {
+    solvePuzzle(id,'📚 올바른 순서로 정렬! 도서관 잠금 해제!');
+  } else {
+    showWrong(id,'순서가 틀렸습니다. 도서관 규칙판을 다시 확인하세요.');
+    setTimeout(()=>{ sortReset(id); renderSortUI_update(id); }, 800);
+  }
+}
+
+/* ── MATCH PUZZLE ── */
+const matchState = {};
+function renderMatchUI(id) {
+  return `<div style="font-size:0.82em;color:#888;margin-bottom:8px;">왼쪽 클릭 후 오른쪽 클릭으로 연결하세요.</div>
+  <div class="match-area">
+    <div class="match-col" id="match-left-${id}"></div>
+    <div class="match-col" id="match-right-${id}"></div>
+  </div>
+  <button class="btn gray" onclick="matchReset('${id}')">🔄 초기화</button>
+  <button class="btn" onclick="checkMatch('${id}')">✅ 확인</button>`;
+}
+function initMatch(id) {
+  const p = PUZZLES[id];
+  matchState[id] = {selectedLeft:null, pairs:{}};
+  const lEl = document.getElementById('match-left-'+id);
+  const rEl = document.getElementById('match-right-'+id);
+  if (!lEl) return;
+  lEl.innerHTML = p.left.map((l,i)=>`
+    <div class="match-item" id="ml-${id}-${i}" onclick="matchSelectLeft('${id}',${i})">${l}</div>`).join('');
+  rEl.innerHTML = p.right.map((r,i)=>`
+    <div class="match-item" id="mr-${id}-${i}" onclick="matchSelectRight('${id}',${i})">${r}</div>`).join('');
+}
+function matchSelectLeft(id, i) {
+  matchState[id].selectedLeft = i;
+  document.querySelectorAll(`[id^="ml-${id}-"]`).forEach(el=>el.classList.remove('selected'));
+  document.getElementById(`ml-${id}-${i}`).classList.add('selected');
+}
+function matchSelectRight(id, i) {
+  const st = matchState[id];
+  if (st.selectedLeft === null) return;
+  st.pairs[st.selectedLeft] = i;
+  // Visual feedback
+  document.getElementById(`ml-${id}-${st.selectedLeft}`).classList.add('matched');
+  document.getElementById(`mr-${id}-${i}`).classList.add('matched');
+  st.selectedLeft = null;
+}
+function matchReset(id) {
+  matchState[id] = {selectedLeft:null, pairs:{}};
+  initMatch(id);
+}
+function checkMatch(id) {
+  const p = PUZZLES[id];
+  const pairs = matchState[id].pairs;
+  if (Object.keys(pairs).length < p.left.length) { showWrong(id,'모든 쌍을 연결하세요!'); return; }
+  const ok = p.left.every((_,i)=>pairs[i]===p.answer[i]);
+  if (ok) {
+    solvePuzzle(id,'⚗️ 정확한 매칭! 실험대 자물쇠 해제!');
+  } else {
+    showWrong(id,'일부 연결이 잘못되었습니다. 교과서를 다시 확인하세요.');
+    setTimeout(()=>matchReset(id), 800);
+  }
+}
+
+/* ── STARS PUZZLE ── */
+const starData = [
+  {x:120,y:80,num:1},{x:280,y:50,num:3},{x:420,y:90,num:5},
+  {x:60,y:160,num:2},{x:220,y:180,num:4},{x:360,y:160,num:6}
+];
+const starState = {};
+function renderStarsUI(id) {
+  return `<div style="font-size:0.82em;color:#888;margin-bottom:6px;">별에 표시된 번호 순서대로 클릭하세요 (①→②→...→⑥)</div>
+  <canvas id="star-canvas" width="480" height="220"></canvas>
+  <div id="star-status-${id}" style="font-size:0.82em;color:#c39bd3;text-align:center;margin-bottom:8px;">0/6 클릭됨</div>
+  <button class="btn gray" onclick="starReset('${id}')">🔄 초기화</button>`;
+}
+function initStars(id) {
+  starState[id] = {clicked:[]};
+  const canvas = document.getElementById('star-canvas');
+  if (!canvas) return;
+  canvas.onclick = (e) => starClick(id, e);
+  drawStars(id);
+}
+function drawStars(id) {
+  const canvas = document.getElementById('star-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const state = starState[id] || {clicked:[]};
+  ctx.clearRect(0,0,480,220);
+  ctx.fillStyle='#050a1a'; ctx.fillRect(0,0,480,220);
+  // Draw constellation lines (decorative)
+  ctx.strokeStyle='rgba(100,100,200,0.2)'; ctx.lineWidth=1;
+  [[0,3],[3,1],[1,4],[4,2],[2,5]].forEach(([a,b])=>{
+    ctx.beginPath(); ctx.moveTo(starData[a].x,starData[a].y);
+    ctx.lineTo(starData[b].x,starData[b].y); ctx.stroke();
+  });
+  starData.forEach(s=>{
+    const isClicked = state.clicked.includes(s.num);
+    ctx.beginPath();
+    ctx.arc(s.x,s.y,12,0,Math.PI*2);
+    ctx.fillStyle = isClicked ? '#ffd700' : '#3a3a6a';
+    ctx.fill();
+    ctx.strokeStyle = isClicked ? '#fff' : '#9b59b6';
+    ctx.lineWidth=2; ctx.stroke();
+    // Number label
+    ctx.fillStyle = isClicked ? '#000' : '#ffd700';
+    ctx.font='bold 11px sans-serif'; ctx.textAlign='center';
+    ctx.fillText(''+s.num, s.x, s.y+4);
+  });
+}
+function starClick(id, e) {
+  const canvas = document.getElementById('star-canvas');
+  const rect = canvas.getBoundingClientRect();
+  const sx = (e.clientX-rect.left)*(480/rect.width);
+  const sy = (e.clientY-rect.top)*(220/rect.height);
+  const state = starState[id];
+  for (const s of starData) {
+    const dist = Math.hypot(sx-s.x, sy-s.y);
+    if (dist < 18) {
+      const nextExpected = state.clicked.length + 1;
+      if (s.num === nextExpected) {
+        state.clicked.push(s.num);
+        drawStars(id);
+        const statusEl = document.getElementById('star-status-'+id);
+        if (statusEl) statusEl.textContent = `${state.clicked.length}/6 클릭됨`;
+        if (state.clicked.length === 6) {
+          solvePuzzle(id,'🌟 별자리 활성화! 빛나래자리가 빛납니다!');
+        }
+      } else {
+        // Wrong order
+        state.clicked = [];
+        drawStars(id);
+        const statusEl = document.getElementById('star-status-'+id);
+        if (statusEl) statusEl.textContent = '❌ 순서 틀림! 처음부터 다시...';
+      }
+      break;
+    }
+  }
+}
+function starReset(id) {
+  if (starState[id]) starState[id].clicked = [];
+  drawStars(id);
+  const statusEl = document.getElementById('star-status-'+id);
+  if (statusEl) statusEl.textContent = '0/6 클릭됨';
+}
+
+/* ── SIMON SAYS PUZZLE ── */
+const simonState = {};
+const SIMON_COLORS = {
+  red:{cls:'red-btn',label:'빨강🔴'},
+  yellow:{cls:'yellow-btn',label:'노랑🟡'},
+  blue:{cls:'blue-btn',label:'파랑🔵'},
+  green:{cls:'green-btn',label:'초록🟢'}
+};
+function renderSimonUI(id) {
+  return `<div id="simon-status-${id}" class="seq-status">▶ 시작 버튼을 누르세요!</div>
+  <div class="seq-btns">
+    ${['red','yellow','blue','green'].map(c=>`
+      <button class="seq-btn ${SIMON_COLORS[c].cls}" id="simon-btn-${id}-${c}"
+        onclick="simonInput('${id}','${c}')" disabled>
+        ${SIMON_COLORS[c].label}
+      </button>`).join('')}
+  </div>
+  <button class="btn" id="simon-start-${id}" onclick="simonStart('${id}')">▶ 시작</button>`;
+}
+function initSimon(id) {
+  simonState[id] = {level:0, phase:'idle', userInput:[]};
+}
+function simonStart(id) {
+  const st = simonState[id];
+  st.level = 0;
+  st.phase = 'showing';
+  document.getElementById('simon-start-'+id).disabled = true;
+  simonShowLevel(id);
+}
+function simonShowLevel(id) {
+  const p = PUZZLES[id];
+  const st = simonState[id];
+  const seq = p.levels[st.level];
+  const statusEl = document.getElementById('simon-status-'+id);
+  statusEl.textContent = `레벨 ${st.level+1} — 순서를 기억하세요!`;
+  setSimonBtns(id, true);
+  let i = 0;
+  function flash() {
+    if (i >= seq.length) {
+      setTimeout(()=>{
+        statusEl.textContent = `레벨 ${st.level+1} — 이제 입력하세요! (${seq.length}개)`;
+        st.phase = 'input';
+        st.userInput = [];
+        setSimonBtns(id, false);
+      }, 500);
+      return;
+    }
+    const c = seq[i];
+    const btn = document.getElementById(`simon-btn-${id}-${c}`);
+    if (btn) { btn.classList.add('flash'); setTimeout(()=>btn.classList.remove('flash'), 500); }
+    i++;
+    setTimeout(flash, 800);
+  }
+  setTimeout(flash, 400);
+}
+function setSimonBtns(id, disabled) {
+  ['red','yellow','blue','green'].forEach(c=>{
+    const btn = document.getElementById(`simon-btn-${id}-${c}`);
+    if (btn) btn.disabled = disabled;
+  });
+}
+function simonInput(id, color) {
+  const p = PUZZLES[id];
+  const st = simonState[id];
+  if (st.phase !== 'input') return;
+  st.userInput.push(color);
+  const seq = p.levels[st.level];
+  const n = st.userInput.length;
+  // Check
+  if (st.userInput[n-1] !== seq[n-1]) {
+    document.getElementById('simon-status-'+id).textContent = '❌ 틀렸습니다! 다시 시작...';
+    setSimonBtns(id, true);
+    st.phase = 'idle';
+    setTimeout(()=>{
+      document.getElementById('simon-start-'+id).disabled = false;
+      document.getElementById('simon-status-'+id).textContent = '▶ 다시 시작 버튼을 누르세요';
+    }, 1000);
+    return;
+  }
+  if (n === seq.length) {
+    setSimonBtns(id, true);
+    if (st.level + 1 >= p.levels.length) {
+      solvePuzzle(id,'🎮 모든 레벨 클리어! 기억력 시험 통과!');
+    } else {
+      st.level++;
+      document.getElementById('simon-status-'+id).textContent = `레벨 ${st.level} 클리어! 다음 레벨...`;
+      setTimeout(()=>simonShowLevel(id), 1000);
+    }
+  }
+}
+
+/* ── FIND PUZZLE (P15) ── */
+function renderFindUI(id) {
+  return `<div style="font-size:0.82em;color:#888;margin-bottom:6px;">출구를 찾아 클릭하세요. 낙서 메모 힌트를 참고하세요.</div>
+  <canvas id="find-canvas" width="480" height="280" style="border:2px solid #4a2080;border-radius:8px;"></canvas>
+  <div id="find-status-${id}" style="font-size:0.82em;color:#c39bd3;text-align:center;margin-top:6px;">어딘가에 진짜 출구가...</div>`;
+}
+function initFind(id) {
+  const canvas = document.getElementById('find-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  // Draw room with door
+  ctx.fillStyle='#150820'; ctx.fillRect(0,0,480,280);
+  // Floor
+  ctx.fillStyle='#2a1540'; ctx.fillRect(0,230,480,50);
+  // Wall texture
+  for(let x=0;x<480;x+=40) {
+    ctx.strokeStyle='rgba(100,60,150,0.2)'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,230); ctx.stroke();
+  }
+  // Door (big, ornate, obviously the "main" door)
+  ctx.fillStyle='#4a2060'; ctx.fillRect(180,80,120,150);
+  ctx.strokeStyle='#9b59b6'; ctx.lineWidth=3;
+  ctx.strokeRect(180,80,120,150);
+  ctx.fillStyle='#ffd700'; ctx.fillRect(272,148,15,12); // doorknob
+  // Fake locks (5)
+  const fakeLocks = [{x:190,y:90},{x:210,y:90},{x:230,y:90},{x:250,y:90},{x:270,y:90}];
+  fakeLocks.forEach(l=>{
+    ctx.fillStyle='#8b2d2d'; ctx.beginPath();
+    ctx.arc(l.x+8,l.y+8,8,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#ffd700'; ctx.font='10px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('🔒',l.x+8,l.y+12);
+  });
+  // Door label
+  ctx.fillStyle='#ffd700'; ctx.font='bold 12px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('졸업식 대문', 240, 74);
+  // Fake lock label
+  ctx.fillStyle='#e74c3c'; ctx.font='10px sans-serif';
+  ctx.fillText('← 가짜 자물쇠 5개', 240, 105);
+  // Emergency exit sticker (hidden, bottom right corner of door area)
+  // It's at x=295, y=225 (near bottom right of door, slightly outside)
+  ctx.globalAlpha=0.25;
+  ctx.fillStyle='#00ff00'; ctx.fillRect(296,218,16,12);
+  ctx.fillStyle='#fff'; ctx.font='7px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('EXIT',304,227);
+  ctx.globalAlpha=1.0;
+
+  canvas.onclick = (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const cx = (e.clientX-rect.left)*(480/rect.width);
+    const cy = (e.clientY-rect.top)*(280/rect.height);
+    // Check fake locks
+    const fakeHit = fakeLocks.some(l=>Math.abs(cx-(l.x+8))<16&&Math.abs(cy-(l.y+8))<16);
+    if (fakeHit) {
+      document.getElementById('find-status-'+id).textContent='🔒 딸깍— 이 자물쇠는 가짜입니다!';
+      return;
+    }
+    // Emergency exit sticker area (generous hit area)
+    if (cx>=288&&cx<=318&&cy>=210&&cy<=238) {
+      solvePuzzle(id,'🚪 비상구 발견! 문이 스르르... 졸업 완료!');
+    } else {
+      document.getElementById('find-status-'+id).textContent='여기가 아닌 것 같습니다...';
+    }
+  };
+}
+
+/* ═══════════════════════════════════════════
+   SOLVE & RESULT
+═══════════════════════════════════════════ */
+function solvePuzzle(id, msg) {
+  GS.solved[id] = true;
+  const res = document.getElementById('result-'+id);
+  if (res) { res.className='result-msg ok'; res.textContent='✅ '+msg; }
+  updatePuzzleList();
+  spawnParticles();
+  setTimeout(()=>{
+    closeModal();
+    fadeRoomTransition(()=>{
+      renderRoom(GS.room);
+      checkWin();
+      maybeIntercom();
+    });
+  }, 1500);
+}
+
+/* ── 파티클 효과 ── */
+function spawnParticles() {
+  const container = document.createElement('div');
+  container.style.cssText='position:fixed;inset:0;pointer-events:none;z-index:500;overflow:hidden;';
+  document.body.appendChild(container);
+  const emojis = ['✨','⭐','🌟','💫','🎉','🎊','✦'];
+  for (let i=0;i<30;i++) {
+    const p = document.createElement('div');
+    const emoji = emojis[Math.floor(Math.random()*emojis.length)];
+    const x = Math.random()*100;
+    const delay = Math.random()*600;
+    const dur = 900+Math.random()*600;
+    const size = 14+Math.random()*20;
+    p.style.cssText=`position:absolute;left:${x}%;top:105%;font-size:${size}px;animation:particleUp ${dur}ms ${delay}ms ease-out forwards;`;
+    p.textContent=emoji;
+    container.appendChild(p);
+  }
+  setTimeout(()=>container.remove(), 2000);
+}
+
+/* ── 방 전환 페이드 ── */
+function fadeRoomTransition(callback) {
+  const overlay = document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;background:#0d0520;opacity:0;z-index:400;pointer-events:none;transition:opacity 0.35s;';
+  document.body.appendChild(overlay);
+  requestAnimationFrame(()=>{
+    overlay.style.opacity='1';
+    setTimeout(()=>{
+      callback();
+      overlay.style.opacity='0';
+      setTimeout(()=>overlay.remove(), 400);
+    }, 350);
+  });
+}
+
+function showWrong(id, msg) {
+  const res = document.getElementById('result-'+id);
+  if (res) { res.className='result-msg fail'; res.textContent='❌ '+msg; }
+}
+
+function checkWin() {
+  if (Object.keys(GS.solved).length >= 15) {
+    setTimeout(showEndScreen, 500);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   INTERCOM
+═══════════════════════════════════════════ */
+let intercomTimer = null;
+function maybeIntercom() {
+  const solved = Object.keys(GS.solved).length;
+  const idx = Math.min(Math.floor(solved/2), INTERCOMS.length-1);
+  if (idx !== GS.intercoms || Math.random() < 0.3) {
+    GS.intercoms = idx;
+    playIntercom(INTERCOMS[idx]);
+  }
+}
+function playIntercom(text) {
+  if (intercomTimer) clearTimeout(intercomTimer);
+  const bar = document.getElementById('intercom-bar');
+  document.getElementById('intercom-text').textContent = text;
+  bar.classList.add('show');
+  intercomTimer = setTimeout(()=>bar.classList.remove('show'), 5000);
+}
+
+/* ═══════════════════════════════════════════
+   END SCREEN
+═══════════════════════════════════════════ */
+function showEndScreen() {
+  document.getElementById('end-story-text').innerHTML = `
+    <p>🎓 당신은 마침내 화려한마법학교의 모든 잠금장치를 해제했습니다!</p>
+    <p>비상구 스티커를 발견하는 순간, 문이 스르르 열리며 졸업식 음악이 흘러나왔습니다.</p>
+    <p>교문 밖에서 기다리던 부모님들이 환호성을 질렀고,<br>교장 선생님은 눈물을 글썽이며 말했습니다:</p>
+    <p style="color:#ffd700;font-style:italic;">"역시... 우리 학교 7년 교육의 결실이야! (사실 나도 저 비상구 몰랐음)"</p>
+    <p>🎊 <strong>화려한마법학교 제109기 졸업을 축하합니다!</strong></p>
+    <p style="font-size:0.85em;color:#888;">총 해결 퍼즐: 15/15 ✅</p>
+  `;
+  document.getElementById('screen-game').classList.remove('active');
+  document.getElementById('screen-end').classList.add('active');
+}
+
+/* ═══════════════════════════════════════════
+   HELP
+═══════════════════════════════════════════ */
+function showHelp() {
+  showModal(`<h2>❓ 도움말</h2>
+    <div class="doc-content">
+<strong>🎮 게임 방법</strong>
+방 안의 오브젝트를 클릭하여 탐색합니다.
+
+<strong>📜 보라색 버튼</strong> = 메모/문서 (단서!)
+<strong>🔒 황금색 버튼</strong> = 퍼즐 잠금장치
+
+각 방의 퍼즐을 모두 풀면 다음 방으로 이동합니다.
+
+<strong>💡 힌트</strong>
+각 퍼즐에는 힌트 버튼이 있습니다.
+버튼을 누를 때만 힌트가 공개됩니다.
+
+<strong>📋 방 구성</strong>
+Room 1: 1층 입학처 (P1~P3)
+Room 2: 2층 복도 (P4~P7)
+Room 3: 3층 도서관+실험실 (P8~P11)
+Room 4: 마법탑 꼭대기 (P12~P15)
+
+<strong>총 15개</strong>의 퍼즐을 모두 해결하면 졸업!
+    </div>`);
+}
+
+/* ═══════════════════════════════════════════
+   START GAME
+═══════════════════════════════════════════ */
+function startGame() {
+  document.getElementById('screen-intro').classList.remove('active');
+  document.getElementById('screen-game').classList.add('active');
+  GS.room = 1;
+  renderRoom(1);
+  setTimeout(()=>playIntercom(INTERCOMS[0]), 1000);
+}
+</script>
+</body>
+</html>

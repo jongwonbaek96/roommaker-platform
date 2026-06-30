@@ -1,0 +1,3448 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>빛이 먼저 왔다 — LUMOS-7 달 기지</title>
+<style>
+:root {
+  --bg: #050a14; --panel: #0a1628; --border: #1a3a5c;
+  --accent: #00c8ff; --accent2: #ff6b35; --gold: #ffd700;
+  --text: #c8e0f0; --dim: #4a6a8a; --success: #00ff88; --danger: #ff3355;
+  --glow: 0 0 20px rgba(0,200,255,0.4);
+  --glow2: 0 0 30px rgba(0,200,255,0.25);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Malgun Gothic','맑은 고딕',sans-serif;
+  height: 100vh; overflow: hidden;
+  user-select: none;
+}
+
+/* ═══ SCANLINE OVERLAY ═══ */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 3px,
+    rgba(0,0,0,0.08) 3px,
+    rgba(0,0,0,0.08) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ═══ CHAPTER TRANSITION ═══ */
+#chapter-overlay {
+  position: fixed; inset: 0; z-index: 800;
+  background: #000;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.5s;
+}
+#chapter-overlay.show { opacity: 1; pointer-events: all; }
+.ch-eyebrow {
+  font-size: 0.7rem; letter-spacing: 0.5em;
+  color: var(--accent); text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.ch-title {
+  font-size: 2.8rem; font-weight: 900;
+  color: #fff; letter-spacing: 0.06em;
+  text-shadow: 0 0 40px rgba(0,200,255,0.6);
+  margin-bottom: 20px;
+}
+.ch-subtitle {
+  font-size: 0.95rem; color: #7a9ab8;
+  letter-spacing: 0.25em; margin-bottom: 28px;
+}
+.ch-divider {
+  width: 280px; height: 1px;
+  background: linear-gradient(to right, transparent, var(--border), transparent);
+  margin-bottom: 24px;
+}
+.ch-story {
+  max-width: 480px; text-align: center;
+  font-size: 0.9rem; line-height: 1.9;
+  color: #8aaccc;
+}
+.ch-skip {
+  margin-top: 36px; font-size: 0.7rem;
+  color: var(--dim); letter-spacing: 0.3em;
+  animation: pulse-dim 1.5s infinite;
+}
+@keyframes pulse-dim { 0%,100%{opacity:1}50%{opacity:0.3} }
+
+/* ═══ SCREENS ═══ */
+.screen { display: none; width: 100vw; height: 100vh; }
+.screen.active { display: flex; }
+
+/* ═══ INTRO ═══ */
+#screen-intro {
+  flex-direction: column; align-items: center; justify-content: center;
+  background: radial-gradient(ellipse at center, #0a1628 0%, #020508 100%);
+  position: relative; overflow: hidden;
+}
+#screen-intro::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Ccircle cx='50' cy='80' r='1' fill='%2300c8ff' opacity='0.4'/%3E%3Ccircle cx='120' cy='200' r='0.8' fill='%2300c8ff' opacity='0.6'/%3E%3Ccircle cx='280' cy='50' r='1.2' fill='white' opacity='0.3'/%3E%3Ccircle cx='350' cy='300' r='0.9' fill='%2300c8ff' opacity='0.5'/%3E%3Ccircle cx='180' cy='350' r='0.7' fill='white' opacity='0.4'/%3E%3Ccircle cx='320' cy='150' r='1' fill='%23ffd700' opacity='0.3'/%3E%3Ccircle cx='70' cy='320' r='0.8' fill='white' opacity='0.35'/%3E%3Ccircle cx='230' cy='120' r='1.1' fill='%2300c8ff' opacity='0.4'/%3E%3Ccircle cx='400' cy='220' r='0.9' fill='white' opacity='0.3'/%3E%3Ccircle cx='160' cy='30' r='0.7' fill='%2300c8ff' opacity='0.5'/%3E%3C/svg%3E") repeat;
+  opacity: 0.6;
+}
+.intro-badge {
+  font-size: 0.65rem; letter-spacing: 0.5em;
+  color: var(--accent); text-transform: uppercase;
+  border: 1px solid rgba(0,200,255,0.3);
+  padding: 4px 14px; margin-bottom: 24px; position: relative;
+}
+.intro-title {
+  font-size: clamp(2rem, 5vw, 3.6rem);
+  font-weight: 900; color: #fff;
+  text-align: center; letter-spacing: 0.05em;
+  text-shadow: 0 0 60px rgba(0,200,255,0.5);
+  position: relative; margin-bottom: 8px;
+  line-height: 1.1;
+}
+.intro-title span { color: var(--accent); }
+.intro-sub {
+  font-size: 0.85rem; color: var(--dim);
+  letter-spacing: 0.3em; margin-bottom: 40px;
+  position: relative;
+}
+.intro-lore {
+  max-width: 520px; text-align: center;
+  font-size: 0.88rem; line-height: 1.9; color: #7a9ab8;
+  position: relative; margin-bottom: 48px;
+  padding: 20px 24px;
+  border: 1px solid rgba(26,58,92,0.6);
+  background: rgba(10,22,40,0.6);
+}
+.intro-lore em { color: var(--accent); font-style: normal; }
+.btn-start {
+  position: relative;
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: var(--accent); padding: 14px 48px;
+  font-size: 0.9rem; letter-spacing: 0.3em;
+  cursor: pointer; transition: all 0.3s;
+  font-family: inherit;
+}
+.btn-start:hover {
+  background: rgba(0,200,255,0.1);
+  box-shadow: var(--glow);
+  letter-spacing: 0.4em;
+}
+
+/* ═══ GAME SCREEN ═══ */
+#screen-game {
+  flex-direction: column;
+}
+
+/* HUD */
+#hud {
+  height: 44px; min-height: 44px;
+  background: rgba(5,10,20,0.95);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 16px; gap: 20px;
+  position: relative; z-index: 10;
+}
+.hud-logo {
+  font-size: 0.65rem; letter-spacing: 0.35em;
+  color: var(--accent); font-weight: 700;
+  white-space: nowrap;
+}
+.hud-divider { width: 1px; height: 20px; background: var(--border); }
+.hud-stat {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 0.72rem; color: var(--dim);
+}
+.hud-stat-val {
+  color: var(--accent); font-weight: 700; font-size: 0.8rem;
+}
+.hud-chapter {
+  font-size: 0.68rem; letter-spacing: 0.25em;
+  color: var(--gold); margin-left: auto;
+}
+#hud-progress-bar {
+  position: absolute; bottom: 0; left: 0;
+  height: 2px; background: var(--accent);
+  transition: width 0.6s ease;
+  box-shadow: 0 0 8px var(--accent);
+}
+.btn-hint {
+  margin-left: auto; margin-right: 0;
+  background: transparent; border: 1px solid var(--border);
+  color: var(--dim); padding: 4px 12px;
+  font-size: 0.7rem; cursor: pointer;
+  font-family: inherit; transition: all 0.2s;
+  display: flex; align-items: center; gap: 6px;
+}
+.btn-hint:hover { border-color: var(--gold); color: var(--gold); }
+.btn-notes {
+  background: transparent; border: 1px solid var(--border);
+  color: var(--dim); padding: 4px 12px;
+  font-size: 0.7rem; cursor: pointer;
+  font-family: inherit; transition: all 0.2s;
+}
+.btn-notes:hover { border-color: var(--accent); color: var(--accent); }
+
+/* MAIN AREA */
+#game-body {
+  flex: 1; display: flex; overflow: hidden;
+}
+
+/* ROOM VIEWPORT */
+#room-view {
+  flex: 1; position: relative; overflow: hidden;
+}
+.room-scene {
+  position: absolute; inset: 0;
+  display: none;
+}
+.room-scene.active { display: block; }
+.room-scene svg {
+  width: 100%; height: 100%;
+}
+
+/* NARRATIVE BOX */
+#narrative-box {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(to top, rgba(5,10,20,0.97) 70%, transparent);
+  padding: 18px 28px 14px;
+  min-height: 70px; pointer-events: none;
+}
+#narrative-text {
+  font-size: 0.88rem; line-height: 1.8;
+  color: #a0c0d8; max-width: 700px;
+}
+#narrative-text .highlight { color: var(--gold); }
+#narrative-text .important { color: var(--danger); font-weight: 700; }
+#narrative-text .accent { color: var(--accent); }
+
+/* ROOM NAV */
+#room-nav {
+  position: absolute; top: 12px; left: 12px;
+  display: flex; gap: 6px; z-index: 5;
+}
+.room-btn {
+  background: rgba(10,22,40,0.85);
+  border: 1px solid var(--border);
+  color: var(--dim); padding: 5px 12px;
+  font-size: 0.68rem; letter-spacing: 0.15em;
+  cursor: pointer; transition: all 0.2s;
+  font-family: inherit;
+}
+.room-btn:hover { border-color: var(--accent); color: var(--accent); }
+.room-btn.current { border-color: var(--accent); color: var(--accent); background: rgba(0,200,255,0.06); }
+.room-btn.locked { color: #2a4060; cursor: not-allowed; border-color: #0d2040; }
+
+/* SIDEBAR */
+#sidebar {
+  width: 200px; min-width: 200px;
+  background: rgba(8,16,30,0.98);
+  border-left: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.sidebar-section {
+  border-bottom: 1px solid var(--border);
+  padding: 10px 12px;
+}
+.sidebar-label {
+  font-size: 0.6rem; letter-spacing: 0.35em;
+  color: var(--dim); text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+/* INVENTORY */
+#inventory-grid {
+  display: grid; grid-template-columns: repeat(4,1fr);
+  gap: 4px;
+}
+.inv-slot {
+  width: 36px; height: 36px;
+  background: rgba(26,58,92,0.2);
+  border: 1px solid rgba(26,58,92,0.4);
+  border-radius: 3px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; cursor: pointer;
+  transition: all 0.2s;
+}
+.inv-slot.empty { opacity: 0.25; cursor: default; filter: grayscale(1); }
+.inv-slot:not(.empty):hover {
+  border-color: var(--accent);
+  background: rgba(0,200,255,0.1);
+  box-shadow: var(--glow);
+}
+
+/* NOTES */
+#notes-list {
+  max-height: 120px; overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.note-entry {
+  padding: 5px 0; font-size: 0.72rem;
+  border-bottom: 1px solid rgba(26,58,92,0.3);
+  cursor: pointer; color: var(--dim);
+  transition: color 0.2s;
+}
+.note-entry:hover { color: var(--accent); }
+.note-title { color: var(--text); font-size: 0.75rem; }
+.no-notes { font-size: 0.72rem; color: #2a4060; }
+
+/* PUZZLE STATUS */
+#puzzle-status {
+  flex: 1; overflow-y: auto; padding: 10px 12px;
+  scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+}
+.puzz-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 0; font-size: 0.7rem; color: var(--dim);
+  border-bottom: 1px solid rgba(26,58,92,0.2);
+}
+.puzz-item.done { color: var(--success); }
+.puzz-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--border); flex-shrink: 0;
+}
+.puzz-item.done .puzz-dot { background: var(--success); box-shadow: 0 0 6px var(--success); }
+
+/* ═══ MODALS ═══ */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 400;
+  background: rgba(2,5,10,0.9);
+  display: none; align-items: center; justify-content: center;
+  backdrop-filter: blur(4px);
+}
+.modal-overlay.active { display: flex; }
+.modal-overlay.success-flash { animation: flash-success 0.6s ease; }
+@keyframes flash-success {
+  0%,100%{background:rgba(2,5,10,0.9)}
+  50%{background:rgba(0,80,40,0.6)}
+}
+.modal-box {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  box-shadow: var(--glow2), inset 0 0 60px rgba(0,0,0,0.4);
+  width: 580px; max-width: 95vw;
+  max-height: 92vh; overflow-y: auto;
+  padding: 28px 28px 24px;
+  position: relative;
+}
+.modal-box.wide { width: 680px; }
+.modal-title {
+  font-size: 0.65rem; letter-spacing: 0.4em;
+  color: var(--accent); text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.modal-heading {
+  font-size: 1.3rem; font-weight: 700;
+  color: #fff; margin-bottom: 6px;
+}
+.modal-desc {
+  font-size: 0.8rem; color: var(--dim);
+  line-height: 1.7; margin-bottom: 20px;
+  border-left: 2px solid var(--border);
+  padding-left: 10px;
+}
+.modal-close {
+  position: absolute; top: 14px; right: 16px;
+  background: none; border: none; color: var(--dim);
+  font-size: 1.2rem; cursor: pointer; transition: color 0.2s;
+}
+.modal-close:hover { color: var(--danger); }
+.modal-hint {
+  margin-top: 12px; padding: 10px 14px;
+  border: 1px solid rgba(255,215,0,0.2);
+  background: rgba(255,215,0,0.04);
+  font-size: 0.78rem; color: var(--gold);
+  display: none;
+}
+.modal-hint.visible { display: block; }
+.btn-primary {
+  background: transparent; border: 1px solid var(--accent);
+  color: var(--accent); padding: 10px 28px;
+  font-size: 0.82rem; letter-spacing: 0.2em;
+  cursor: pointer; font-family: inherit;
+  transition: all 0.25s; margin-top: 14px;
+}
+.btn-primary:hover {
+  background: rgba(0,200,255,0.1);
+  box-shadow: var(--glow);
+}
+.btn-danger {
+  background: transparent; border: 1px solid var(--danger);
+  color: var(--danger); padding: 10px 28px;
+  font-size: 0.82rem; letter-spacing: 0.2em;
+  cursor: pointer; font-family: inherit;
+  transition: all 0.25s; margin-top: 14px;
+}
+.status-text {
+  margin-top: 10px; font-size: 0.78rem;
+  color: var(--dim); min-height: 20px;
+}
+
+/* canvas */
+canvas {
+  display: block; max-width: 100%;
+  border: 1px solid var(--border); margin: 12px auto;
+}
+
+/* sliders */
+.slider-row {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 8px;
+}
+.slider-label { font-size: 0.75rem; color: var(--dim); width: 20px; }
+.slider-val { font-size: 0.8rem; color: var(--accent); width: 32px; text-align: right; }
+input[type=range] {
+  flex: 1; accent-color: var(--accent);
+  height: 3px; cursor: pointer;
+}
+
+/* code digits */
+.code-row {
+  display: flex; gap: 10px; justify-content: center;
+  margin: 20px 0;
+}
+.code-digit {
+  width: 56px; height: 72px; text-align: center;
+  font-size: 2rem; font-weight: 700; color: var(--accent);
+  background: rgba(0,200,255,0.06);
+  border: 1px solid var(--border); outline: none;
+  font-family: 'Courier New', monospace;
+  transition: border-color 0.2s;
+}
+.code-digit:focus { border-color: var(--accent); }
+
+/* note modal */
+#modal-note .modal-box { width: 480px; }
+.note-content-text {
+  font-size: 0.85rem; line-height: 1.9; color: var(--text);
+  white-space: pre-wrap; font-style: italic;
+  border: 1px solid rgba(26,58,92,0.4);
+  padding: 16px; background: rgba(0,0,0,0.3);
+  max-height: 320px; overflow-y: auto;
+}
+.note-meta { font-size: 0.7rem; color: var(--dim); margin-bottom: 10px; }
+
+/* DNA buttons */
+.dna-buttons {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  justify-content: center; margin: 16px 0;
+}
+.dna-btn {
+  width: 54px; height: 54px; font-size: 1.2rem; font-weight: 900;
+  background: rgba(10,22,40,0.8); border: 2px solid var(--border);
+  color: var(--text); cursor: pointer; transition: all 0.2s;
+  font-family: 'Courier New', monospace;
+}
+.dna-btn:hover { border-color: var(--accent); color: var(--accent); box-shadow: var(--glow); }
+.dna-btn.A { --c: #00c8ff; }
+.dna-btn.T { --c: #ff6b35; }
+.dna-btn.G { --c: #00ff88; }
+.dna-btn.C { --c: #ffd700; }
+.dna-btn.active { border-color: var(--c,var(--accent)); background: rgba(0,200,255,0.15); }
+.dna-sequence-display {
+  display: flex; gap: 6px; justify-content: center;
+  min-height: 44px; align-items: center;
+  border: 1px solid var(--border); padding: 8px;
+  background: rgba(0,0,0,0.3); margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.dna-chip {
+  width: 30px; height: 30px; border-radius: 3px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 0.9rem;
+  font-family: 'Courier New', monospace;
+}
+.dna-chip.A { background: rgba(0,200,255,0.2); color: #00c8ff; border: 1px solid rgba(0,200,255,0.4); }
+.dna-chip.T { background: rgba(255,107,53,0.2); color: #ff6b35; border: 1px solid rgba(255,107,53,0.4); }
+.dna-chip.G { background: rgba(0,255,136,0.2); color: #00ff88; border: 1px solid rgba(0,255,136,0.4); }
+.dna-chip.C { background: rgba(255,215,0,0.2); color: #ffd700; border: 1px solid rgba(255,215,0,0.4); }
+
+/* switches */
+.switch-grid {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 12px; margin: 16px 0;
+}
+.switch-btn {
+  height: 70px; background: rgba(10,22,40,0.9);
+  border: 2px solid var(--border);
+  color: var(--dim); cursor: pointer;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 4px; font-family: inherit;
+  transition: all 0.2s; font-size: 0.75rem;
+}
+.switch-btn .sw-num { font-size: 1.4rem; font-weight: 900; color: var(--dim); }
+.switch-btn.activated {
+  border-color: var(--success); background: rgba(0,255,136,0.08);
+}
+.switch-btn.activated .sw-num { color: var(--success); }
+.switch-btn:hover:not(.activated) { border-color: var(--accent); }
+.switch-order {
+  display: flex; gap: 6px; justify-content: center;
+  align-items: center; margin-bottom: 10px;
+  font-size: 0.78rem; color: var(--dim);
+  flex-wrap: wrap;
+}
+.sw-step {
+  width: 24px; height: 24px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border);
+  font-size: 0.7rem; color: var(--dim);
+  font-family: 'Courier New', monospace;
+}
+.sw-step.done { border-color: var(--success); color: var(--success); background: rgba(0,255,136,0.1); }
+.sw-step.current { border-color: var(--accent); color: var(--accent); animation: pulse-border 1s infinite; }
+@keyframes pulse-border { 0%,100%{box-shadow:none}50%{box-shadow:0 0 8px var(--accent)} }
+
+/* reactor sliders */
+.reactor-core {
+  display: flex; flex-direction: column; gap: 14px;
+  margin: 16px 0;
+}
+.core-row {
+  display: flex; align-items: center; gap: 12px;
+}
+.core-label {
+  font-size: 0.9rem; font-weight: 900; width: 28px;
+  font-family: 'Courier New', monospace;
+}
+.core-a { color: #00c8ff; }
+.core-b { color: #ff6b35; }
+.core-g { color: #00ff88; }
+.core-bar { flex: 1; }
+.core-val { font-size: 0.85rem; font-weight: 700; width: 36px; text-align: right; font-family: 'Courier New', monospace; }
+.reactor-total {
+  text-align: center; font-size: 0.78rem; color: var(--dim);
+  margin-top: 4px;
+}
+.reactor-total span { color: var(--accent); font-weight: 700; }
+
+/* morse */
+.morse-display {
+  font-family: 'Courier New', monospace;
+  font-size: 1.4rem; letter-spacing: 0.3em;
+  color: var(--accent); text-align: center;
+  padding: 14px; background: rgba(0,0,0,0.4);
+  border: 1px solid var(--border); margin: 12px 0;
+  word-spacing: 16px;
+}
+.morse-table {
+  display: grid; grid-template-columns: repeat(4,1fr);
+  gap: 4px; margin: 10px 0; max-height: 150px; overflow-y: auto;
+}
+.morse-cell {
+  font-size: 0.65rem; font-family: 'Courier New', monospace;
+  display: flex; gap: 6px; align-items: center;
+  padding: 2px 4px; color: var(--dim);
+}
+.morse-cell .mc-letter { color: var(--accent); font-weight: 700; width: 12px; }
+.morse-input {
+  width: 100%; text-align: center; text-transform: uppercase;
+  letter-spacing: 0.4em; font-size: 1.1rem;
+  background: rgba(0,200,255,0.05); border: 1px solid var(--border);
+  color: var(--accent); padding: 10px; font-family: 'Courier New', monospace;
+  outline: none; margin: 10px 0;
+}
+.morse-input:focus { border-color: var(--accent); }
+
+/* starmap */
+#starmap-canvas { cursor: crosshair; }
+.starmap-legend {
+  display: flex; gap: 16px; justify-content: center;
+  font-size: 0.7rem; color: var(--dim); margin-top: 6px;
+}
+
+/* color preview */
+.color-preview-box {
+  height: 60px; border: 1px solid var(--border);
+  margin: 10px 0; border-radius: 3px; transition: background 0.2s;
+}
+.target-preview {
+  height: 30px; border: 1px solid rgba(255,215,0,0.3);
+  background: rgb(255,140,0); border-radius: 3px;
+  margin-bottom: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem; color: rgba(0,0,0,0.7); font-weight: 700;
+}
+
+/* ═══ ENDING ═══ */
+#screen-ending {
+  flex-direction: column; align-items: center; justify-content: center;
+  background: radial-gradient(ellipse at center, #061220 0%, #020508 100%);
+  padding: 40px; text-align: center;
+}
+.ending-badge {
+  font-size: 0.65rem; letter-spacing: 0.5em; color: var(--gold);
+  margin-bottom: 20px; border: 1px solid rgba(255,215,0,0.3);
+  padding: 4px 16px;
+}
+.ending-title {
+  font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 900;
+  color: #fff; margin-bottom: 16px;
+  text-shadow: 0 0 50px rgba(0,200,255,0.5);
+}
+.ending-body {
+  max-width: 560px; font-size: 0.9rem; line-height: 2;
+  color: #7a9ab8; margin-bottom: 40px;
+}
+.ending-body em { color: var(--accent); font-style: normal; }
+.btn-restart {
+  background: transparent; border: 1px solid var(--dim);
+  color: var(--dim); padding: 10px 36px;
+  font-size: 0.8rem; letter-spacing: 0.3em;
+  cursor: pointer; font-family: inherit;
+  transition: all 0.3s;
+}
+.btn-restart:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ═══ NOTIF ═══ */
+.notif {
+  position: fixed; top: 60px; right: 16px;
+  padding: 10px 18px; font-size: 0.8rem;
+  border-left: 3px solid var(--accent);
+  background: rgba(5,10,20,0.97);
+  animation: notif-in 0.3s ease, notif-out 0.4s ease 2.8s forwards;
+  z-index: 600; max-width: 300px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+}
+.notif.success { border-color: var(--success); }
+.notif.error { border-color: var(--danger); }
+.notif.info { border-color: var(--gold); }
+@keyframes notif-in  { from{transform:translateX(120%);opacity:0}to{transform:none;opacity:1} }
+@keyframes notif-out { from{opacity:1}to{opacity:0} }
+
+/* ═══ HINT ═══ */
+#hint-text { display: none; }
+#hint-text.visible {
+  display: block; margin-top: 14px;
+  padding: 10px 14px;
+  border: 1px solid rgba(255,215,0,0.25);
+  background: rgba(255,215,0,0.05);
+  font-size: 0.78rem; color: var(--gold);
+}
+
+/* scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* room hotspots */
+.hotspot {
+  cursor: pointer; transition: opacity 0.2s;
+}
+.hotspot:hover { opacity: 0.75; }
+
+/* bio section */
+.biocode-row {
+  display: flex; gap: 12px; justify-content: center;
+  font-size: 0.75rem; color: var(--dim);
+  flex-wrap: wrap; margin-bottom: 14px;
+  padding: 10px; background: rgba(0,0,0,0.3);
+  border: 1px solid var(--border);
+}
+.biocode-item { text-align: center; }
+.biocode-item strong { display: block; font-size: 1.1rem; color: var(--accent); }
+
+/* coord input */
+.coord-terminal {
+  background: #000; border: 1px solid var(--success);
+  padding: 14px; font-family: 'Courier New', monospace;
+  font-size: 0.8rem; color: var(--success);
+  margin: 12px 0; line-height: 1.8;
+}
+.coord-input-row {
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 10px;
+}
+.coord-prompt { color: var(--success); font-family: 'Courier New', monospace; }
+.coord-input {
+  flex: 1; background: transparent; border: none;
+  border-bottom: 1px solid var(--success);
+  color: var(--success); font-family: 'Courier New', monospace;
+  font-size: 1rem; padding: 2px 4px; outline: none;
+  letter-spacing: 0.2em;
+}
+
+/* paradox */
+.paradox-timeline {
+  display: flex; flex-direction: column; gap: 12px;
+  margin: 16px 0; padding: 16px;
+  border: 1px solid rgba(255,107,53,0.3);
+  background: rgba(255,107,53,0.04);
+}
+.timeline-event {
+  display: flex; gap: 14px; align-items: flex-start;
+}
+.timeline-year {
+  font-size: 0.75rem; font-weight: 900;
+  color: var(--accent2); font-family: 'Courier New', monospace;
+  width: 40px; flex-shrink: 0; padding-top: 2px;
+}
+.timeline-desc { font-size: 0.8rem; color: var(--dim); line-height: 1.6; }
+.timeline-desc em { color: var(--text); font-style: normal; }
+.paradox-question {
+  text-align: center; font-size: 0.9rem; color: var(--text);
+  margin: 16px 0 8px; font-weight: 700;
+}
+
+/* ─── PUZZLE ILLUSTRATION BANNERS ─── */
+.puzzle-banner {
+  width: 100%; height: 160px;
+  border: 1px solid var(--border);
+  border-bottom: none;
+  overflow: hidden;
+  margin-bottom: 0;
+  position: relative;
+  background: #000;
+}
+.puzzle-banner svg {
+  width: 100%; height: 100%;
+  display: block;
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ CHAPTER OVERLAY ═══ -->
+<div id="chapter-overlay">
+  <div class="ch-eyebrow" id="ch-eyebrow">CHAPTER 1</div>
+  <div class="ch-title" id="ch-title">제1구역</div>
+  <div class="ch-subtitle" id="ch-subtitle">관측실</div>
+  <div class="ch-divider"></div>
+  <div class="ch-story" id="ch-story">달 기지 LUMOS-7의 최전방 관측실. Dr. 한이준이 마지막으로 있었던 곳이다.</div>
+  <div class="ch-skip">— 클릭하면 계속 —</div>
+</div>
+
+<!-- ═══ INTRO ═══ -->
+<div class="screen active" id="screen-intro">
+  <div class="intro-badge">LUMOS-7 달 기지 · 2031년 3월</div>
+  <div class="intro-title">빛이 먼저 왔다<br><span>LICHT ZUERST</span></div>
+  <div class="intro-sub">LUMOS-7 LUNAR OBSERVATORY · INCIDENT REPORT #00714</div>
+  <div class="intro-lore">
+    2031년 3월 14일, 달 기지 <em>LUMOS-7</em>의 수석 천문학자
+    <em>Dr. 한이준</em>이 갑자기 행방불명되었다.<br><br>
+    그가 남긴 단 하나의 메모:<br>
+    <em>「빛이 먼저 왔다. 찾아라.」</em><br><br>
+    기지에는 당신 혼자 남았다. 8개 구역을 수색하고,
+    진실을 밝혀라. <em>제한 시간은 없다. 답은 반드시 존재한다.</em>
+  </div>
+  <button class="btn-start" onclick="startGame()">▶ 수사 개시</button>
+</div>
+
+<!-- ═══ GAME ═══ -->
+<div class="screen" id="screen-game">
+
+  <!-- HUD -->
+  <div id="hud">
+    <div class="hud-logo">LUMOS-7</div>
+    <div class="hud-divider"></div>
+    <div class="hud-stat">퍼즐 <span class="hud-stat-val" id="hud-solved">0</span>/14</div>
+    <div class="hud-divider"></div>
+    <div class="hud-stat">힌트 <span class="hud-stat-val" id="hint-count">3</span></div>
+    <div class="hud-chapter" id="hud-chapter">CHAPTER 1 · 관측실</div>
+    <button class="btn-notes" onclick="showNote()">📋 문서</button>
+    <button class="btn-hint" onclick="useHint()">💡 힌트 사용</button>
+    <div id="hud-progress-bar" style="width:0%"></div>
+  </div>
+
+  <div id="game-body">
+    <!-- ROOM -->
+    <div id="room-view">
+
+      <!-- ROOM NAV -->
+      <div id="room-nav">
+        <button class="room-btn current" id="nav-obs" onclick="changeRoom('obs')">관측실</button>
+        <button class="room-btn locked" id="nav-lab" onclick="changeRoom('lab')">실험실</button>
+        <button class="room-btn locked" id="nav-srv" onclick="changeRoom('srv')">서버실</button>
+        <button class="room-btn locked" id="nav-iso" onclick="changeRoom('iso')">격리실</button>
+        <button class="room-btn locked" id="nav-pwr" onclick="changeRoom('pwr')">동력실</button>
+        <button class="room-btn locked" id="nav-com" onclick="changeRoom('com')">통신실</button>
+        <button class="room-btn locked" id="nav-hng" onclick="changeRoom('hng')">격납고</button>
+        <button class="room-btn locked" id="nav-lab2" onclick="changeRoom('lab2')">비밀연구실</button>
+      </div>
+
+      <!-- ═══ ROOM: OBS ═══ -->
+      <div class="room-scene active" id="scene-obs">
+        <svg viewBox="0 0 800 520" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <radialGradient id="obs-glow" cx="50%" cy="30%" r="60%">
+              <stop offset="0%" stop-color="#0a1e3a"/>
+              <stop offset="100%" stop-color="#020508"/>
+            </radialGradient>
+            <radialGradient id="lens-grad" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#1a4a6a" stop-opacity="0.6"/>
+              <stop offset="100%" stop-color="#050a14" stop-opacity="0.9"/>
+            </radialGradient>
+          </defs>
+          <rect width="800" height="520" fill="url(#obs-glow)"/>
+          <!-- Stars -->
+          <circle cx="80" cy="60" r="0.9" fill="white" opacity="0.5"/>
+          <circle cx="200" cy="30" r="1.1" fill="#00c8ff" opacity="0.4"/>
+          <circle cx="650" cy="50" r="0.8" fill="white" opacity="0.4"/>
+          <circle cx="720" cy="120" r="1.3" fill="#ffd700" opacity="0.3"/>
+          <circle cx="50" cy="180" r="0.7" fill="white" opacity="0.35"/>
+          <circle cx="760" cy="80" r="0.9" fill="#00c8ff" opacity="0.4"/>
+          <!-- Floor -->
+          <rect x="0" y="410" width="800" height="110" fill="#060d1a"/>
+          <line x1="0" y1="410" x2="800" y2="410" stroke="#1a3a5c" stroke-width="1"/>
+          <!-- Floor grid -->
+          <line x1="0" y1="440" x2="800" y2="440" stroke="#0d1e32" stroke-width="0.5" stroke-dasharray="4,8"/>
+          <line x1="0" y1="470" x2="800" y2="470" stroke="#0d1e32" stroke-width="0.5" stroke-dasharray="4,8"/>
+          <!-- Dome structure -->
+          <ellipse cx="400" cy="200" rx="320" ry="240" fill="none" stroke="#0f2a44" stroke-width="1"/>
+          <ellipse cx="400" cy="200" rx="280" ry="200" fill="none" stroke="#0a2034" stroke-width="0.5"/>
+          <!-- Dome ribs -->
+          <line x1="400" y1="0" x2="400" y2="410" stroke="#0a2034" stroke-width="0.5" stroke-dasharray="6,6"/>
+          <line x1="100" y1="80" x2="700" y2="80" stroke="#0a2034" stroke-width="0.5" stroke-dasharray="6,6"/>
+          <!-- Telescope -->
+          <rect x="330" y="250" width="140" height="160" rx="4" fill="#080e1a" stroke="#1a3a5c" stroke-width="1.5"/>
+          <ellipse cx="400" cy="250" rx="55" ry="18" fill="#0a1628" stroke="#1a3a5c" stroke-width="1.5"/>
+          <rect x="360" y="100" width="80" height="160" rx="8" fill="#0c1a2e" stroke="#1a3a5c" stroke-width="2"/>
+          <ellipse cx="400" cy="100" rx="38" ry="14" fill="url(#lens-grad)" stroke="#00c8ff" stroke-width="1.5" id="lens-glow" opacity="0.7"/>
+          <text x="400" y="170" fill="#2a4a6a" font-size="9" text-anchor="middle" font-family="monospace">MAIN SCOPE</text>
+          <!-- Control panel -->
+          <rect x="50" y="340" width="200" height="80" rx="3" fill="#080e1a" stroke="#1a3a5c" stroke-width="1"/>
+          <text x="150" y="360" fill="#2a4a6a" font-size="8" text-anchor="middle" font-family="monospace">CONTROL PANEL A</text>
+          <rect x="64" y="368" width="60" height="20" rx="2" fill="#060d1a" stroke="#1a3050" stroke-width="0.8"/>
+          <rect x="134" y="368" width="60" height="20" rx="2" fill="#060d1a" stroke="#1a3050" stroke-width="0.8"/>
+          <circle cx="80" cy="400" r="6" fill="#1a3a5c"/>
+          <circle cx="110" cy="400" r="6" fill="#1a3a5c"/>
+          <circle cx="140" cy="400" r="6" fill="#0d4020" stroke="#00ff88" stroke-width="0.8"/>
+          <circle cx="170" cy="400" r="6" fill="#1a3a5c"/>
+          <circle cx="200" cy="400" r="6" fill="#4a1020" stroke="#ff3355" stroke-width="0.8"/>
+          <!-- Right panel (freq) -->
+          <rect x="550" y="330" width="200" height="90" rx="3" fill="#080e1a" stroke="#1a3a5c" stroke-width="1"/>
+          <text x="650" y="350" fill="#2a4a6a" font-size="8" text-anchor="middle" font-family="monospace">SIGNAL RECEIVER</text>
+          <rect x="560" y="358" width="180" height="24" rx="1" fill="#000" stroke="#0a2034" stroke-width="0.8"/>
+          <text x="650" y="374" fill="#00c8ff" font-size="10" text-anchor="middle" font-family="monospace">??? MHz</text>
+          <rect x="560" y="390" width="120" height="8" rx="2" fill="#0a2034"/>
+          <rect x="560" y="390" width="60" height="8" rx="2" fill="#00c8ff" opacity="0.5"/>
+          <!-- Door to lab -->
+          <g class="hotspot" id="door-obs" onclick="changeRoom('lab')">
+            <rect x="700" y="320" width="80" height="120" rx="2" fill="#080e1a" stroke="#1a3a5c" stroke-width="1.5"/>
+            <line x1="740" y1="320" x2="740" y2="440" stroke="#0a2034" stroke-width="1" stroke-dasharray="4,4"/>
+            <circle cx="720" cy="382" r="6" fill="#1a2a3a"/>
+            <circle cx="720" cy="382" r="3" fill="#0a1a2a" stroke="#1a3a5c" stroke-width="0.8"/>
+            <text x="740" y="454" fill="#1a3a5c" font-size="7" text-anchor="middle" font-family="monospace">실험실 →</text>
+          </g>
+          <!-- Clue: Prism puzzle hotspot -->
+          <g class="hotspot" onclick="findItem('prism'); openPuzzle('prism')">
+            <rect x="60" y="362" width="66" height="26" rx="2" fill="rgba(0,200,255,0.08)" stroke="rgba(0,200,255,0.3)" stroke-width="1"/>
+            <text x="93" y="378" fill="#00c8ff" font-size="9" text-anchor="middle" font-family="monospace">프리즘</text>
+          </g>
+          <!-- Freq puzzle -->
+          <g class="hotspot" onclick="findItem('freq_card'); openPuzzle('freq')">
+            <rect x="554" y="352" width="186" height="30" rx="1" fill="rgba(0,200,255,0.06)" stroke="rgba(0,200,255,0.2)" stroke-width="1"/>
+          </g>
+          <!-- Intro note -->
+          <g class="hotspot" onclick="findItem('note_intro')">
+            <rect x="430" y="358" width="80" height="54" rx="2" fill="#0a1424" stroke="#1a3a5c" stroke-width="1" transform="rotate(-3,470,385)"/>
+            <text x="470" y="375" fill="#4a6a8a" font-size="7" text-anchor="middle" font-family="monospace">메모</text>
+            <text x="470" y="388" fill="#3a5070" font-size="6" text-anchor="middle" font-family="monospace">빛이 먼저...</text>
+          </g>
+        </svg>
+      </div>
+
+      <!-- ═══ ROOM: LAB ═══ -->
+      <div class="room-scene" id="scene-lab">
+        <svg viewBox="0 0 800 520" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <radialGradient id="lab-glow" cx="50%" cy="40%" r="65%">
+              <stop offset="0%" stop-color="#0a1e2e"/>
+              <stop offset="100%" stop-color="#030810"/>
+            </radialGradient>
+          </defs>
+          <rect width="800" height="520" fill="url(#lab-glow)"/>
+          <rect x="0" y="400" width="800" height="120" fill="#06090f"/>
+          <line x1="0" y1="400" x2="800" y2="400" stroke="#1a3a5c" stroke-width="1"/>
+          <!-- Lab benches -->
+          <rect x="60" y="280" width="680" height="130" rx="2" fill="#080e18" stroke="#1a3050" stroke-width="1.5"/>
+          <rect x="60" y="277" width="680" height="12" rx="1" fill="#0a1425" stroke="#1a3a5c" stroke-width="0.8"/>
+          <!-- Equipment on bench -->
+          <rect x="80" y="210" width="120" height="76" rx="3" fill="#060c18" stroke="#1a3050" stroke-width="1"/>
+          <text x="140" y="228" fill="#2a4060" font-size="7" text-anchor="middle" font-family="monospace">SPECTROMETER</text>
+          <rect x="90" y="235" width="100" height="40" fill="#020508" stroke="#0a2034"/>
+          <!-- RGB display area -->
+          <rect x="240" y="200" width="160" height="86" rx="3" fill="#060c18" stroke="#ff6b35" stroke-width="1" opacity="0.8"/>
+          <text x="320" y="218" fill="#ff6b35" font-size="7" text-anchor="middle" font-family="monospace">SOLAR CORONA ANALYZER</text>
+          <rect x="250" y="224" width="140" height="40" fill="#000" stroke="#0a1820"/>
+          <rect x="250" y="224" width="46" height="40" fill="rgb(80,30,0)" opacity="0.7"/>
+          <rect x="296" y="224" width="46" height="40" fill="rgb(40,50,0)" opacity="0.7"/>
+          <rect x="342" y="224" width="48" height="40" fill="rgb(0,30,80)" opacity="0.7"/>
+          <!-- RGB clickable -->
+          <g class="hotspot" onclick="openPuzzle('rgb')">
+            <rect x="244" y="194" width="172" height="98" rx="3" fill="rgba(255,107,53,0.04)" stroke="rgba(255,107,53,0.25)" stroke-width="1"/>
+          </g>
+          <!-- Maze device -->
+          <rect x="440" y="195" width="180" height="90" rx="3" fill="#060c18" stroke="#1a3050" stroke-width="1"/>
+          <text x="530" y="213" fill="#2a4060" font-size="7" text-anchor="middle" font-family="monospace">LASER DEFLECTION SYS</text>
+          <g class="hotspot" onclick="openPuzzle('maze')">
+            <rect x="444" y="188" width="188" height="103" rx="3" fill="rgba(0,200,255,0.04)" stroke="rgba(0,200,255,0.2)" stroke-width="1"/>
+          </g>
+          <!-- Journal -->
+          <g class="hotspot" onclick="findItem('journal')">
+            <rect x="660" y="228" width="64" height="46" rx="2" fill="#0a1424" stroke="#1a3050" transform="rotate(5,692,251)"/>
+            <text x="688" y="248" fill="#4a6a8a" font-size="7" text-anchor="middle" font-family="monospace">연구일지</text>
+          </g>
+          <!-- Back door (obs) -->
+          <g class="hotspot" onclick="changeRoom('obs')">
+            <rect x="10" y="300" width="50" height="110" rx="2" fill="#080e18" stroke="#0d2040" stroke-width="1"/>
+            <text x="35" y="430" fill="#1a3a5c" font-size="7" text-anchor="middle" font-family="monospace">← 관측실</text>
+          </g>
+          <!-- Next door (srv) -->
+          <g class="hotspot" id="door-server" onclick="changeRoom('srv')">
+            <rect x="740" y="290" width="50" height="120" rx="2" fill="#080e18" stroke="#1a3a5c" stroke-width="1.5"/>
+            <circle cx="750" cy="352" r="5" fill="#1a2a3a"/>
+            <text x="765" y="430" fill="#1a3a5c" font-size="7" text-anchor="middle" font-family="monospace">서버실 →</text>
+          </g>
+        </svg>
+      </div>
+
+      <!-- ═══ ROOM: SRV ═══ -->
+      <div class="room-scene" id="scene-srv">
+        <svg viewBox="0 0 800 520" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+          <rect width="800" height="520" fill="#030810"/>
+          <rect x="0" y="400" width="800" height="120" fill="#050a10"/>
+          <line x1="0" y1="400" x2="800" y2="400" stroke="#1a3a5c" stroke-width="1"/>
+          <!-- Server racks -->
+          <rect x="60" y="100" width="80" height="300" rx="3" fill="#060c18" stroke="#1a3050" stroke-width="1.5"/>
+          <rect x="160" y="100" width="80" height="300" rx="3" fill="#060c18" stroke="#1a3050" stroke-width="1.5"/>
+          <rect x="260" y="100" width="80" height="300" rx="3" fill="#060c18" stroke="#1a3050" stroke-width="1.5"/>
+          <!-- Server LEDs -->
+          <rect x="70" y="115" width="60" height="6" rx="1" fill="#001408" stroke="#0a3020"/>
+          <rect x="70" y="115" width="28" height="6" rx="1" fill="#00ff88" opacity="0.7"/>
+          <rect x="70" y="128" width="60" height="6" rx="1" fill="#001408" stroke="#0a3020"/>
+          <rect x="70" y="128" width="44" height="6" rx="1" fill="#00ff88" opacity="0.5"/>
+          <rect x="170" y="115" width="60" height="6" rx="1" fill="#001408" stroke="#0a3020"/>
+          <rect x="170" y="115" width="36" height="6" rx="1" fill="#00c8ff" opacity="0.6"/>
+          <rect x="270" y="115" width="60" height="6" rx="1" fill="#001408" stroke="#0a3020"/>
+          <rect x="270" y="115" width="22" height="6" rx="1" fill="#ff3355" opacity="0.7"/>
+          <!-- Main terminal -->
+          <rect x="400" y="150" width="300" height="200" rx="4" fill="#080e18" stroke="#1a3a5c" stroke-width="2"/>
+          <rect x="410" y="162" width="280" height="128" rx="2" fill="#000" stroke="#0a2034"/>
+          <text x="550" y="195" fill="#00ff88" font-size="9" text-anchor="middle" font-family="monospace">&gt; LUMOS-7 MAINFRAME v4.1</text>
+          <text x="550" y="212" fill="#00c8ff" font-size="8" text-anchor="middle" font-family="monospace">ACCESS LEVEL: RESTRICTED</text>
+          <text x="550" y="229" fill="#4a6a8a" font-size="8" text-anchor="middle" font-family="monospace">ENTER OVERRIDE CODE:</text>
+          <text x="550" y="247" fill="#ff6b35" font-size="10" text-anchor="middle" font-family="monospace">[ _ _ _ _ ]</text>
+          <text x="550" y="268" fill="#2a4a6a" font-size="7" text-anchor="middle" font-family="monospace">HINT: c/λ × 10⁻⁴</text>
+          <!-- Code puzzle hotspot -->
+          <g class="hotspot" onclick="openPuzzle('code')">
+            <rect x="394" y="144" width="312" height="218" rx="4" fill="rgba(0,200,255,0.04)" stroke="rgba(0,200,255,0.2)" stroke-width="1"/>
+          </g>
+          <!-- Back door -->
+          <g class="hotspot" onclick="changeRoom('lab')">
+            <rect x="10" y="300" width="50" height="110" rx="2" fill="#080e18" stroke="#0d2040" stroke-width="1"/>
+            <text x="35" y="430" fill="#1a3a5c" font-size="7" text-anchor="middle" font-family="monospace">← 실험실</text>
+          </g>
+          <!-- Next door (iso) -->
+          <g class="hotspot" id="door-iso" onclick="changeRoom('iso')">
+            <rect x="740" y="290" width="50" height="120" rx="2" fill="#080e18" stroke="#1a3a5c" stroke-width="1.5"/>
+            <circle cx="750" cy="352" r="5" fill="#1a2a3a"/>
+            <text x="765" y="430" fill="#1a3a5c" font-size="7" text-anchor="middle" font-family="monospace">격리실 →</text>
+          </g>
+        </svg>
+      </div>
+
+      <!-- ═══ ROOM: ISO (격리실) ═══ -->
+      <div class="room-scene" id="scene-iso">
+        <svg viewBox="0 0 800 520" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <radialGradient id="iso-glow" cx="50%" cy="45%" r="60%">
+              <stop offset="0%" stop-color="#0a1a14"/>
+              <stop offset="100%" stop-color="#030810"/>
+            </radialGradient>
+          </defs>
+          <rect width="800" height="520" fill="url(#iso-glow)"/>
+          <rect x="0" y="400" width="800" height="120" fill="#04090e"/>
+          <line x1="0" y1="400" x2="800" y2="400" stroke="#1a4030" stroke-width="1"/>
+          <!-- Warning stripes floor -->
+          <rect x="0" y="400" width="800" height="10" fill="none" stroke="#ffd700" stroke-width="0" opacity="0.3"/>
+          <line x1="0" y1="408" x2="800" y2="408" stroke="#ffd700" stroke-width="0.5" stroke-dasharray="20,20" opacity="0.3"/>
+          <!-- Walls -->
+          <rect x="0" y="0" width="12" height="400" fill="#050c10"/>
+          <rect x="788" y="0" width="12" height="400" fill="#050c10"/>
+          <!-- Bio hazard sign -->
+          <circle cx="400" cy="120" r="50" fill="none" stroke="#00ff88" stroke-width="2" opacity="0.4"/>
+          <circle cx="400" cy="120" r="42" fill="none" stroke="#00ff88" stroke-width="1" opacity="0.2"/>
+          <text x="400" y="130" fill="#00ff88" font-size="36" text-anchor="middle" opacity="0.3">☣</text>
+          <text x="400" y="172" fill="#2a5040" font-size="7" text-anchor="middle" font-family="monospace">BSL-4 ISOLATION ZONE</text>
+          <!-- Cryo storage units -->
+          <rect x="50" y="160" width="70" height="200" rx="4" fill="#060e14" stroke="#1a4030" stroke-width="1.5"/>
+          <text x="85" y="180" fill="#2a5040" font-size="6" text-anchor="middle" font-family="monospace">CRYO-A</text>
+          <rect x="58" y="188" width="54" height="12" rx="1" fill="#020508" stroke="#0a2820"/>
+          <rect x="58" y="207" width="54" height="12" rx="1" fill="#020508" stroke="#0a2820"/>
+          <rect x="58" y="226" width="54" height="12" rx="1" fill="#020508" stroke="#0a2820"/>
+          <circle cx="64" cy="194" r="3" fill="#00ff88" opacity="0.7"/>
+          <circle cx="64" cy="213" r="3" fill="#00ff88" opacity="0.5"/>
+          <circle cx="64" cy="232" r="3" fill="#ff3355" opacity="0.7"/>
+          <rect x="128" y="160" width="70" height="200" rx="4" fill="#060e14" stroke="#1a4030" stroke-width="1.5"/>
+          <text x="163" y="180" fill="#2a5040" font-size="6" text-anchor="middle" font-family="monospace">CRYO-B</text>
+          <!-- DNA scanner -->
+          <rect x="250" y="200" width="300" height="160" rx="4" fill="#060e14" stroke="#00ff88" stroke-width="1.5" opacity="0.8"/>
+          <text x="400" y="222" fill="#00ff88" font-size="8" text-anchor="middle" font-family="monospace">∿ DNA SEQUENCE ANALYZER ∿</text>
+          <rect x="262" y="230" width="276" height="60" rx="2" fill="#000" stroke="#0a2820"/>
+          <text x="400" y="250" fill="#00ff88" font-size="7.5" text-anchor="middle" font-family="monospace">ALIEN DNA PATTERN DETECTED</text>
+          <text x="400" y="266" fill="#ffd700" font-size="9" text-anchor="middle" font-family="monospace">α-LYRA ORGANISM: A-T-C-G-A-T</text>
+          <text x="400" y="282" fill="#2a5040" font-size="6.5" text-anchor="middle" font-family="monospace">REPRODUCE SEQUENCE TO AUTHENTICATE</text>
+          <!-- Biocode panel -->
+          <rect x="570" y="190" width="160" height="130" rx="4" fill="#060e14" stroke="#1a4030" stroke-width="1.5"/>
+          <text x="650" y="210" fill="#2a5040" font-size="7" text-anchor="middle" font-family="monospace">BIO-ISOLATION LOCK</text>
+          <rect x="580" y="218" width="140" height="60" fill="#020508" stroke="#0a2820"/>
+          <text x="650" y="234" fill="#4a6a8a" font-size="6" text-anchor="middle" font-family="monospace">오염도:LEVEL 4 | 격리:3일</text>
+          <text x="650" y="248" fill="#4a6a8a" font-size="6" text-anchor="middle" font-family="monospace">허가인원:2명 | 발생구역:1</text>
+          <text x="650" y="262" fill="#ffd700" font-size="7" text-anchor="middle" font-family="monospace">CODE: ????</text>
+          <text x="650" y="278" fill="#2a4060" font-size="6" text-anchor="middle" font-family="monospace">순서대로 입력하시오</text>
+          <!-- DNA puzzle hotspot -->
+          <g class="hotspot" onclick="openPuzzle('dna')">
+            <rect x="244" y="194" width="312" height="172" rx="4" fill="rgba(0,255,136,0.03)" stroke="rgba(0,255,136,0.2)" stroke-width="1"/>
+          </g>
+          <!-- Biocode hotspot -->
+          <g class="hotspot" onclick="openPuzzle('biocode')">
+            <rect x="564" y="184" width="172" height="142" rx="4" fill="rgba(0,255,136,0.03)" stroke="rgba(0,255,136,0.15)" stroke-width="1"/>
+          </g>
+          <!-- Back door (srv) -->
+          <g class="hotspot" onclick="changeRoom('srv')">
+            <rect x="10" y="300" width="40" height="110" rx="2" fill="#050c10" stroke="#0d2030" stroke-width="1"/>
+            <text x="30" y="430" fill="#1a3a4c" font-size="6" text-anchor="middle" font-family="monospace">← 서버</text>
+          </g>
+          <!-- Next door (pwr) -->
+          <g class="hotspot" id="door-pwr" onclick="changeRoom('pwr')">
+            <rect x="748" y="300" width="42" height="110" rx="2" fill="#050c10" stroke="#1a4030" stroke-width="1.5"/>
+            <text x="769" y="430" fill="#1a4030" font-size="6" text-anchor="middle" font-family="monospace">동력실 →</text>
+          </g>
+        </svg>
+      </div>
+
+      <!-- ═══ ROOM: PWR (동력실) ═══ -->
+      <div class="room-scene" id="scene-pwr">
+        <svg viewBox="0 0 800 520" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <radialGradient id="pwr-core" cx="50%" cy="45%" r="40%">
+              <stop offset="0%" stop-color="#1a0a04"/>
+              <stop offset="100%" stop-color="#030608"/>
+            </radialGradient>
+          </defs>
+          <rect width="800" height="520" fill="url(#pwr-core)"/>
+          <rect x="0" y="400" width="800" height="120" fill="#060408"/>
+          <line x1="0" y1="400" x2="800" y2="400" stroke="#4a1a08" stroke-width="1"/>
+          <!-- Reactor core cylinder -->
+          <rect x="310" y="80" width="180" height="300" rx="12" fill="#0a0608" stroke="#ff6b35" stroke-width="2"/>
+          <ellipse cx="400" cy="80" rx="90" ry="20" fill="#0c0810" stroke="#ff6b35" stroke-width="2"/>
+          <ellipse cx="400" cy="380" rx="90" ry="20" fill="#0c0810" stroke="#ff6b35" stroke-width="1.5"/>
+          <!-- Reactor glow rings -->
+          <ellipse cx="400" cy="180" rx="80" ry="16" fill="none" stroke="#ff6b35" stroke-width="0.8" opacity="0.4"/>
+          <ellipse cx="400" cy="230" rx="80" ry="16" fill="none" stroke="#ff6b35" stroke-width="0.8" opacity="0.3"/>
+          <ellipse cx="400" cy="280" rx="80" ry="16" fill="none" stroke="#ff6b35" stroke-width="0.8" opacity="0.2"/>
+          <text x="400" y="235" fill="#ff6b35" font-size="8" text-anchor="middle" font-family="monospace" opacity="0.6">REACTOR CORE</text>
+          <text x="400" y="250" fill="#4a2010" font-size="7" text-anchor="middle" font-family="monospace">OUTPUT: NOMINAL</text>
+          <!-- Warning signs -->
+          <text x="400" y="140" fill="#ffd700" font-size="22" text-anchor="middle" opacity="0.5">⚡</text>
+          <text x="400" y="340" fill="#ff6b35" font-size="7" text-anchor="middle" font-family="monospace" opacity="0.5">☢ RADIATION ZONE</text>
+          <!-- Coolant pipes -->
+          <line x1="310" y1="200" x2="60" y2="200" stroke="#1a3050" stroke-width="8" stroke-linecap="round"/>
+          <line x1="490" y1="200" x2="740" y2="200" stroke="#1a3050" stroke-width="8" stroke-linecap="round"/>
+          <line x1="310" y1="300" x2="60" y2="300" stroke="#1a3050" stroke-width="6" stroke-linecap="round"/>
+          <line x1="490" y1="300" x2="740" y2="300" stroke="#1a3050" stroke-width="6" stroke-linecap="round"/>
+          <!-- Switch panel -->
+          <rect x="40" y="230" width="240" height="130" rx="4" fill="#080a0e" stroke="#2a1808" stroke-width="1.5"/>
+          <text x="160" y="250" fill="#4a2a18" font-size="7" text-anchor="middle" font-family="monospace">POWER SWITCH SEQUENCE</text>
+          <text x="160" y="264" fill="#2a2010" font-size="6.5" text-anchor="middle" font-family="monospace">STARTUP ORDER REQUIRED</text>
+          <!-- Switch indicators (decorative) -->
+          <rect x="56" y="272" width="32" height="32" rx="3" fill="#0a0c10" stroke="#2a1808"/>
+          <rect x="96" y="272" width="32" height="32" rx="3" fill="#0a0c10" stroke="#2a1808"/>
+          <rect x="136" y="272" width="32" height="32" rx="3" fill="#0a0c10" stroke="#2a1808"/>
+          <rect x="176" y="272" width="32" height="32" rx="3" fill="#0a0c10" stroke="#2a1808"/>
+          <rect x="216" y="272" width="32" height="32" rx="3" fill="#0a0c10" stroke="#2a1808"/>
+          <rect x="256" y="272" width="32" height="32" rx="3" fill="#0a0c10" stroke="#2a1808"/>
+          <text x="72" y="293" fill="#2a3050" font-size="10" text-anchor="middle" font-family="monospace">1</text>
+          <text x="112" y="293" fill="#2a3050" font-size="10" text-anchor="middle" font-family="monospace">2</text>
+          <text x="152" y="293" fill="#2a3050" font-size="10" text-anchor="middle" font-family="monospace">3</text>
+          <text x="192" y="293" fill="#2a3050" font-size="10" text-anchor="middle" font-family="monospace">4</text>
+          <text x="232" y="293" fill="#2a3050" font-size="10" text-anchor="middle" font-family="monospace">5</text>
+          <text x="272" y="293" fill="#2a3050" font-size="10" text-anchor="middle" font-family="monospace">6</text>
+          <!-- Reactor core control panel -->
+          <rect x="520" y="220" width="230" height="160" rx="4" fill="#080a0e" stroke="#2a1808" stroke-width="1.5"/>
+          <text x="635" y="242" fill="#4a2a18" font-size="7" text-anchor="middle" font-family="monospace">CORE BALANCE MONITOR</text>
+          <text x="635" y="258" fill="#2a2010" font-size="6" text-anchor="middle" font-family="monospace">α: ??? MW  β: ??? MW  γ: ??? MW</text>
+          <text x="635" y="270" fill="#ff6b35" font-size="6" text-anchor="middle" font-family="monospace">TARGET SUM: 300 MW</text>
+          <rect x="530" y="278" width="210" height="30" rx="2" fill="#040608" stroke="#1a0808"/>
+          <text x="635" y="298" fill="#2a1808" font-size="7.5" text-anchor="middle" font-family="monospace">α=85 β=120 γ=95</text>
+          <text x="635" y="310" fill="#4a2010" font-size="5.5" text-anchor="middle" font-family="monospace">* 벽면 다이어그램 참조</text>
+          <rect x="530" y="316" width="100" height="20" rx="2" fill="#1a0808" stroke="#2a1010"/>
+          <text x="580" y="330" fill="#4a1010" font-size="6.5" text-anchor="middle" font-family="monospace">BALANCE LOCK</text>
+          <!-- Hotspots -->
+          <g class="hotspot" onclick="openPuzzle('power')">
+            <rect x="34" y="224" width="258" height="142" rx="4" fill="rgba(255,107,53,0.03)" stroke="rgba(255,107,53,0.2)" stroke-width="1"/>
+          </g>
+          <g class="hotspot" onclick="openPuzzle('reactor')">
+            <rect x="514" y="214" width="242" height="168" rx="4" fill="rgba(255,107,53,0.03)" stroke="rgba(255,107,53,0.15)" stroke-width="1"/>
+          </g>
+          <!-- Back door -->
+          <g class="hotspot" onclick="changeRoom('iso')">
+            <rect x="10" y="300" width="30" height="110" rx="2" fill="#050608" stroke="#0d1428" stroke-width="1"/>
+            <text x="25" y="380" fill="#1a2030" font-size="5" text-anchor="middle" font-family="monospace">← 격리</text>
+          </g>
+          <!-- Next door (com) -->
+          <g class="hotspot" id="door-com" onclick="changeRoom('com')">
+            <rect x="760" y="300" width="32" height="110" rx="2" fill="#050608" stroke="#2a1808" stroke-width="1.5"/>
+            <text x="776" y="380" fill="#2a1808" font-size="5" text-anchor="middle" font-family="monospace">통신실</text>
+          </g>
+        </svg>
+      </div>
+
+      <!-- ═══ ROOM: COM (통신실) ═══ -->
+      <div class="room-scene" id="scene-com">
+        <svg viewBox="0 0 800 520" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <radialGradient id="com-glow" cx="50%" cy="40%" r="60%">
+              <stop offset="0%" stop-color="#06101e"/>
+              <stop offset="100%" stop-color="#030608"/>
+            </radialGradient>
+          </defs>
+          <rect width="800" height="520" fill="url(#com-glow)"/>
+          <rect x="0" y="400" width="800" height="120" fill="#040810"/>
+          <line x1="0" y1="400" x2="800" y2="400" stroke="#1a3050" stroke-width="1"/>
+          <!-- Stars visible through "window" -->
+          <rect x="250" y="30" width="300" height="160" rx="4" fill="#020408" stroke="#1a3050" stroke-width="1.5"/>
+          <text x="400" y="50" fill="#1a3050" font-size="7" text-anchor="middle" font-family="monospace">DEEP SPACE VIEW</text>
+          <circle cx="280" cy="90" r="0.8" fill="white" opacity="0.6"/>
+          <circle cx="360" cy="70" r="1.1" fill="#ffd700" opacity="0.5"/>
+          <circle cx="430" cy="110" r="0.7" fill="white" opacity="0.5"/>
+          <circle cx="500" cy="65" r="0.9" fill="#00c8ff" opacity="0.5"/>
+          <circle cx="340" cy="130" r="0.8" fill="white" opacity="0.4"/>
+          <!-- Lyra constellation hint -->
+          <circle cx="390" cy="80" r="2.5" fill="#ffd700" opacity="0.9"/>
+          <circle cx="415" cy="95" r="1.5" fill="#ffd700" opacity="0.6"/>
+          <circle cx="380" cy="105" r="1.5" fill="#ffd700" opacity="0.6"/>
+          <circle cx="405" cy="118" r="1.5" fill="#ffd700" opacity="0.6"/>
+          <circle cx="425" cy="108" r="1.5" fill="#ffd700" opacity="0.6"/>
+          <line x1="390" y1="80" x2="415" y2="95" stroke="#ffd700" stroke-width="0.5" opacity="0.4"/>
+          <line x1="390" y1="80" x2="380" y2="105" stroke="#ffd700" stroke-width="0.5" opacity="0.4"/>
+          <line x1="380" y1="105" x2="405" y2="118" stroke="#ffd700" stroke-width="0.5" opacity="0.4"/>
+          <line x1="405" y1="118" x2="425" y2="108" stroke="#ffd700" stroke-width="0.5" opacity="0.4"/>
+          <text x="392" y="73" fill="#ffd700" font-size="6" font-family="monospace" opacity="0.8">LYRA</text>
+          <!-- Antenna display -->
+          <line x1="400" y1="200" x2="400" y2="370" stroke="#1a3050" stroke-width="4"/>
+          <line x1="340" y1="250" x2="460" y2="250" stroke="#1a3050" stroke-width="2"/>
+          <!-- Dish -->
+          <ellipse cx="400" cy="208" rx="90" ry="28" fill="none" stroke="#1a3a5c" stroke-width="2"/>
+          <ellipse cx="400" cy="200" rx="80" ry="24" fill="#040c1a" stroke="#1a3a5c" stroke-width="1"/>
+          <!-- Morse receiver -->
+          <rect x="60" y="220" width="220" height="150" rx="4" fill="#060c18" stroke="#1a3050" stroke-width="1.5"/>
+          <text x="170" y="240" fill="#2a4060" font-size="7" text-anchor="middle" font-family="monospace">MORSE SIGNAL RECEIVER</text>
+          <rect x="74" y="248" width="192" height="48" rx="2" fill="#000" stroke="#0a2034"/>
+          <text x="170" y="264" fill="#00c8ff" font-size="8" text-anchor="middle" font-family="monospace">INCOMING SIGNAL:</text>
+          <text x="170" y="282" fill="#00ff88" font-size="9" text-anchor="middle" font-family="monospace">.-.. -.-- .-. .-</text>
+          <text x="170" y="304" fill="#2a4060" font-size="6.5" text-anchor="middle" font-family="monospace">DECODE AND ENTER CALLSIGN</text>
+          <text x="170" y="350" fill="#4a6a8a" font-size="6.5" text-anchor="middle" font-family="monospace">SIGNAL SOURCE: RA 18h 36m 56.3s</text>
+          <text x="170" y="364" fill="#2a4060" font-size="6" text-anchor="middle" font-family="monospace">COORDINATE CODE: RA × 100 (앞 4자리)</text>
+          <!-- Coord panel -->
+          <rect x="520" y="220" width="230" height="150" rx="4" fill="#060c18" stroke="#00ff88" stroke-width="1" opacity="0.7"/>
+          <text x="635" y="240" fill="#2a6040" font-size="7" text-anchor="middle" font-family="monospace">DEEP SPACE COORDINATE</text>
+          <text x="635" y="256" fill="#4a8060" font-size="6.5" text-anchor="middle" font-family="monospace">SIGNAL ORIGIN LOCK</text>
+          <rect x="530" y="264" width="210" height="40" rx="2" fill="#000" stroke="#0a2820"/>
+          <text x="635" y="280" fill="#00ff88" font-size="8" text-anchor="middle" font-family="monospace">&gt; RA INPUT REQUIRED</text>
+          <text x="635" y="294" fill="#2a4a40" font-size="6.5" text-anchor="middle" font-family="monospace">RA 18h 36m → CODE: ????</text>
+          <!-- Hotspots -->
+          <g class="hotspot" onclick="openPuzzle('morse')">
+            <rect x="54" y="214" width="232" height="162" rx="4" fill="rgba(0,200,255,0.03)" stroke="rgba(0,200,255,0.15)" stroke-width="1"/>
+          </g>
+          <g class="hotspot" onclick="openPuzzle('coord')">
+            <rect x="514" y="214" width="242" height="162" rx="4" fill="rgba(0,255,136,0.03)" stroke="rgba(0,255,136,0.15)" stroke-width="1"/>
+          </g>
+          <g class="hotspot" onclick="changeRoom('pwr')">
+            <rect x="10" y="300" width="30" height="110" rx="2" fill="#050810" stroke="#0d2030" stroke-width="1"/>
+            <text x="25" y="380" fill="#1a2a40" font-size="5" text-anchor="middle" font-family="monospace">← 동력</text>
+          </g>
+          <g class="hotspot" id="door-hng" onclick="changeRoom('hng')">
+            <rect x="760" y="290" width="32" height="120" rx="2" fill="#050810" stroke="#1a3050" stroke-width="1.5"/>
+            <text x="776" y="375" fill="#1a3050" font-size="5" text-anchor="middle" font-family="monospace">격납고</text>
+          </g>
+        </svg>
+      </div>
+
+      <!-- ═══ ROOM: HNG (격납고) ═══ -->
+      <div class="room-scene" id="scene-hng">
+        <svg viewBox="0 0 800 520" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+          <rect width="800" height="520" fill="#040810"/>
+          <rect x="0" y="390" width="800" height="130" fill="#050a0a"/>
+          <line x1="0" y1="390" x2="800" y2="390" stroke="#1a3a5c" stroke-width="1"/>
+          <!-- Bay doors (massive) -->
+          <rect x="200" y="0" width="190" height="390" fill="#050c14" stroke="#1a3050" stroke-width="2"/>
+          <rect x="410" y="0" width="190" height="390" fill="#050c14" stroke="#1a3050" stroke-width="2"/>
+          <line x1="200" y1="0" x2="200" y2="390" stroke="#1a3a5c" stroke-width="3"/>
+          <line x1="600" y1="0" x2="600" y2="390" stroke="#1a3a5c" stroke-width="3"/>
+          <!-- Door bolts -->
+          <circle cx="210" cy="100" r="6" fill="#0a1628" stroke="#1a3050"/>
+          <circle cx="210" cy="200" r="6" fill="#0a1628" stroke="#1a3050"/>
+          <circle cx="210" cy="300" r="6" fill="#0a1628" stroke="#1a3050"/>
+          <circle cx="590" cy="100" r="6" fill="#0a1628" stroke="#1a3050"/>
+          <circle cx="590" cy="200" r="6" fill="#0a1628" stroke="#1a3050"/>
+          <circle cx="590" cy="300" r="6" fill="#0a1628" stroke="#1a3050"/>
+          <!-- BAY SEALED label -->
+          <text x="400" y="200" fill="#1a3a5c" font-size="24" text-anchor="middle" font-family="monospace" font-weight="900" opacity="0.4">BAY SEALED</text>
+          <text x="400" y="226" fill="#0a2040" font-size="8" text-anchor="middle" font-family="monospace">LAUNCH SEQUENCE NOT INITIATED</text>
+          <!-- Escape pod silhouette -->
+          <ellipse cx="400" cy="350" rx="120" ry="40" fill="#060c14" stroke="#1a3050" stroke-width="1.5"/>
+          <rect x="330" y="300" width="140" height="60" rx="8" fill="#070e18" stroke="#1a3050" stroke-width="1.5"/>
+          <ellipse cx="400" cy="300" rx="68" ry="20" fill="#060c14" stroke="#1a3050" stroke-width="1.5"/>
+          <text x="400" y="336" fill="#1a3050" font-size="7" text-anchor="middle" font-family="monospace">ESCAPE POD-1</text>
+          <!-- Nav console left -->
+          <rect x="20" y="200" width="170" height="200" rx="4" fill="#060c18" stroke="#1a3050" stroke-width="1.5"/>
+          <text x="105" y="220" fill="#2a4060" font-size="7" text-anchor="middle" font-family="monospace">STAR NAVIGATION</text>
+          <rect x="32" y="228" width="146" height="100" fill="#000" stroke="#0a2034" rx="1"/>
+          <!-- Star dots in nav display -->
+          <circle cx="68" cy="255" r="1.5" fill="white" opacity="0.6"/>
+          <circle cx="100" cy="248" r="2" fill="#ffd700" opacity="0.8"/>
+          <circle cx="130" cy="270" r="1.2" fill="white" opacity="0.5"/>
+          <circle cx="155" cy="250" r="1.5" fill="white" opacity="0.5"/>
+          <circle cx="85" cy="290" r="1" fill="#00c8ff" opacity="0.6"/>
+          <circle cx="145" cy="295" r="1.2" fill="white" opacity="0.4"/>
+          <circle cx="120" cy="310" r="1" fill="white" opacity="0.4"/>
+          <text x="105" y="348" fill="#2a4060" font-size="6.5" text-anchor="middle" font-family="monospace">SELECT LYRA STARS</text>
+          <!-- Launch panel right -->
+          <rect x="614" y="200" width="170" height="200" rx="4" fill="#060c18" stroke="#1a3050" stroke-width="1.5"/>
+          <text x="699" y="220" fill="#2a4060" font-size="7" text-anchor="middle" font-family="monospace">LAUNCH CONTROL</text>
+          <rect x="626" y="228" width="146" height="60" fill="#000" stroke="#0a2034" rx="1"/>
+          <text x="699" y="252" fill="#4a6a8a" font-size="7" text-anchor="middle" font-family="monospace">AUTH CODE:</text>
+          <text x="699" y="270" fill="#ff6b35" font-size="10" text-anchor="middle" font-family="monospace">[ __ __ __ __ ]</text>
+          <text x="699" y="300" fill="#2a4060" font-size="6.5" text-anchor="middle" font-family="monospace">CODE = 연구소 설립 연도</text>
+          <text x="699" y="312" fill="#1a2a40" font-size="6" text-anchor="middle" font-family="monospace">(LUMOS-7 founded year)</text>
+          <!-- Hotspots -->
+          <g class="hotspot" onclick="openPuzzle('starmap')">
+            <rect x="14" y="194" width="182" height="166" rx="4" fill="rgba(0,200,255,0.03)" stroke="rgba(0,200,255,0.15)" stroke-width="1"/>
+          </g>
+          <g class="hotspot" onclick="openPuzzle('launch')">
+            <rect x="608" y="194" width="182" height="142" rx="4" fill="rgba(255,107,53,0.03)" stroke="rgba(255,107,53,0.15)" stroke-width="1"/>
+          </g>
+          <g class="hotspot" onclick="changeRoom('com')">
+            <rect x="0" y="300" width="20" height="100" rx="2" fill="#040810" stroke="#0a2030" stroke-width="1"/>
+            <text x="10" y="380" fill="#1a2a40" font-size="5" text-anchor="middle" font-family="monospace" transform="rotate(-90,10,350)">← 통신</text>
+          </g>
+          <g class="hotspot" id="door-lab2" onclick="changeRoom('lab2')">
+            <rect x="0" y="420" width="800" height="100" fill="rgba(0,200,255,0.02)" stroke="rgba(0,200,255,0.1)" stroke-width="1"/>
+            <text x="400" y="470" fill="#1a3a5c" font-size="7" text-anchor="middle" font-family="monospace">▼ 비밀연구실 — 하부 엘리베이터</text>
+          </g>
+        </svg>
+      </div>
+
+      <!-- ═══ ROOM: LAB2 (비밀연구실) ═══ -->
+      <div class="room-scene" id="scene-lab2">
+        <svg viewBox="0 0 800 520" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <radialGradient id="lab2-glow" cx="50%" cy="50%" r="55%">
+              <stop offset="0%" stop-color="#0a0820"/>
+              <stop offset="100%" stop-color="#030508"/>
+            </radialGradient>
+          </defs>
+          <rect width="800" height="520" fill="url(#lab2-glow)"/>
+          <rect x="0" y="400" width="800" height="120" fill="#060408"/>
+          <line x1="0" y1="400" x2="800" y2="400" stroke="#2a1a4a" stroke-width="1"/>
+          <!-- CLASSIFIED stamps -->
+          <text x="100" y="90" fill="#2a1040" font-size="32" font-weight="900" font-family="monospace" opacity="0.15" transform="rotate(-20,100,90)">CLASSIFIED</text>
+          <text x="600" y="200" fill="#2a1040" font-size="24" font-weight="900" font-family="monospace" opacity="0.12" transform="rotate(15,600,200)">CLASSIFIED</text>
+          <!-- Holographic timeline -->
+          <rect x="50" y="60" width="700" height="100" rx="4" fill="rgba(100,40,200,0.06)" stroke="rgba(100,40,200,0.2)" stroke-width="1"/>
+          <text x="400" y="80" fill="#8040ff" font-size="7" text-anchor="middle" font-family="monospace" letter-spacing="3">∿ TEMPORAL PARADOX LOG ∿</text>
+          <line x1="80" y1="110" x2="720" y2="110" stroke="#2a1050" stroke-width="1"/>
+          <circle cx="200" cy="110" r="4" fill="#8040ff" opacity="0.7"/>
+          <text x="200" y="100" fill="#8040ff" font-size="6" text-anchor="middle" font-family="monospace">2021</text>
+          <text x="200" y="128" fill="#4a2080" font-size="6" text-anchor="middle" font-family="monospace">설립</text>
+          <circle cx="360" cy="110" r="4" fill="#00c8ff" opacity="0.7"/>
+          <text x="360" y="100" fill="#00c8ff" font-size="6" text-anchor="middle" font-family="monospace">2031</text>
+          <text x="360" y="128" fill="#2a4060" font-size="6" text-anchor="middle" font-family="monospace">현재</text>
+          <circle cx="520" cy="110" r="6" fill="#ff6b35" opacity="0.9"/>
+          <text x="520" y="100" fill="#ff6b35" font-size="6" text-anchor="middle" font-family="monospace">????</text>
+          <text x="520" y="128" fill="#4a2010" font-size="6" text-anchor="middle" font-family="monospace">신호발송</text>
+          <line x1="360" y1="110" x2="520" y2="110" stroke="#ff6b35" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.5"/>
+          <text x="440" y="108" fill="#4a2010" font-size="5.5" font-family="monospace">+10년?</text>
+          <!-- Personal desk -->
+          <rect x="150" y="240" width="500" height="160" rx="4" fill="#060c18" stroke="#2a1a4a" stroke-width="1.5"/>
+          <rect x="150" y="237" width="500" height="14" rx="2" fill="#080e20" stroke="#2a1a4a" stroke-width="1"/>
+          <!-- Monitor -->
+          <rect x="290" y="168" width="220" height="82" rx="3" fill="#030508" stroke="#2a1a4a" stroke-width="1.5"/>
+          <rect x="300" y="176" width="200" height="62" fill="#000" stroke="#1a0a30" rx="1"/>
+          <text x="400" y="196" fill="#8040ff" font-size="7.5" text-anchor="middle" font-family="monospace">DR. HAN'S TERMINAL</text>
+          <text x="400" y="212" fill="#4a2060" font-size="7" text-anchor="middle" font-family="monospace">&gt; paradox_log.enc</text>
+          <text x="400" y="226" fill="#2a1040" font-size="6.5" text-anchor="middle" font-family="monospace">YEAR OF TRANSMISSION: ????</text>
+          <!-- Journal on desk -->
+          <rect x="170" y="254" width="100" height="70" rx="2" fill="#0a0818" stroke="#2a1a4a" transform="rotate(-5,220,289)"/>
+          <text x="220" y="275" fill="#4a2060" font-size="7" text-anchor="middle" font-family="monospace">최후의 일지</text>
+          <text x="220" y="288" fill="#2a1040" font-size="5.5" text-anchor="middle" font-family="monospace">「나는 10년 후</text>
+          <text x="220" y="298" fill="#2a1040" font-size="5.5" text-anchor="middle" font-family="monospace">이 신호를 보낼</text>
+          <text x="220" y="308" fill="#2a1040" font-size="5.5" text-anchor="middle" font-family="monospace">것이다.」</text>
+          <!-- Paradox machine -->
+          <ellipse cx="610" cy="290" rx="70" ry="80" fill="#040610" stroke="#8040ff" stroke-width="1.5" opacity="0.7"/>
+          <ellipse cx="610" cy="290" rx="50" ry="60" fill="none" stroke="#4020a0" stroke-width="0.8" opacity="0.5"/>
+          <ellipse cx="610" cy="290" rx="30" ry="40" fill="none" stroke="#8040ff" stroke-width="0.5" opacity="0.3"/>
+          <text x="610" y="294" fill="#8040ff" font-size="7" text-anchor="middle" font-family="monospace" opacity="0.6">CHRONO</text>
+          <text x="610" y="306" fill="#8040ff" font-size="7" text-anchor="middle" font-family="monospace" opacity="0.6">DEVICE</text>
+          <!-- Hotspot paradox -->
+          <g class="hotspot" onclick="openPuzzle('paradox')">
+            <rect x="50" y="54" width="700" height="112" rx="4" fill="rgba(128,64,255,0.02)" stroke="rgba(128,64,255,0.15)" stroke-width="1"/>
+            <text x="400" y="176" fill="#2a1040" font-size="6" text-anchor="middle" font-family="monospace">▲ 타임라인 분석 장치 — 클릭하여 조사</text>
+          </g>
+          <g class="hotspot" onclick="findItem('final_journal')">
+            <rect x="165" y="248" width="110" height="82" rx="2" fill="rgba(128,64,255,0.03)" stroke="rgba(128,64,255,0.15)" stroke-width="1" transform="rotate(-5,220,289)"/>
+          </g>
+          <g class="hotspot" onclick="changeRoom('hng')">
+            <rect x="0" y="420" width="800" height="80" fill="rgba(0,200,255,0.01)" stroke="rgba(0,200,255,0.08)" stroke-width="1"/>
+            <text x="400" y="464" fill="#1a2040" font-size="6" text-anchor="middle" font-family="monospace">▲ 격납고로 귀환</text>
+          </g>
+        </svg>
+      </div>
+
+      <!-- NARRATIVE -->
+      <div id="narrative-box">
+        <div id="narrative-text">LUMOS-7 달 기지 — <span class="accent">제1구역 관측실</span>에 진입했다. 어둠 속에서 망원경만이 희미하게 빛나고 있다. Dr. 한이준의 마지막 흔적을 찾아라.</div>
+      </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div id="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">인벤토리</div>
+        <div id="inventory-grid">
+          <div class="inv-slot empty" id="inv-note_intro" title="메모">📄</div>
+          <div class="inv-slot empty" id="inv-freq_card" title="주파수 카드">📻</div>
+          <div class="inv-slot empty" id="inv-journal" title="연구 일지">📓</div>
+          <div class="inv-slot empty" id="inv-prism" title="프리즘">🔷</div>
+          <div class="inv-slot empty" id="inv-masterkey" title="마스터키">🔑</div>
+          <div class="inv-slot empty" id="inv-dna_sample" title="DNA 샘플">🧬</div>
+          <div class="inv-slot empty" id="inv-power_diagram" title="전원 배선도">⚡</div>
+          <div class="inv-slot empty" id="inv-lyra_chart" title="거문고자리 성도">🌟</div>
+          <div class="inv-slot empty" id="inv-final_journal" title="최후의 일지">📜</div>
+        </div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">수집 문서</div>
+        <div id="notes-list">
+          <div class="no-notes">문서 없음</div>
+        </div>
+      </div>
+      <div id="puzzle-status">
+        <div class="sidebar-label">퍼즐 현황</div>
+        <div class="puzz-item" id="pstat-prism"><div class="puzz-dot"></div>프리즘 레이저</div>
+        <div class="puzz-item" id="pstat-freq"><div class="puzz-dot"></div>주파수 수신기</div>
+        <div class="puzz-item" id="pstat-rgb"><div class="puzz-dot"></div>색광 합성</div>
+        <div class="puzz-item" id="pstat-maze"><div class="puzz-dot"></div>거울 미로</div>
+        <div class="puzz-item" id="pstat-code"><div class="puzz-dot"></div>메인프레임 코드</div>
+        <div class="puzz-item" id="pstat-dna"><div class="puzz-dot"></div>DNA 서열</div>
+        <div class="puzz-item" id="pstat-biocode"><div class="puzz-dot"></div>생물격리 코드</div>
+        <div class="puzz-item" id="pstat-power"><div class="puzz-dot"></div>전원 스위치</div>
+        <div class="puzz-item" id="pstat-reactor"><div class="puzz-dot"></div>원자로 균형</div>
+        <div class="puzz-item" id="pstat-morse"><div class="puzz-dot"></div>모스 신호</div>
+        <div class="puzz-item" id="pstat-coord"><div class="puzz-dot"></div>우주 좌표</div>
+        <div class="puzz-item" id="pstat-starmap"><div class="puzz-dot"></div>별자리 지도</div>
+        <div class="puzz-item" id="pstat-launch"><div class="puzz-dot"></div>발사 코드</div>
+        <div class="puzz-item" id="pstat-paradox"><div class="puzz-dot"></div>시간 역설</div>
+      </div>
+      <div id="hint-text"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODALS ═══ -->
+
+<!-- PRISM -->
+<div class="modal-overlay" id="modal-prism">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('prism')">✕</button>
+<div class="puzzle-banner">
+<svg viewBox="0 0 560 160" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+
+<rect width="560" height="160" fill="#020810"/>
+<!-- bg stars -->
+<circle cx="30" cy="20" r="0.8" fill="white" opacity="0.4"/>
+<circle cx="500" cy="30" r="1" fill="white" opacity="0.3"/>
+<circle cx="540" cy="80" r="0.7" fill="#00c8ff" opacity="0.4"/>
+<circle cx="20" cy="110" r="0.9" fill="white" opacity="0.3"/>
+<circle cx="480" cy="140" r="0.8" fill="white" opacity="0.35"/>
+<!-- prism body (triangle) -->
+<polygon points="200,20 300,145 100,145" fill="rgba(160,220,255,0.06)" stroke="#00c8ff" stroke-width="1.8"/>
+<!-- prism inner refraction lines -->
+<line x1="200" y1="20" x2="300" y2="145" stroke="rgba(0,200,255,0.12)" stroke-width="0.5"/>
+<line x1="200" y1="20" x2="100" y2="145" stroke="rgba(0,200,255,0.12)" stroke-width="0.5"/>
+<!-- incoming laser beam -->
+<line x1="0" y1="82" x2="200" y2="82" stroke="#ff6b35" stroke-width="2.5" stroke-linecap="round"/>
+<circle cx="0" cy="82" r="5" fill="#ff6b35" opacity="0.7"/>
+<ellipse cx="200" cy="82" rx="4" ry="4" fill="#ff6b35" opacity="0.8"/>
+<!-- glow on prism entry point -->
+<ellipse cx="200" cy="82" rx="12" ry="8" fill="rgba(255,107,53,0.15)"/>
+<!-- refracted beams exiting right of prism at bottom vertex area -->
+<line x1="300" y1="145" x2="560" y2="50" stroke="#ff3333" stroke-width="1.8" opacity="0.85"/>
+<line x1="300" y1="145" x2="560" y2="68" stroke="#ff8800" stroke-width="1.8" opacity="0.85"/>
+<line x1="300" y1="145" x2="560" y2="83" stroke="#ffdd00" stroke-width="1.8" opacity="0.85"/>
+<line x1="300" y1="145" x2="560" y2="96" stroke="#00dd44" stroke-width="1.8" opacity="0.85"/>
+<line x1="300" y1="145" x2="560" y2="107" stroke="#00aaff" stroke-width="1.8" opacity="0.85"/>
+<line x1="300" y1="145" x2="560" y2="117" stroke="#aa44ff" stroke-width="1.8" opacity="0.85"/>
+<!-- glow at exit vertex -->
+<ellipse cx="300" cy="145" rx="16" ry="10" fill="rgba(255,255,255,0.12)"/>
+<!-- dim label -->
+<text x="200" y="160" fill="rgba(0,200,255,0.25)" font-size="8" text-anchor="middle" font-family="monospace">OPTICAL PRISM ARRAY</text>
+
+</svg>
+</div>
+    <div class="modal-title">PUZZLE 01 · 관측실</div>
+    <div class="modal-heading">프리즘 레이저 조준</div>
+    <div class="modal-desc">레이저 소스에서 발사된 빔을 거울 A, B, C의 각도를 조절하여 망원경 렌즈(TARGET)에 맞추세요. 거울 C는 빔 경로에 없을 수 있습니다.</div>
+    <canvas id="prism-canvas" width="520" height="280"></canvas>
+    <div class="slider-row"><span class="slider-label">A</span><input type="range" id="mirror-a" min="0" max="180" value="45" oninput="updatePrism()"><span class="slider-val" id="angle-a">45°</span></div>
+    <div class="slider-row"><span class="slider-label">B</span><input type="range" id="mirror-b" min="0" max="180" value="45" oninput="updatePrism()"><span class="slider-val" id="angle-b">45°</span></div>
+    <div class="slider-row"><span class="slider-label">C</span><input type="range" id="mirror-c" min="0" max="180" value="45" oninput="updatePrism()"><span class="slider-val" id="angle-c">45°</span></div>
+    <div class="status-text" id="prism-status">거울 각도를 조절해 레이저를 목표에 맞추세요</div>
+  </div>
+</div>
+
+<!-- FREQ -->
+<div class="modal-overlay" id="modal-freq">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('freq')">✕</button>
+<div class="puzzle-banner">
+<svg viewBox="0 0 560 160" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+
+<rect width="560" height="160" fill="#000810"/>
+<!-- oscilloscope bezel -->
+<rect x="20" y="14" width="240" height="132" rx="6" fill="#080e18" stroke="#1a3a5c" stroke-width="1.5"/>
+<rect x="30" y="22" width="220" height="116" rx="3" fill="#000" stroke="#0a2034"/>
+<!-- CRT scanlines overlay -->
+<rect x="30" y="22" width="220" height="4" fill="rgba(0,200,255,0.03)"/>
+<rect x="30" y="34" width="220" height="4" fill="rgba(0,200,255,0.03)"/>
+<rect x="30" y="46" width="220" height="4" fill="rgba(0,200,255,0.03)"/>
+<rect x="30" y="58" width="220" height="4" fill="rgba(0,200,255,0.03)"/>
+<rect x="30" y="70" width="220" height="4" fill="rgba(0,200,255,0.03)"/>
+<rect x="30" y="82" width="220" height="4" fill="rgba(0,200,255,0.03)"/>
+<rect x="30" y="94" width="220" height="4" fill="rgba(0,200,255,0.03)"/>
+<rect x="30" y="106" width="220" height="4" fill="rgba(0,200,255,0.03)"/>
+<rect x="30" y="118" width="220" height="4" fill="rgba(0,200,255,0.03)"/>
+<!-- signal wave on oscilloscope -->
+<polyline points="30,80 50,80 60,40 70,80 90,80 100,120 110,80 130,80 140,42 150,80 170,80 180,118 190,80 210,80 220,44 230,80 250,80" 
+  fill="none" stroke="#00c8ff" stroke-width="1.8" opacity="0.9"/>
+<!-- glow on wave -->
+<polyline points="30,80 50,80 60,40 70,80 90,80 100,120 110,80 130,80 140,42 150,80 170,80 180,118 190,80 210,80 220,44 230,80 250,80" 
+  fill="none" stroke="#00c8ff" stroke-width="5" opacity="0.08"/>
+<!-- horizontal grid line -->
+<line x1="30" y1="80" x2="250" y2="80" stroke="#0a2034" stroke-width="0.5" stroke-dasharray="4,6"/>
+<!-- dial controls right side -->
+<rect x="290" y="14" width="250" height="132" rx="6" fill="#080e18" stroke="#1a3050" stroke-width="1.5"/>
+<!-- main frequency display -->
+<rect x="304" y="26" width="222" height="44" rx="3" fill="#000" stroke="#0a2034"/>
+<text x="415" y="56" fill="#00c8ff" font-size="28" font-weight="900" text-anchor="middle" font-family="monospace" letter-spacing="2">299.7</text>
+<text x="415" y="68" fill="#1a4060" font-size="8" text-anchor="middle" font-family="monospace">MHz</text>
+<!-- dial circles -->
+<circle cx="326" cy="110" r="22" fill="#060c18" stroke="#1a3050" stroke-width="1.5"/>
+<circle cx="326" cy="110" r="16" fill="#040810" stroke="#0a2034" stroke-width="0.8"/>
+<line x1="326" y1="94" x2="326" y2="104" stroke="#00c8ff" stroke-width="2" stroke-linecap="round"/>
+<circle cx="390" cy="110" r="18" fill="#060c18" stroke="#1a3050" stroke-width="1.5"/>
+<circle cx="390" cy="110" r="12" fill="#040810" stroke="#0a2034" stroke-width="0.8"/>
+<line x1="383" y1="102" x2="390" y2="110" stroke="#ff6b35" stroke-width="2" stroke-linecap="round"/>
+<circle cx="450" cy="110" r="18" fill="#060c18" stroke="#1a3050" stroke-width="1.5"/>
+<line x1="450" y1="92" x2="450" y2="102" stroke="#ffd700" stroke-width="2" stroke-linecap="round"/>
+<!-- signal strength bars -->
+<rect x="484" y="78" width="8" height="18" rx="1" fill="#00c8ff" opacity="0.3"/>
+<rect x="496" y="70" width="8" height="26" rx="1" fill="#00c8ff" opacity="0.5"/>
+<rect x="508" y="62" width="8" height="34" rx="1" fill="#00c8ff" opacity="0.7"/>
+<rect x="520" y="90" width="8" height="6" rx="1" fill="#1a3a5c" opacity="0.4"/>
+
+</svg>
+</div>
+    <div class="modal-title">PUZZLE 02 · 관측실</div>
+    <div class="modal-heading">숨겨진 주파수 탐색</div>
+    <div class="modal-desc">Dr. 한이준의 주파수 카드: <em>"빛의 속도 2997... 단위를 확인하라."</em> 슬라이더를 조절해 정확한 주파수에 맞추세요.</div>
+    <canvas id="freq-canvas" width="480" height="100"></canvas>
+    <div style="text-align:center;margin:8px 0">
+      <span style="font-size:2rem;font-family:monospace;color:var(--accent)" id="freq-display">280.0</span>
+      <span style="font-size:0.8rem;color:var(--dim)"> MHz</span>
+    </div>
+    <input type="range" id="freq-slider" min="2000" max="4000" value="2800" style="width:100%;accent-color:var(--accent)" oninput="updateFreq()">
+    <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--dim)"><span>200.0</span><span>400.0</span></div>
+    <div class="status-text" id="freq-status">신호 없음.</div>
+    <button class="btn-primary" onclick="checkFreq()">▶ 주파수 잠금</button>
+  </div>
+</div>
+
+<!-- RGB -->
+<div class="modal-overlay" id="modal-rgb">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('rgb')">✕</button>
+<div class="puzzle-banner">
+<svg viewBox="0 0 560 160" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+
+<rect width="560" height="160" fill="#000"/>
+<!-- space bg gradient -->
+<radialGradient id="corona-bg" cx="50%" cy="50%" r="50%">
+  <stop offset="0%" stop-color="#1a0800"/>
+  <stop offset="100%" stop-color="#000"/>
+</radialGradient>
+<rect width="560" height="160" fill="url(#corona-bg)"/>
+<!-- corona outer glow rings -->
+<ellipse cx="280" cy="80" rx="140" ry="100" fill="none" stroke="#ff4400" stroke-width="20" opacity="0.04"/>
+<ellipse cx="280" cy="80" rx="110" ry="78" fill="none" stroke="#ff6600" stroke-width="16" opacity="0.07"/>
+<ellipse cx="280" cy="80" rx="80" ry="56" fill="none" stroke="#ff8800" stroke-width="12" opacity="0.12"/>
+<!-- corona plasma streamers -->
+<path d="M280,80 Q240,10 300,0 Q320,30 280,80" fill="rgba(255,120,0,0.12)"/>
+<path d="M280,80 Q340,20 380,50 Q370,90 280,80" fill="rgba(255,80,0,0.1)"/>
+<path d="M280,80 Q160,60 150,100 Q180,130 280,80" fill="rgba(255,140,0,0.1)"/>
+<path d="M280,80 Q310,150 350,160 Q360,130 280,80" fill="rgba(255,100,0,0.09)"/>
+<path d="M280,80 Q200,140 180,160 Q210,140 280,80" fill="rgba(255,120,0,0.08)"/>
+<!-- sun surface -->
+<circle cx="280" cy="80" r="52" fill="#ff8800" opacity="0.9"/>
+<circle cx="280" cy="80" r="50" fill="#ffaa00"/>
+<!-- surface texture -->
+<circle cx="260" cy="70" r="8" fill="#ff9900" opacity="0.6"/>
+<circle cx="295" cy="88" r="10" fill="#ffbb00" opacity="0.5"/>
+<circle cx="275" cy="95" r="6" fill="#ff8800" opacity="0.6"/>
+<circle cx="300" cy="65" r="7" fill="#ffcc00" opacity="0.5"/>
+<!-- sun core bright -->
+<circle cx="280" cy="80" r="35" fill="#ffcc44" opacity="0.7"/>
+<circle cx="280" cy="80" r="20" fill="#ffffaa" opacity="0.5"/>
+<!-- outer space stars -->
+<circle cx="30" cy="20" r="0.9" fill="white" opacity="0.5"/>
+<circle cx="520" cy="40" r="1.1" fill="white" opacity="0.4"/>
+<circle cx="490" cy="140" r="0.8" fill="white" opacity="0.5"/>
+<circle cx="60" cy="140" r="0.7" fill="white" opacity="0.4"/>
+<circle cx="10" cy="80" r="1" fill="white" opacity="0.3"/>
+<circle cx="550" cy="90" r="0.9" fill="white" opacity="0.4"/>
+<text x="280" y="155" fill="rgba(255,140,0,0.3)" font-size="7" text-anchor="middle" font-family="monospace">SOLAR CORONA SPECTRUM · TARGET: R=255 G=140 B=0</text>
+
+</svg>
+</div>
+    <div class="modal-title">PUZZLE 03 · 실험실</div>
+    <div class="modal-heading">태양 코로나 색광 합성</div>
+    <div class="modal-desc">분광기 데이터에 따르면 태양 코로나의 색상을 재현해야 합니다. 스펙트럼 차트: R=최대, G=중간, B=없음.</div>
+    <div class="target-preview">TARGET: 태양 코로나색 (255, 140, 0)</div>
+    <div id="color-preview" class="color-preview-box" style="background:rgb(0,0,0)"></div>
+    <div id="color-match" style="text-align:center;font-size:0.8rem;margin:4px 0">일치율: 0%</div>
+    <div class="slider-row"><span class="slider-label" style="color:#ff4444">R</span><input type="range" id="rgb-r" min="0" max="255" value="0" oninput="updateRGB()"><span class="slider-val" id="rgb-r-val">0</span></div>
+    <div class="slider-row"><span class="slider-label" style="color:#44ff44">G</span><input type="range" id="rgb-g" min="0" max="255" value="0" oninput="updateRGB()"><span class="slider-val" id="rgb-g-val">0</span></div>
+    <div class="slider-row"><span class="slider-label" style="color:#4488ff">B</span><input type="range" id="rgb-b" min="0" max="255" value="0" oninput="updateRGB()"><span class="slider-val" id="rgb-b-val">0</span></div>
+    <button class="btn-primary" onclick="checkRGB()">▶ 색광 잠금</button>
+  </div>
+</div>
+
+<!-- MAZE -->
+<div class="modal-overlay" id="modal-maze">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('maze')">✕</button>
+<div class="puzzle-banner">
+<svg viewBox="0 0 560 160" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+
+<rect width="560" height="160" fill="#010608"/>
+<!-- grid lines -->
+<line x1="0" y1="40" x2="560" y2="40" stroke="#0d1e32" stroke-width="0.5"/>
+<line x1="0" y1="80" x2="560" y2="80" stroke="#0d1e32" stroke-width="0.5"/>
+<line x1="0" y1="120" x2="560" y2="120" stroke="#0d1e32" stroke-width="0.5"/>
+<line x1="80" y1="0" x2="80" y2="160" stroke="#0d1e32" stroke-width="0.5"/>
+<line x1="160" y1="0" x2="160" y2="160" stroke="#0d1e32" stroke-width="0.5"/>
+<line x1="240" y1="0" x2="240" y2="160" stroke="#0d1e32" stroke-width="0.5"/>
+<line x1="320" y1="0" x2="320" y2="160" stroke="#0d1e32" stroke-width="0.5"/>
+<line x1="400" y1="0" x2="400" y2="160" stroke="#0d1e32" stroke-width="0.5"/>
+<line x1="480" y1="0" x2="480" y2="160" stroke="#0d1e32" stroke-width="0.5"/>
+<!-- laser source -->
+<circle cx="10" cy="80" r="7" fill="#ff6b35" opacity="0.8"/>
+<line x1="10" y1="80" x2="160" y2="80" stroke="#ff6b35" stroke-width="2"/>
+<!-- mirror at 160,80 -->
+<line x1="148" y1="68" x2="172" y2="92" stroke="#00c8ff" stroke-width="3" stroke-linecap="round"/>
+<!-- beam goes up -->
+<line x1="160" y1="80" x2="160" y2="0" stroke="#ff6b35" stroke-width="2"/>
+<!-- mirror at 160,40 -->
+<line x1="148" y1="28" x2="172" y2="52" stroke="#00c8ff" stroke-width="3" stroke-linecap="round"/>
+<!-- beam goes right -->
+<line x1="160" y1="40" x2="400" y2="40" stroke="#ff6b35" stroke-width="2"/>
+<!-- mirror at 400,40 -->
+<line x1="388" y1="52" x2="412" y2="28" stroke="#00c8ff" stroke-width="3" stroke-linecap="round"/>
+<!-- beam goes up to target -->
+<line x1="400" y1="40" x2="550" y2="40" stroke="#00ff88" stroke-width="2"/>
+<!-- target star -->
+<circle cx="552" cy="40" r="9" fill="#ffd700" opacity="0.9"/>
+<text x="552" y="44" fill="#000" font-size="9" text-anchor="middle" font-weight="900">★</text>
+<!-- glow on beam -->
+<line x1="10" y1="80" x2="160" y2="80" stroke="#ff6b35" stroke-width="8" opacity="0.06"/>
+<line x1="160" y1="80" x2="160" y2="0" stroke="#ff6b35" stroke-width="8" opacity="0.06"/>
+<line x1="160" y1="40" x2="400" y2="40" stroke="#ff6b35" stroke-width="8" opacity="0.06"/>
+<line x1="400" y1="40" x2="550" y2="40" stroke="#00ff88" stroke-width="8" opacity="0.08"/>
+<!-- decoy mirror -->
+<line x1="308" y1="108" x2="332" y2="132" stroke="#1a3a5c" stroke-width="2.5" stroke-linecap="round"/>
+<line x1="228" y1="28" x2="252" y2="52" stroke="#1a3a5c" stroke-width="2.5" stroke-linecap="round"/>
+<text x="280" y="155" fill="rgba(0,200,255,0.2)" font-size="7" text-anchor="middle" font-family="monospace">LASER DEFLECTION SYSTEM · LUMOS-7</text>
+
+</svg>
+</div>
+    <div class="modal-title">PUZZLE 04 · 실험실</div>
+    <div class="modal-heading">레이저 거울 미로</div>
+    <div class="modal-desc">미로 안의 거울(클릭하면 회전)을 조작해 레이저(SRC)를 별(★)에 도달시키세요.</div>
+    <canvas id="maze-canvas" width="420" height="360"></canvas>
+    <div class="status-text" id="maze-status">레이저를 출구로 반사시키세요</div>
+  </div>
+</div>
+
+<!-- CODE -->
+<div class="modal-overlay" id="modal-code">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('code')">✕</button>
+<div class="puzzle-banner">
+<svg viewBox="0 0 560 160" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+
+<rect width="560" height="160" fill="#010a06"/>
+<!-- server rack silhouettes in bg -->
+<rect x="0" y="0" width="30" height="160" fill="#040e08" stroke="#0a2010" stroke-width="0.5"/>
+<rect x="34" y="0" width="30" height="160" fill="#040e08" stroke="#0a2010" stroke-width="0.5"/>
+<rect x="500" y="0" width="30" height="160" fill="#040e08" stroke="#0a2010" stroke-width="0.5"/>
+<rect x="530" y="0" width="30" height="160" fill="#040e08" stroke="#0a2010" stroke-width="0.5"/>
+<!-- server LEDs on left racks -->
+<rect x="6" y="16" width="18" height="3" rx="1" fill="#00ff88" opacity="0.6"/>
+<rect x="6" y="26" width="12" height="3" rx="1" fill="#00ff88" opacity="0.5"/>
+<rect x="6" y="36" width="18" height="3" rx="1" fill="#00c8ff" opacity="0.5"/>
+<rect x="6" y="46" width="8" height="3" rx="1" fill="#ff3355" opacity="0.6"/>
+<rect x="6" y="56" width="16" height="3" rx="1" fill="#00ff88" opacity="0.5"/>
+<rect x="6" y="66" width="18" height="3" rx="1" fill="#00ff88" opacity="0.4"/>
+<rect x="40" y="20" width="18" height="3" rx="1" fill="#00c8ff" opacity="0.5"/>
+<rect x="40" y="32" width="14" height="3" rx="1" fill="#00ff88" opacity="0.6"/>
+<rect x="40" y="44" width="18" height="3" rx="1" fill="#00ff88" opacity="0.4"/>
+<rect x="40" y="56" width="10" height="3" rx="1" fill="#ff3355" opacity="0.5"/>
+<!-- main terminal -->
+<rect x="90" y="12" width="380" height="136" rx="5" fill="#060e0a" stroke="#0a2810" stroke-width="1.5"/>
+<rect x="100" y="22" width="360" height="116" rx="3" fill="#000" stroke="#041008"/>
+<!-- CRT glow effect -->
+<rect x="100" y="22" width="360" height="116" rx="3" fill="rgba(0,255,100,0.018)"/>
+<!-- code lines -->
+<text x="114" y="42" fill="#00ff44" font-size="9" font-family="monospace" opacity="0.9">&gt; LUMOS-7 MAINFRAME v4.1 [SECURED]</text>
+<text x="114" y="56" fill="#00c858" font-size="8.5" font-family="monospace" opacity="0.8">&gt; SYSTEM STATUS: OPERATIONAL</text>
+<text x="114" y="70" fill="#00a040" font-size="8.5" font-family="monospace" opacity="0.7">&gt; RESTRICTED ACCESS — AUTH REQUIRED</text>
+<text x="114" y="84" fill="#006830" font-size="8.5" font-family="monospace" opacity="0.6">  ENTER OVERRIDE CODE: [████]</text>
+<text x="114" y="98" fill="#004820" font-size="8.5" font-family="monospace" opacity="0.5">  HINT: c/λ × 10⁻⁴ =  _ _ _ _</text>
+<text x="114" y="112" fill="#003018" font-size="8.5" font-family="monospace" opacity="0.4">  ATTEMPTS REMAINING: 3</text>
+<rect x="114" y="122" width="6" height="12" rx="1" fill="#00ff44" opacity="0.9">
+  <animate attributeName="opacity" values="0.9;0;0.9" dur="1.1s" repeatCount="indefinite"/>
+</rect>
+<!-- right status panel -->
+<rect x="506" y="16" width="18" height="3" rx="1" fill="#00ff88" opacity="0.6"/>
+<rect x="506" y="26" width="14" height="3" rx="1" fill="#00ff88" opacity="0.5"/>
+<rect x="506" y="36" width="18" height="3" rx="1" fill="#ff3355" opacity="0.6"/>
+<rect x="506" y="46" width="10" height="3" rx="1" fill="#00c8ff" opacity="0.5"/>
+
+</svg>
+</div>
+    <div class="modal-title">PUZZLE 05 · 서버실</div>
+    <div class="modal-heading">메인프레임 오버라이드 코드</div>
+    <div class="modal-desc">터미널 힌트: <em>c/λ × 10⁻⁴</em> — 빛의 속도를 파장으로 나눈 값. 연구소 어딘가에 단서가 있다. 4자리 코드를 입력하세요.</div>
+    <div class="code-row">
+      <input class="code-digit" id="code-0" maxlength="1" oninput="codeInput(0)" onkeydown="codeKey(event,0)" inputmode="numeric">
+      <input class="code-digit" id="code-1" maxlength="1" oninput="codeInput(1)" onkeydown="codeKey(event,1)" inputmode="numeric">
+      <input class="code-digit" id="code-2" maxlength="1" oninput="codeInput(2)" onkeydown="codeKey(event,2)" inputmode="numeric">
+      <input class="code-digit" id="code-3" maxlength="1" oninput="codeInput(3)" onkeydown="codeKey(event,3)" inputmode="numeric">
+    </div>
+    <div class="status-text" id="code-status"></div>
+    <button class="btn-primary" onclick="checkCode()">▶ 코드 입력</button>
+  </div>
+</div>
+
+<!-- DNA -->
+<div class="modal-overlay" id="modal-dna">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('dna')">✕</button>
+<div class="puzzle-banner">
+<svg viewBox="0 0 560 160" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+
+<rect width="560" height="160" fill="#010a0a"/>
+<!-- scan lines bg -->
+<rect x="0" y="0" width="560" height="160" fill="url(#dna-scan)" opacity="0.5"/>
+<!-- scanner chamber bg glow -->
+<ellipse cx="280" cy="80" rx="180" ry="70" fill="rgba(0,255,136,0.03)"/>
+<!-- DNA double helix left strand -->
+<path d="M180,10 C200,30 220,50 200,80 C220,110 200,130 180,150" fill="none" stroke="#00c8ff" stroke-width="2.5" opacity="0.85"/>
+<!-- DNA double helix right strand -->
+<path d="M220,10 C200,30 180,50 200,80 C180,110 200,130 220,150" fill="none" stroke="#00ff88" stroke-width="2.5" opacity="0.85"/>
+<!-- rungs between strands -->
+<line x1="184" y1="22" x2="216" y2="18" stroke="rgba(0,200,255,0.5)" stroke-width="1.2"/>
+<line x1="195" y1="38" x2="205" y2="42" stroke="rgba(0,255,136,0.5)" stroke-width="1.2"/>
+<line x1="200" y1="56" x2="200" y2="60" stroke="rgba(255,215,0,0.5)" stroke-width="1.2"/>
+<line x1="197" y1="70" x2="203" y2="74" stroke="rgba(0,200,255,0.5)" stroke-width="1.2"/>
+<line x1="200" y1="80" x2="200" y2="80" stroke="rgba(0,255,136,0.6)" stroke-width="2"/>
+<line x1="197" y1="90" x2="203" y2="86" stroke="rgba(255,107,53,0.5)" stroke-width="1.2"/>
+<line x1="200" y1="104" x2="200" y2="100" stroke="rgba(0,200,255,0.5)" stroke-width="1.2"/>
+<line x1="195" y1="118" x2="205" y2="122" stroke="rgba(0,255,136,0.5)" stroke-width="1.2"/>
+<line x1="184" y1="138" x2="216" y2="142" stroke="rgba(255,215,0,0.5)" stroke-width="1.2"/>
+<!-- glow on helix center -->
+<ellipse cx="200" cy="80" rx="12" ry="8" fill="rgba(0,255,136,0.15)"/>
+<!-- right side: sequence display panel -->
+<rect x="260" y="18" width="280" height="124" rx="4" fill="#040e0a" stroke="#0a2818" stroke-width="1.5"/>
+<text x="280" y="38" fill="#00ff88" font-size="8" font-family="monospace" opacity="0.9">∿ α-LYRA ORGANISM DNA ∿</text>
+<text x="280" y="54" fill="#2a6040" font-size="7" font-family="monospace">SEQUENCE DETECTED:</text>
+<!-- base pair display -->
+<rect x="274" y="62" width="18" height="22" rx="2" fill="rgba(0,200,255,0.15)" stroke="rgba(0,200,255,0.4)"/>
+<text x="283" y="77" fill="#00c8ff" font-size="10" text-anchor="middle" font-weight="900" font-family="monospace">A</text>
+<rect x="298" y="62" width="18" height="22" rx="2" fill="rgba(255,107,53,0.15)" stroke="rgba(255,107,53,0.4)"/>
+<text x="307" y="77" fill="#ff6b35" font-size="10" text-anchor="middle" font-weight="900" font-family="monospace">T</text>
+<rect x="322" y="62" width="18" height="22" rx="2" fill="rgba(0,255,136,0.15)" stroke="rgba(0,255,136,0.4)"/>
+<text x="331" y="77" fill="#00ff88" font-size="10" text-anchor="middle" font-weight="900" font-family="monospace">C</text>
+<rect x="346" y="62" width="18" height="22" rx="2" fill="rgba(255,215,0,0.15)" stroke="rgba(255,215,0,0.4)"/>
+<text x="355" y="77" fill="#ffd700" font-size="10" text-anchor="middle" font-weight="900" font-family="monospace">G</text>
+<rect x="370" y="62" width="18" height="22" rx="2" fill="rgba(0,200,255,0.15)" stroke="rgba(0,200,255,0.4)"/>
+<text x="379" y="77" fill="#00c8ff" font-size="10" text-anchor="middle" font-weight="900" font-family="monospace">A</text>
+<rect x="394" y="62" width="18" height="22" rx="2" fill="rgba(255,107,53,0.15)" stroke="rgba(255,107,53,0.4)"/>
+<text x="403" y="77" fill="#ff6b35" font-size="10" text-anchor="middle" font-weight="900" font-family="monospace">T</text>
+<text x="274" y="108" fill="#1a4028" font-size="7" font-family="monospace">MATCH SEQUENCE TO AUTHENTICATE</text>
+<text x="274" y="120" fill="#0a2818" font-size="6.5" font-family="monospace">ORGANISM: EXTRATERRESTRIAL LYRA CLASS</text>
+<text x="274" y="132" fill="#0a2818" font-size="6.5" font-family="monospace">SAMPLE INTEGRITY: 98.7%</text>
+<!-- scan line animation indicator -->
+<rect x="260" y="100" width="280" height="1" fill="#00ff88" opacity="0.3"/>
+
+</svg>
+</div>
+    <div class="modal-title">PUZZLE 06 · 격리실</div>
+    <div class="modal-heading">외계 DNA 서열 분석</div>
+    <div class="modal-desc">DNA 분석기 화면에 표시된 α-라이라 생물체의 패턴을 정확히 재현하세요: <strong style="color:var(--accent)">A-T-C-G-A-T</strong> 순서로 버튼을 클릭하세요.</div>
+    <div class="dna-sequence-display" id="dna-display">
+      <span style="font-size:0.75rem;color:var(--dim)">서열을 입력하세요...</span>
+    </div>
+    <div class="dna-buttons">
+      <button class="dna-btn A" onclick="dnaClick('A')">A</button>
+      <button class="dna-btn T" onclick="dnaClick('T')">T</button>
+      <button class="dna-btn G" onclick="dnaClick('G')">G</button>
+      <button class="dna-btn C" onclick="dnaClick('C')">C</button>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:center">
+      <button class="btn-primary" onclick="checkDNA()">▶ 서열 확인</button>
+      <button class="btn-danger" onclick="resetDNA()">↺ 초기화</button>
+    </div>
+    <div class="status-text" id="dna-status">버튼을 순서대로 클릭하세요</div>
+  </div>
+</div>
+
+<!-- BIOCODE -->
+<div class="modal-overlay" id="modal-biocode">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('biocode')">✕</button>
+<div class="puzzle-banner">
+<svg viewBox="0 0 560 160" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+
+<rect width="560" height="160" fill="#040a06"/>
+<!-- dark metal texture stripes -->
+<rect x="0" y="0" width="560" height="4" fill="#060e08" opacity="0.8"/>
+<rect x="0" y="8" width="560" height="4" fill="#060e08" opacity="0.6"/>
+<rect x="0" y="16" width="560" height="4" fill="#060e08" opacity="0.5"/>
+<!-- biohazard warning stripes left -->
+<rect x="0" y="0" width="60" height="160" fill="#040e06"/>
+<line x1="0" y1="0" x2="60" y2="160" stroke="#ffd700" stroke-width="8" opacity="0.12"/>
+<line x1="0" y1="40" x2="60" y2="160" stroke="#ffd700" stroke-width="8" opacity="0.1"/>
+<line x1="0" y1="-20" x2="60" y2="120" stroke="#ffd700" stroke-width="8" opacity="0.1"/>
+<!-- biohazard symbol center-left -->
+<circle cx="120" cy="80" r="48" fill="#040e06" stroke="#ffd700" stroke-width="1" opacity="0.4"/>
+<circle cx="120" cy="80" r="10" fill="none" stroke="#ffd700" stroke-width="3" opacity="0.5"/>
+<text x="120" y="90" fill="#ffd700" font-size="44" text-anchor="middle" opacity="0.25">☣</text>
+<text x="120" y="148" fill="#2a4020" font-size="7" text-anchor="middle" font-family="monospace">BSL-4 ISOLATION LOCK</text>
+<!-- keypad panel right -->
+<rect x="200" y="14" width="200" height="132" rx="6" fill="#060e08" stroke="#1a3018" stroke-width="1.5"/>
+<text x="300" y="36" fill="#2a5030" font-size="7.5" text-anchor="middle" font-family="monospace">BIO-LOCK PANEL</text>
+<!-- LED display -->
+<rect x="216" y="44" width="168" height="28" rx="3" fill="#000" stroke="#0a2010"/>
+<text x="300" y="62" fill="#00ff88" font-size="16" font-weight="900" text-anchor="middle" font-family="monospace">_ _ _ _</text>
+<!-- keypad buttons 3x4 -->
+<rect x="218" y="82" width="36" height="26" rx="3" fill="#060e0a" stroke="#1a3018"/>
+<text x="236" y="99" fill="#2a5030" font-size="12" text-anchor="middle" font-family="monospace">1</text>
+<rect x="262" y="82" width="36" height="26" rx="3" fill="#060e0a" stroke="#1a3018"/>
+<text x="280" y="99" fill="#2a5030" font-size="12" text-anchor="middle" font-family="monospace">2</text>
+<rect x="306" y="82" width="36" height="26" rx="3" fill="#060e0a" stroke="#1a3018"/>
+<text x="324" y="99" fill="#2a5030" font-size="12" text-anchor="middle" font-family="monospace">3</text>
+<rect x="218" y="114" width="36" height="26" rx="3" fill="#060e0a" stroke="#1a3018"/>
+<text x="236" y="131" fill="#2a5030" font-size="12" text-anchor="middle" font-family="monospace">4</text>
+<rect x="262" y="114" width="36" height="26" rx="3" fill="#060e0a" stroke="#1a3018"/>
+<text x="280" y="131" fill="#2a5030" font-size="12" text-anchor="middle" font-family="monospace">5</text>
+<rect x="306" y="114" width="36" height="26" rx="3" fill="#060e0a" stroke="#1a3018"/>
+<text x="324" y="131" fill="#2a5030" font-size="12" text-anchor="middle" font-family="monospace">6</text>
+<!-- right stats panel -->
+<rect x="430" y="14" width="120" height="132" rx="4" fill="#040e06" stroke="#0a2010" stroke-width="1"/>
+<text x="490" y="36" fill="#1a3820" font-size="7" text-anchor="middle" font-family="monospace">ISOLATION DATA</text>
+<line x1="440" y1="42" x2="540" y2="42" stroke="#0a2010" stroke-width="0.5"/>
+<text x="442" y="58" fill="#2a5030" font-size="7" font-family="monospace">CONTAM: LV.4</text>
+<text x="442" y="72" fill="#2a5030" font-size="7" font-family="monospace">ISOLATE: 3일</text>
+<text x="442" y="86" fill="#2a5030" font-size="7" font-family="monospace">PERMIT:  2명</text>
+<text x="442" y="100" fill="#2a5030" font-size="7" font-family="monospace">ZONE:    1</text>
+<circle cx="490" cy="128" r="12" fill="#0a1e0e" stroke="#1a3018"/>
+<circle cx="490" cy="128" r="8" fill="#040e06"/>
+<circle cx="490" cy="128" r="4" fill="#ffd700" opacity="0.3"/>
+
+</svg>
+</div>
+    <div class="modal-title">PUZZLE 07 · 격리실</div>
+    <div class="modal-heading">생물격리 잠금 해제</div>
+    <div class="modal-desc">격리실 기록판을 참고하세요. 각 수치를 순서대로 읽으면 4자리 코드가 됩니다.</div>
+    <div class="biocode-row">
+      <div class="biocode-item"><strong>4</strong>오염도 LEVEL</div>
+      <div class="biocode-item"><strong>3</strong>격리 일수</div>
+      <div class="biocode-item"><strong>2</strong>허가 인원</div>
+      <div class="biocode-item"><strong>1</strong>발생 구역</div>
+    </div>
+    <div class="code-row">
+      <input class="code-digit" id="bio-0" maxlength="1" oninput="bioInput(0)" onkeydown="bioKey(event,0)" inputmode="numeric">
+      <input class="code-digit" id="bio-1" maxlength="1" oninput="bioInput(1)" onkeydown="bioKey(event,1)" inputmode="numeric">
+      <input class="code-digit" id="bio-2" maxlength="1" oninput="bioInput(2)" onkeydown="bioKey(event,2)" inputmode="numeric">
+      <input class="code-digit" id="bio-3" maxlength="1" oninput="bioInput(3)" onkeydown="bioKey(event,3)" inputmode="numeric">
+    </div>
+    <div class="status-text" id="biocode-status"></div>
+    <button class="btn-primary" onclick="checkBiocode()">▶ 잠금 해제</button>
+  </div>
+</div>
+
+<!-- POWER -->
+<div class="modal-overlay" id="modal-power">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('power')">✕</button>
+<div class="puzzle-banner">
+<svg viewBox="0 0 560 160" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+
+<rect width="560" height="160" fill="#050408"/>
+<!-- warning stripe top -->
+<rect x="0" y="0" width="560" height="12" fill="#0a0808"/>
+<line x1="0" y1="0" x2="560" y2="0" stroke="#ff6b35" stroke-width="0.5" opacity="0.4"/>
+<!-- 6 switch units -->
+<rect x="18" y="18" width="72" height="124" rx="5" fill="#080a0e" stroke="#2a1808" stroke-width="1.5"/>
+<rect x="28" y="28" width="52" height="70" rx="3" fill="#060808" stroke="#1a1008"/>
+<!-- switch 1 handle -->
+<rect x="44" y="34" width="20" height="30" rx="4" fill="#1a1010" stroke="#2a2010"/>
+<rect x="44" y="34" width="20" height="14" rx="3" fill="#2a1808"/>
+<circle cx="54" cy="114" r="6" fill="#1a1010" stroke="#2a2010"/>
+<text x="54" y="152" fill="#1a2030" font-size="9" text-anchor="middle" font-family="monospace">1</text>
+
+<rect x="104" y="18" width="72" height="124" rx="5" fill="#080a0e" stroke="#2a1808" stroke-width="1.5"/>
+<rect x="114" y="28" width="52" height="70" rx="3" fill="#060808" stroke="#1a1008"/>
+<rect x="130" y="34" width="20" height="30" rx="4" fill="#1a1010" stroke="#2a2010"/>
+<rect x="130" y="34" width="20" height="14" rx="3" fill="#2a1808"/>
+<circle cx="140" cy="114" r="6" fill="#1a1010" stroke="#2a2010"/>
+<text x="140" y="152" fill="#1a2030" font-size="9" text-anchor="middle" font-family="monospace">2</text>
+
+<rect x="190" y="18" width="72" height="124" rx="5" fill="#080a0e" stroke="#ff6b35" stroke-width="1.8"/>
+<rect x="200" y="28" width="52" height="70" rx="3" fill="#060808" stroke="#2a1008"/>
+<!-- switch 3 (first in sequence) - slightly glowing -->
+<rect x="216" y="58" width="20" height="30" rx="4" fill="#1a1010" stroke="#2a2010"/>
+<rect x="216" y="64" width="20" height="14" rx="3" fill="#3a2008"/>
+<circle cx="226" cy="114" r="6" fill="#ff6b35" opacity="0.4"/>
+<circle cx="226" cy="114" r="4" fill="#ff6b35" opacity="0.6"/>
+<text x="226" y="152" fill="#ff6b35" font-size="9" text-anchor="middle" font-family="monospace" opacity="0.7">3</text>
+
+<rect x="276" y="18" width="72" height="124" rx="5" fill="#080a0e" stroke="#2a1808" stroke-width="1.5"/>
+<rect x="286" y="28" width="52" height="70" rx="3" fill="#060808" stroke="#1a1008"/>
+<rect x="302" y="34" width="20" height="30" rx="4" fill="#1a1010" stroke="#2a2010"/>
+<rect x="302" y="34" width="20" height="14" rx="3" fill="#2a1808"/>
+<circle cx="312" cy="114" r="6" fill="#1a1010" stroke="#2a2010"/>
+<text x="312" y="152" fill="#1a2030" font-size="9" text-anchor="middle" font-family="monospace">4</text>
+
+<rect x="362" y="18" width="72" height="124" rx="5" fill="#080a0e" stroke="#2a1808" stroke-width="1.5"/>
+<rect x="372" y="28" width="52" height="70" rx="3" fill="#060808" stroke="#1a1008"/>
+<rect x="388" y="34" width="20" height="30" rx="4" fill="#1a1010" stroke="#2a2010"/>
+<rect x="388" y="34" width="20" height="14" rx="3" fill="#2a1808"/>
+<circle cx="398" cy="114" r="6" fill="#1a1010" stroke="#2a2010"/>
+<text x="398" y="152" fill="#1a2030" font-size="9" text-anchor="middle" font-family="monospace">5</text>
+
+<rect x="448" y="18" width="72" height="124" rx="5" fill="#080a0e" stroke="#2a1808" stroke-width="1.5"/>
+<rect x="458" y="28" width="52" height="70" rx="3" fill="#060808" stroke="#1a1008"/>
+<rect x="474" y="34" width="20" height="30" rx="4" fill="#1a1010" stroke="#2a2010"/>
+<rect x="474" y="34" width="20" height="14" rx="3" fill="#2a1808"/>
+<circle cx="484" cy="114" r="6" fill="#1a1010" stroke="#2a2010"/>
+<text x="484" y="152" fill="#1a2030" font-size="9" text-anchor="middle" font-family="monospace">6</text>
+
+</svg>
+</div>
+    <div class="modal-title">PUZZLE 08 · 동력실</div>
+    <div class="modal-heading">전원 스위치 시동 순서</div>
+    <div class="modal-desc">손상된 제어 다이어그램에서 복구된 시동 순서: <strong style="color:var(--accent2)">3 → 1 → 4 → 2 → 6 → 5</strong> 순서로 스위치를 활성화하세요. 잘못된 순서는 초기화됩니다.</div>
+    <div class="switch-order" id="sw-order-display"></div>
+    <div class="switch-grid" id="switch-grid">
+      <button class="switch-btn" id="sw-1" onclick="switchClick(1)"><span class="sw-num">1</span>SWITCH</button>
+      <button class="switch-btn" id="sw-2" onclick="switchClick(2)"><span class="sw-num">2</span>SWITCH</button>
+      <button class="switch-btn" id="sw-3" onclick="switchClick(3)"><span class="sw-num">3</span>SWITCH</button>
+      <button class="switch-btn" id="sw-4" onclick="switchClick(4)"><span class="sw-num">4</span>SWITCH</button>
+      <button class="switch-btn" id="sw-5" onclick="switchClick(5)"><span class="sw-num">5</span>SWITCH</button>
+      <button class="switch-btn" id="sw-6" onclick="switchClick(6)"><span class="sw-num">6</span>SWITCH</button>
+    </div>
+    <div class="status-text" id="power-status">스위치를 올바른 순서로 활성화하세요</div>
+  </div>
+</div>
+
+<!-- REACTOR -->
+<div class="modal-overlay" id="modal-reactor">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('reactor')">✕</button>
+<div class="puzzle-banner">
+<svg viewBox="0 0 560 160" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+
+<rect width="560" height="160" fill="#050204"/>
+<!-- outer dark bg -->
+<radialGradient id="react-glow" cx="50%" cy="50%" r="45%">
+  <stop offset="0%" stop-color="#220808"/>
+  <stop offset="100%" stop-color="#050204"/>
+</radialGradient>
+<rect width="560" height="160" fill="url(#react-glow)"/>
+<!-- reactor vessel outer -->
+<ellipse cx="280" cy="80" rx="90" ry="70" fill="#060408" stroke="#ff6b35" stroke-width="2"/>
+<!-- vessel inner rings -->
+<ellipse cx="280" cy="80" rx="72" ry="56" fill="none" stroke="#aa3010" stroke-width="1.2" opacity="0.7"/>
+<ellipse cx="280" cy="80" rx="54" ry="42" fill="none" stroke="#cc4010" stroke-width="1" opacity="0.6"/>
+<ellipse cx="280" cy="80" rx="36" ry="28" fill="none" stroke="#ee5010" stroke-width="0.8" opacity="0.5"/>
+<!-- reactor core glow -->
+<ellipse cx="280" cy="80" rx="22" ry="18" fill="#ff4400" opacity="0.6"/>
+<ellipse cx="280" cy="80" rx="14" ry="12" fill="#ff8800" opacity="0.7"/>
+<ellipse cx="280" cy="80" rx="7" ry="6" fill="#ffdd00" opacity="0.8"/>
+<!-- plasma tendrils -->
+<path d="M280,50 Q300,44 310,56 Q295,64 280,50" fill="rgba(255,80,0,0.3)"/>
+<path d="M280,110 Q260,116 250,104 Q265,96 280,110" fill="rgba(255,80,0,0.25)"/>
+<path d="M240,80 Q234,60 246,52 Q254,65 240,80" fill="rgba(255,100,0,0.2)"/>
+<path d="M320,80 Q326,100 314,108 Q306,95 320,80" fill="rgba(255,100,0,0.2)"/>
+<!-- pipe connections -->
+<rect x="0" y="68" width="188" height="10" rx="3" fill="#1a0808" stroke="#2a1008"/>
+<rect x="372" y="68" width="188" height="10" rx="3" fill="#1a0808" stroke="#2a1008"/>
+<rect x="274" y="0" width="12" height="8" rx="2" fill="#1a0808" stroke="#2a1008"/>
+<rect x="274" y="152" width="12" height="8" rx="2" fill="#1a0808" stroke="#2a1008"/>
+<!-- core labels α β γ -->
+<text x="130" y="64" fill="#2a1010" font-size="10" font-family="monospace" opacity="0.7">α</text>
+<text x="130" y="80" fill="#1a1010" font-size="7" font-family="monospace" opacity="0.5">85 MW</text>
+<text x="390" y="64" fill="#2a1010" font-size="10" font-family="monospace" opacity="0.7">β</text>
+<text x="390" y="80" fill="#1a1010" font-size="7" font-family="monospace" opacity="0.5">120 MW</text>
+<text x="272" y="140" fill="#2a1010" font-size="10" font-family="monospace" opacity="0.7">γ</text>
+<text x="260" y="153" fill="#1a1010" font-size="7" font-family="monospace" opacity="0.5">95 MW</text>
+<!-- radiation warning -->
+<text x="280" y="30" fill="#ff6b35" font-size="16" text-anchor="middle" opacity="0.2">⚡</text>
+<text x="10" y="155" fill="rgba(255,107,53,0.2)" font-size="7" font-family="monospace">☢ RADIATION ZONE · REACTOR CORE ACTIVE</text>
+
+</svg>
+</div>
+    <div class="modal-title">PUZZLE 09 · 동력실</div>
+    <div class="modal-heading">원자로 코어 균형 조절</div>
+    <div class="modal-desc">벽면 다이어그램: <em>α코어 기준 출력 85MW, β코어 피크 120MW, 총 출력 300MW.</em> 세 코어의 합이 300MW가 되도록 슬라이더를 조절하세요.</div>
+    <div class="reactor-core">
+      <div class="core-row">
+        <span class="core-label core-a">α</span>
+        <div class="core-bar"><input type="range" id="core-a" min="0" max="200" value="100" oninput="updateReactor()" style="width:100%;accent-color:#00c8ff"></div>
+        <span class="core-val core-a" id="core-a-val">100</span>
+      </div>
+      <div class="core-row">
+        <span class="core-label core-b">β</span>
+        <div class="core-bar"><input type="range" id="core-b" min="0" max="200" value="100" oninput="updateReactor()" style="width:100%;accent-color:#ff6b35"></div>
+        <span class="core-val core-b" id="core-b-val">100</span>
+      </div>
+      <div class="core-row">
+        <span class="core-label core-g">γ</span>
+        <div class="core-bar"><input type="range" id="core-g" min="0" max="200" value="100" oninput="updateReactor()" style="width:100%;accent-color:#00ff88"></div>
+        <span class="core-val core-g" id="core-g-val">100</span>
+      </div>
+    </div>
+    <div class="reactor-total">총 출력: <span id="reactor-total">300</span> MW / <span style="color:var(--success)">목표: 300 MW</span></div>
+    <div class="status-text" id="reactor-status">α=85, β=120, γ=95를 맞춰보세요</div>
+    <button class="btn-primary" onclick="checkReactor()">▶ 균형 잠금</button>
+  </div>
+</div>
+
+<!-- MORSE -->
+<div class="modal-overlay" id="modal-morse">
+  <div class="modal-box wide">
+    <button class="modal-close" onclick="closeModal('morse')">✕</button>
+<div class="puzzle-banner">
+<svg viewBox="0 0 560 160" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+
+<rect width="560" height="160" fill="#030810"/>
+<!-- receiver body -->
+<rect x="30" y="20" width="220" height="120" rx="8" fill="#060e18" stroke="#1a3050" stroke-width="1.5"/>
+<!-- front panel grid -->
+<rect x="40" y="30" width="200" height="80" rx="4" fill="#040a14" stroke="#0a2034"/>
+<!-- signal display (oscilloscope style) -->
+<!-- morse signal pulses: . - - .-. .- (LYRA) -->
+<!-- L = .-.. -->
+<rect x="50" y="50" width="4" height="20" rx="1" fill="#00c8ff" opacity="0.8"/>
+<rect x="58" y="42" width="12" height="20" rx="1" fill="#00c8ff" opacity="0.8"/>
+<rect x="74" y="50" width="4" height="20" rx="1" fill="#00c8ff" opacity="0.8"/>
+<rect x="82" y="50" width="4" height="20" rx="1" fill="#00c8ff" opacity="0.8"/>
+<!-- Y = --.-- -->
+<rect x="96" y="42" width="12" height="20" rx="1" fill="#00ff88" opacity="0.8"/>
+<rect x="112" y="42" width="12" height="20" rx="1" fill="#00ff88" opacity="0.8"/>
+<rect x="128" y="50" width="4" height="20" rx="1" fill="#00ff88" opacity="0.8"/>
+<rect x="136" y="42" width="12" height="20" rx="1" fill="#00ff88" opacity="0.8"/>
+<rect x="152" y="42" width="12" height="20" rx="1" fill="#00ff88" opacity="0.8"/>
+<!-- baseline -->
+<line x1="40" y1="78" x2="240" y2="78" stroke="#0a2034" stroke-width="0.5" stroke-dasharray="3,5"/>
+<!-- text decode -->
+<text x="50" y="100" fill="#00c8ff" font-size="9" font-family="monospace" opacity="0.8">·−·· −·−− ·−· ·−</text>
+<text x="50" y="114" fill="#2a4060" font-size="8" font-family="monospace">L Y R A</text>
+<!-- dials bottom -->
+<circle cx="62" cy="128" r="10" fill="#040c18" stroke="#0a2034"/>
+<circle cx="62" cy="128" r="6" fill="#030810"/>
+<line x1="62" y1="118" x2="62" y2="124" stroke="#ffd700" stroke-width="1.5" stroke-linecap="round"/>
+<circle cx="90" cy="128" r="10" fill="#040c18" stroke="#0a2034"/>
+<circle cx="90" cy="128" r="6" fill="#030810"/>
+<line x1="84" y1="122" x2="90" y2="128" stroke="#00c8ff" stroke-width="1.5" stroke-linecap="round"/>
+<circle cx="118" cy="128" r="10" fill="#040c18" stroke="#0a2034"/>
+<circle cx="118" cy="128" r="6" fill="#030810"/>
+<line x1="118" y1="118" x2="118" y2="124" stroke="#ff6b35" stroke-width="1.5" stroke-linecap="round"/>
+<!-- right side: signal info panel -->
+<rect x="270" y="20" width="260" height="120" rx="6" fill="#040a14" stroke="#0a2034" stroke-width="1.5"/>
+<text x="290" y="42" fill="#1a3050" font-size="8" font-family="monospace">DEEP SPACE SIGNAL LOG</text>
+<line x1="280" y1="48" x2="520" y2="48" stroke="#0a2034" stroke-width="0.5"/>
+<text x="290" y="64" fill="#2a4060" font-size="7.5" font-family="monospace">FREQ: 1420.4 MHz (H-LINE)</text>
+<text x="290" y="78" fill="#2a4060" font-size="7.5" font-family="monospace">SOURCE: RA 18h 36m 56s</text>
+<text x="290" y="92" fill="#2a4060" font-size="7.5" font-family="monospace">OBJECT: α Lyrae (VEGA)</text>
+<text x="290" y="106" fill="#ffd700" font-size="8" font-family="monospace" opacity="0.7">DECODE → CALLSIGN: ????</text>
+<text x="290" y="124" fill="#1a3050" font-size="6.5" font-family="monospace">SIGNAL REPEATING · INTENTIONAL</text>
+
+</svg>
+</div>
+    <div class="modal-title">PUZZLE 10 · 통신실</div>
+    <div class="modal-heading">모스 부호 해독</div>
+    <div class="modal-desc">수신된 모스 신호를 해독하여 콜사인을 입력하세요. (공백은 단어 구분)</div>
+    <div class="morse-display">.-.. &nbsp;-.-- &nbsp;.-. &nbsp;.-</div>
+    <div class="morse-table">
+      <div class="morse-cell"><span class="mc-letter">A</span>·−</div>
+      <div class="morse-cell"><span class="mc-letter">B</span>−···</div>
+      <div class="morse-cell"><span class="mc-letter">C</span>−·−·</div>
+      <div class="morse-cell"><span class="mc-letter">D</span>−··</div>
+      <div class="morse-cell"><span class="mc-letter">E</span>·</div>
+      <div class="morse-cell"><span class="mc-letter">F</span>··−·</div>
+      <div class="morse-cell"><span class="mc-letter">G</span>−−·</div>
+      <div class="morse-cell"><span class="mc-letter">H</span>····</div>
+      <div class="morse-cell"><span class="mc-letter">I</span>··</div>
+      <div class="morse-cell"><span class="mc-letter">J</span>·−−−</div>
+      <div class="morse-cell"><span class="mc-letter">K</span>−·−</div>
+      <div class="morse-cell"><span class="mc-letter">L</span>·−··</div>
+      <div class="morse-cell"><span class="mc-letter">M</span>−−</div>
+      <div class="morse-cell"><span class="mc-letter">N</span>−·</div>
+      <div class="morse-cell"><span class="mc-letter">O</span>−−−</div>
+      <div class="morse-cell"><span class="mc-letter">P</span>·−−·</div>
+      <div class="morse-cell"><span class="mc-letter">Q</span>−−·−</div>
+      <div class="morse-cell"><span class="mc-letter">R</span>·−·</div>
+      <div class="morse-cell"><span class="mc-letter">S</span>···</div>
+      <div class="morse-cell"><span class="mc-letter">T</span>−</div>
+      <div class="morse-cell"><span class="mc-letter">U</span>··−</div>
+      <div class="morse-cell"><span class="mc-letter">V</span>···−</div>
+      <div class="morse-cell"><span class="mc-letter">W</span>·−−</div>
+      <div class="morse-cell"><span class="mc-letter">X</span>−··−</div>
+      <div class="morse-cell"><span class="mc-letter">Y</span>−·−−</div>
+      <div class="morse-cell"><span class="mc-letter">Z</span>−−··</div>
+    </div>
+    <input class="morse-input" id="morse-input" placeholder="해독한 단어 입력 (영문 대문자)" maxlength="10" oninput="this.value=this.value.toUpperCase()">
+    <div class="status-text" id="morse-status">모스 부호를 해독해 입력하세요</div>
+    <button class="btn-primary" onclick="checkMorse()">▶ 콜사인 확인</button>
+  </div>
+</div>
+
+<!-- COORD -->
+<div class="modal-overlay" id="modal-coord">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('coord')">✕</button>
+<div class="puzzle-banner">
+<svg viewBox="0 0 560 160" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+
+<rect width="560" height="160" fill="#000"/>
+<!-- deep space bg -->
+<radialGradient id="coord-bg" cx="50%" cy="50%" r="60%">
+  <stop offset="0%" stop-color="#020610"/>
+  <stop offset="100%" stop-color="#000"/>
+</radialGradient>
+<rect width="560" height="160" fill="url(#coord-bg)"/>
+<!-- RA grid lines (vertical) -->
+<line x1="80" y1="0" x2="80" y2="160" stroke="#0a2034" stroke-width="0.5" stroke-dasharray="3,8"/>
+<line x1="160" y1="0" x2="160" y2="160" stroke="#0a2034" stroke-width="0.5" stroke-dasharray="3,8"/>
+<line x1="240" y1="0" x2="240" y2="160" stroke="#0a2034" stroke-width="0.5" stroke-dasharray="3,8"/>
+<line x1="320" y1="0" x2="320" y2="160" stroke="#0a2034" stroke-width="0.5" stroke-dasharray="3,8"/>
+<line x1="400" y1="0" x2="400" y2="160" stroke="#0a2034" stroke-width="0.5" stroke-dasharray="3,8"/>
+<line x1="480" y1="0" x2="480" y2="160" stroke="#0a2034" stroke-width="0.5" stroke-dasharray="3,8"/>
+<!-- Decl grid lines (horizontal) -->
+<line x1="0" y1="40" x2="560" y2="40" stroke="#0a2034" stroke-width="0.5" stroke-dasharray="3,8"/>
+<line x1="0" y1="80" x2="560" y2="80" stroke="#0a2034" stroke-width="0.5" stroke-dasharray="3,8"/>
+<line x1="0" y1="120" x2="560" y2="120" stroke="#0a2034" stroke-width="0.5" stroke-dasharray="3,8"/>
+<!-- RA labels -->
+<text x="78" y="154" fill="#1a3050" font-size="6" text-anchor="middle" font-family="monospace">16h</text>
+<text x="158" y="154" fill="#1a3050" font-size="6" text-anchor="middle" font-family="monospace">17h</text>
+<text x="238" y="154" fill="#1a3050" font-size="6" text-anchor="middle" font-family="monospace">18h</text>
+<text x="318" y="154" fill="#00c8ff" font-size="6" text-anchor="middle" font-family="monospace" opacity="0.7">18h36</text>
+<text x="398" y="154" fill="#1a3050" font-size="6" text-anchor="middle" font-family="monospace">19h</text>
+<text x="478" y="154" fill="#1a3050" font-size="6" text-anchor="middle" font-family="monospace">20h</text>
+<!-- background stars -->
+<circle cx="50" cy="25" r="0.7" fill="white" opacity="0.4"/>
+<circle cx="190" cy="55" r="0.8" fill="white" opacity="0.35"/>
+<circle cx="210" cy="100" r="0.6" fill="#00c8ff" opacity="0.4"/>
+<circle cx="440" cy="30" r="0.9" fill="white" opacity="0.3"/>
+<circle cx="520" cy="90" r="0.7" fill="white" opacity="0.35"/>
+<circle cx="100" cy="135" r="0.8" fill="white" opacity="0.3"/>
+<circle cx="460" cy="110" r="0.6" fill="white" opacity="0.3"/>
+<!-- VEGA highlight -->
+<circle cx="318" cy="44" r="10" fill="rgba(255,215,0,0.06)"/>
+<circle cx="318" cy="44" r="6" fill="rgba(255,215,0,0.12)"/>
+<circle cx="318" cy="44" r="3.5" fill="#ffd700" opacity="0.9"/>
+<text x="330" y="38" fill="#ffd700" font-size="7" font-family="monospace" opacity="0.9">Vega (α Lyrae)</text>
+<text x="330" y="50" fill="#4a6a8a" font-size="6.5" font-family="monospace">RA 18h 36m 56.3s</text>
+<!-- coordinate crosshair -->
+<line x1="318" y1="0" x2="318" y2="160" stroke="#00c8ff" stroke-width="0.8" opacity="0.25" stroke-dasharray="4,4"/>
+<line x1="0" y1="44" x2="560" y2="44" stroke="#00c8ff" stroke-width="0.8" opacity="0.25" stroke-dasharray="4,4"/>
+<!-- lock-on reticle -->
+<rect x="304" y="30" width="28" height="28" fill="none" stroke="#00c8ff" stroke-width="0.8" opacity="0.4"/>
+<line x1="304" y1="44" x2="298" y2="44" stroke="#00c8ff" stroke-width="0.8" opacity="0.5"/>
+<line x1="332" y1="44" x2="338" y2="44" stroke="#00c8ff" stroke-width="0.8" opacity="0.5"/>
+<line x1="318" y1="30" x2="318" y2="24" stroke="#00c8ff" stroke-width="0.8" opacity="0.5"/>
+<line x1="318" y1="58" x2="318" y2="64" stroke="#00c8ff" stroke-width="0.8" opacity="0.5"/>
+<text x="10" y="12" fill="#0a2034" font-size="6" font-family="monospace">DEEP SPACE COORDINATE LOCK · SIGNAL ORIGIN TRACE</text>
+
+</svg>
+</div>
+    <div class="modal-title">PUZZLE 11 · 통신실</div>
+    <div class="modal-heading">심우주 좌표 입력</div>
+    <div class="modal-desc">수신 신호의 발원지 적경(RA) 좌표: <em>RA 18h 36m 56.3s</em> — 시(h)와 분(m) 앞자리를 조합해 4자리 코드를 입력하세요.</div>
+    <div class="coord-terminal">
+      &gt; DEEP SPACE COMM LOCK<br>
+      &gt; SIGNAL ORIGIN: RA 18h 36m 56.3s<br>
+      &gt; DECL: +38° 47' 01.3"<br>
+      &gt; OBJECT: VEGA (α Lyrae)<br>
+      &gt; ENTER COORDINATE CODE:
+      <div class="coord-input-row">
+        <span class="coord-prompt">&gt;&gt; </span>
+        <input class="coord-input" id="coord-input" maxlength="4" inputmode="numeric" placeholder="____" onkeydown="if(event.key==='Enter')checkCoord()">
+      </div>
+    </div>
+    <div class="status-text" id="coord-status">RA × 100의 앞 4자리를 입력하세요</div>
+    <button class="btn-primary" onclick="checkCoord()">▶ 좌표 잠금</button>
+  </div>
+</div>
+
+<!-- STARMAP -->
+<div class="modal-overlay" id="modal-starmap">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('starmap')">✕</button>
+<div class="puzzle-banner">
+<svg viewBox="0 0 560 160" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+
+<rect width="560" height="160" fill="#000"/>
+<radialGradient id="smap-bg" cx="50%" cy="50%" r="60%">
+  <stop offset="0%" stop-color="#020610"/>
+  <stop offset="100%" stop-color="#000"/>
+</radialGradient>
+<rect width="560" height="160" fill="url(#smap-bg)"/>
+<!-- many background stars -->
+<circle cx="30" cy="20" r="0.7" fill="white" opacity="0.3"/>
+<circle cx="80" cy="45" r="0.5" fill="white" opacity="0.3"/>
+<circle cx="140" cy="15" r="0.8" fill="white" opacity="0.25"/>
+<circle cx="200" cy="60" r="0.6" fill="white" opacity="0.3"/>
+<circle cx="260" cy="30" r="0.9" fill="white" opacity="0.25"/>
+<circle cx="350" cy="15" r="0.7" fill="white" opacity="0.3"/>
+<circle cx="430" cy="50" r="0.6" fill="white" opacity="0.25"/>
+<circle cx="500" cy="25" r="0.8" fill="white" opacity="0.3"/>
+<circle cx="530" cy="80" r="0.5" fill="white" opacity="0.25"/>
+<circle cx="470" cy="130" r="0.7" fill="white" opacity="0.3"/>
+<circle cx="100" cy="100" r="0.6" fill="#00c8ff" opacity="0.25"/>
+<circle cx="380" cy="120" r="0.5" fill="white" opacity="0.25"/>
+<!-- Lyra constellation prominent center -->
+<!-- α (Vega) - brightest -->
+<circle cx="280" cy="60" r="7" fill="#ffd700" opacity="0.9"/>
+<ellipse cx="280" cy="60" rx="14" ry="14" fill="rgba(255,215,0,0.12)"/>
+<text x="295" y="54" fill="#ffd700" font-size="7" font-family="monospace" opacity="0.8">α Vega</text>
+<!-- β -->
+<circle cx="320" cy="90" r="4" fill="#c8d8ff" opacity="0.8"/>
+<!-- γ -->
+<circle cx="250" cy="95" r="3.5" fill="#c8d8ff" opacity="0.8"/>
+<!-- δ -->
+<circle cx="310" cy="120" r="3" fill="#c8d8ff" opacity="0.7"/>
+<!-- ε -->
+<circle cx="340" cy="110" r="3" fill="#c8d8ff" opacity="0.7"/>
+<!-- constellation lines -->
+<line x1="280" y1="60" x2="320" y2="90" stroke="#ffd700" stroke-width="1" opacity="0.4"/>
+<line x1="280" y1="60" x2="250" y2="95" stroke="#ffd700" stroke-width="1" opacity="0.4"/>
+<line x1="250" y1="95" x2="310" y2="120" stroke="#ffd700" stroke-width="0.8" opacity="0.35"/>
+<line x1="310" y1="120" x2="340" y2="110" stroke="#ffd700" stroke-width="0.8" opacity="0.35"/>
+<!-- greek labels -->
+<text x="254" y="106" fill="#c8d8ff" font-size="6.5" font-family="monospace" opacity="0.6">γ</text>
+<text x="324" y="88" fill="#c8d8ff" font-size="6.5" font-family="monospace" opacity="0.6">β</text>
+<text x="314" y="130" fill="#c8d8ff" font-size="6.5" font-family="monospace" opacity="0.6">δ</text>
+<text x="344" y="108" fill="#c8d8ff" font-size="6.5" font-family="monospace" opacity="0.6">ε</text>
+<!-- grid overlay faint -->
+<line x1="0" y1="80" x2="560" y2="80" stroke="#0a1830" stroke-width="0.3"/>
+<line x1="280" y1="0" x2="280" y2="160" stroke="#0a1830" stroke-width="0.3"/>
+<text x="10" y="12" fill="#0a1830" font-size="6.5" font-family="monospace">LYRA NAVIGATION STAR CHART · SELECT STARS α→β→γ→δ→ε</text>
+
+</svg>
+</div>
+    <div class="modal-title">PUZZLE 12 · 격납고</div>
+    <div class="modal-heading">거문고자리 항법 설정</div>
+    <div class="modal-desc">거문고자리(Lyra)의 주요 별 5개를 α → β → γ → δ → ε 순서로 클릭하세요. 별자리 가이드를 참고하세요.</div>
+    <canvas id="starmap-canvas" width="480" height="280"></canvas>
+    <div class="starmap-legend">
+      <span>● α Lyrae (Vega)</span>
+      <span>● β, γ, δ, ε</span>
+      <span style="color:var(--success)">● 선택됨</span>
+    </div>
+    <div class="status-text" id="starmap-status">별을 순서대로 클릭하세요 (α부터)</div>
+    <button class="btn-danger" style="margin-right:8px" onclick="resetStarmap()">↺ 초기화</button>
+  </div>
+</div>
+
+<!-- LAUNCH -->
+<div class="modal-overlay" id="modal-launch">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('launch')">✕</button>
+<div class="puzzle-banner">
+<svg viewBox="0 0 560 160" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+
+<rect width="560" height="160" fill="#030810"/>
+<!-- launch bay dark bg -->
+<rect x="0" y="0" width="560" height="160" fill="#030810"/>
+<!-- countdown display top center -->
+<rect x="170" y="10" width="220" height="50" rx="4" fill="#000" stroke="#ff6b35" stroke-width="1.5"/>
+<text x="280" y="32" fill="#ff6b35" font-size="9" text-anchor="middle" font-family="monospace" letter-spacing="2">LAUNCH AUTH PANEL</text>
+<text x="280" y="52" fill="#ff4400" font-size="18" font-weight="900" text-anchor="middle" font-family="monospace" letter-spacing="6">LUMOS-7</text>
+<!-- escape pod silhouette center -->
+<ellipse cx="280" cy="130" rx="80" ry="22" fill="#050c18" stroke="#1a3050" stroke-width="1"/>
+<rect x="240" y="96" width="80" height="38" rx="6" fill="#060e18" stroke="#1a3050" stroke-width="1"/>
+<ellipse cx="280" cy="96" rx="38" ry="12" fill="#050c18" stroke="#1a3050" stroke-width="1"/>
+<!-- pod window -->
+<ellipse cx="280" cy="108" rx="10" ry="8" fill="#000" stroke="#00c8ff" stroke-width="1" opacity="0.6"/>
+<ellipse cx="280" cy="108" rx="7" ry="5" fill="rgba(0,200,255,0.08)"/>
+<!-- left control panel -->
+<rect x="20" y="20" width="130" height="120" rx="4" fill="#060e18" stroke="#1a3050" stroke-width="1.5"/>
+<text x="85" y="38" fill="#1a3050" font-size="7" text-anchor="middle" font-family="monospace">CTRL-A</text>
+<circle cx="46" cy="60" r="12" fill="#060c14" stroke="#1a3050"/>
+<circle cx="46" cy="60" r="7" fill="#040810"/>
+<circle cx="46" cy="60" r="3" fill="#ff6b35" opacity="0.5"/>
+<circle cx="80" cy="60" r="12" fill="#060c14" stroke="#1a3050"/>
+<circle cx="80" cy="60" r="7" fill="#040810"/>
+<circle cx="80" cy="60" r="3" fill="#ffd700" opacity="0.5"/>
+<circle cx="114" cy="60" r="12" fill="#060c14" stroke="#1a3050"/>
+<circle cx="114" cy="60" r="7" fill="#040810"/>
+<circle cx="114" cy="60" r="3" fill="#00ff88" opacity="0.5"/>
+<rect x="32" y="90" width="36" height="20" rx="3" fill="#0a0808" stroke="#2a1010"/>
+<text x="50" y="104" fill="#ff3355" font-size="7" text-anchor="middle" font-family="monospace">ABORT</text>
+<rect x="78" y="90" width="56" height="20" rx="3" fill="#080a00" stroke="#1a2808"/>
+<text x="106" y="104" fill="#00ff88" font-size="7" text-anchor="middle" font-family="monospace">CONFIRM</text>
+<text x="85" y="128" fill="#1a3050" font-size="6" text-anchor="middle" font-family="monospace">ESTAB: 2__1</text>
+<!-- right panel -->
+<rect x="410" y="20" width="130" height="120" rx="4" fill="#060e18" stroke="#1a3050" stroke-width="1.5"/>
+<text x="475" y="38" fill="#1a3050" font-size="7" text-anchor="middle" font-family="monospace">CTRL-B</text>
+<rect x="420" y="46" width="100" height="24" rx="2" fill="#000" stroke="#0a2034"/>
+<text x="470" y="62" fill="#00c8ff" font-size="10" text-anchor="middle" font-family="monospace">T - ∞</text>
+<rect x="420" y="80" width="44" height="34" rx="3" fill="#080808" stroke="#1a2010"/>
+<text x="442" y="94" fill="#00ff88" font-size="6" text-anchor="middle" font-family="monospace">NAV</text>
+<text x="442" y="106" fill="#1a3020" font-size="5" text-anchor="middle" font-family="monospace">READY</text>
+<rect x="472" y="80" width="44" height="34" rx="3" fill="#080808" stroke="#2a1808"/>
+<text x="494" y="94" fill="#ff6b35" font-size="6" text-anchor="middle" font-family="monospace">FUEL</text>
+<text x="494" y="106" fill="#1a1808" font-size="5" text-anchor="middle" font-family="monospace">96.4%</text>
+<text x="475" y="128" fill="#1a3050" font-size="6" text-anchor="middle" font-family="monospace">CODE: ????</text>
+
+</svg>
+</div>
+    <div class="modal-title">PUZZLE 13 · 격납고</div>
+    <div class="modal-heading">탈출 포드 발사 코드</div>
+    <div class="modal-desc">Dr. 한이준이 설정한 인증 코드 = <em>LUMOS-7 연구소가 설립된 해</em>. 달 기지 어딘가에서 설립 연도를 찾아보세요.</div>
+    <div style="text-align:center;padding:20px;border:1px solid var(--border);background:rgba(0,0,0,0.4);margin:16px 0">
+      <div style="font-size:0.7rem;letter-spacing:0.3em;color:var(--dim);margin-bottom:8px">LUMOS-7 LUNAR OBSERVATORY</div>
+      <div style="font-size:0.85rem;color:var(--text)">ESTABLISHED <span style="color:var(--gold)">20__</span></div>
+      <div style="font-size:0.7rem;color:var(--dim);margin-top:6px">달 기지 건설 — 2021년 + 10년</div>
+    </div>
+    <div class="code-row">
+      <input class="code-digit" id="launch-0" maxlength="1" oninput="launchInput(0)" onkeydown="launchKey(event,0)" inputmode="numeric">
+      <input class="code-digit" id="launch-1" maxlength="1" oninput="launchInput(1)" onkeydown="launchKey(event,1)" inputmode="numeric">
+      <input class="code-digit" id="launch-2" maxlength="1" oninput="launchInput(2)" onkeydown="launchKey(event,2)" inputmode="numeric">
+      <input class="code-digit" id="launch-3" maxlength="1" oninput="launchInput(3)" onkeydown="launchKey(event,3)" inputmode="numeric">
+    </div>
+    <div class="status-text" id="launch-status"></div>
+    <button class="btn-primary" onclick="checkLaunch()">▶ 발사 코드 입력</button>
+  </div>
+</div>
+
+<!-- PARADOX -->
+<div class="modal-overlay" id="modal-paradox">
+  <div class="modal-box wide">
+    <button class="modal-close" onclick="closeModal('paradox')">✕</button>
+<div class="puzzle-banner">
+<svg viewBox="0 0 560 160" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+
+<rect width="560" height="160" fill="#050208"/>
+<!-- temporal distortion radial bg -->
+<radialGradient id="para-glow" cx="50%" cy="50%" r="55%">
+  <stop offset="0%" stop-color="#120820"/>
+  <stop offset="100%" stop-color="#050208"/>
+</radialGradient>
+<rect width="560" height="160" fill="url(#para-glow)"/>
+<!-- timeline horizontal -->
+<line x1="40" y1="80" x2="520" y2="80" stroke="#2a1050" stroke-width="1.5"/>
+<!-- timeline dots -->
+<circle cx="120" cy="80" r="6" fill="#8040ff" opacity="0.7"/>
+<text x="120" y="64" fill="#8040ff" font-size="7" text-anchor="middle" font-family="monospace" opacity="0.7">2021</text>
+<text x="120" y="100" fill="#4a2080" font-size="6" text-anchor="middle" font-family="monospace">설립</text>
+<circle cx="240" cy="80" r="8" fill="#00c8ff" opacity="0.8"/>
+<text x="240" y="62" fill="#00c8ff" font-size="7" text-anchor="middle" font-family="monospace">2031</text>
+<text x="240" y="100" fill="#2a4060" font-size="6" text-anchor="middle" font-family="monospace">현재</text>
+<!-- arrow going forward + looping back -->
+<path d="M240,80 Q360,20 440,80 Q360,140 240,80" fill="none" stroke="#ff6b35" stroke-width="1.5" stroke-dasharray="5,4" opacity="0.6"/>
+<circle cx="440" cy="80" r="10" fill="#ff4400" opacity="0.8"/>
+<circle cx="440" cy="80" r="6" fill="#ff6b35" opacity="0.9"/>
+<text x="440" y="64" fill="#ff6b35" font-size="7" text-anchor="middle" font-family="monospace">????</text>
+<text x="440" y="100" fill="#4a2010" font-size="6" text-anchor="middle" font-family="monospace">신호발송</text>
+<!-- arrow label -->
+<text x="360" y="36" fill="#4a2010" font-size="6.5" font-family="monospace" text-anchor="middle">+10년 →</text>
+<!-- backward signal arrow -->
+<path d="M440,74 Q360,30 240,72" fill="none" stroke="#ff3355" stroke-width="1.2" stroke-dasharray="3,3" opacity="0.4"/>
+<!-- left: paradox spiral -->
+<path d="M60,80 Q68,60 80,80 Q92,100 104,80 Q116,60 128,80" fill="none" stroke="#8040ff" stroke-width="1.5" opacity="0.4"/>
+<!-- particle effects -->
+<circle cx="360" cy="52" r="2" fill="#8040ff" opacity="0.5"/>
+<circle cx="380" cy="40" r="1.5" fill="#ff6b35" opacity="0.5"/>
+<circle cx="330" cy="44" r="1" fill="#00c8ff" opacity="0.4"/>
+<circle cx="400" cy="56" r="2" fill="#8040ff" opacity="0.4"/>
+<!-- label -->
+<text x="10" y="12" fill="#2a1040" font-size="6.5" font-family="monospace">∿ TEMPORAL PARADOX ANALYSIS — CHRONO DEVICE ACTIVE ∿</text>
+<text x="10" y="154" fill="#2a1040" font-size="6" font-family="monospace">「나는 10년 후 이 신호를 보낼 것이다.」</text>
+
+</svg>
+</div>
+    <div class="modal-title">PUZZLE 14 · 비밀연구실</div>
+    <div class="modal-heading">시간 역설 — 최후의 퍼즐</div>
+    <div class="modal-desc">타임라인을 분석해 Dr. 한이준이 빛 신호를 미래에서 보낸 연도를 특정하세요.</div>
+    <div class="paradox-timeline">
+      <div class="timeline-event">
+        <div class="timeline-year">2021</div>
+        <div class="timeline-desc">LUMOS-7 달 기지 <em>설립</em>. Dr. 한이준, 수석 천문학자로 부임.</div>
+      </div>
+      <div class="timeline-event">
+        <div class="timeline-year">2031</div>
+        <div class="timeline-desc">3월 14일 — Dr. 한이준 <em>행방불명</em>. 그의 마지막 메모: <em>「빛이 먼저 왔다. 찾아라.」</em></div>
+      </div>
+      <div class="timeline-event">
+        <div class="timeline-year">????</div>
+        <div class="timeline-desc">그의 최후 일지: <em>「나는 10년 후 이 신호를 보낼 것이다.」</em> — 2031년에서 10년 후 그는 어디에 있었는가?</div>
+      </div>
+    </div>
+    <div class="paradox-question">미래에서 신호를 보낸 연도는?</div>
+    <div class="code-row">
+      <input class="code-digit" id="para-0" maxlength="1" oninput="paraInput(0)" onkeydown="paraKey(event,0)" inputmode="numeric">
+      <input class="code-digit" id="para-1" maxlength="1" oninput="paraInput(1)" onkeydown="paraKey(event,1)" inputmode="numeric">
+      <input class="code-digit" id="para-2" maxlength="1" oninput="paraInput(2)" onkeydown="paraKey(event,2)" inputmode="numeric">
+      <input class="code-digit" id="para-3" maxlength="1" oninput="paraInput(3)" onkeydown="paraKey(event,3)" inputmode="numeric">
+    </div>
+    <div class="status-text" id="paradox-status"></div>
+    <button class="btn-primary" onclick="checkParadox()">▶ 연도 확정</button>
+  </div>
+</div>
+
+<!-- NOTE MODAL -->
+<div class="modal-overlay" id="modal-note">
+  <div class="modal-box" style="width:480px">
+    <button class="modal-close" onclick="closeModal('note')">✕</button>
+    <div class="modal-title">문서 열람</div>
+    <div class="modal-heading" id="note-modal-title"></div>
+    <div class="note-meta" id="note-modal-date"></div>
+    <div class="note-content-text" id="note-modal-content"></div>
+    <button class="btn-primary" onclick="closeModal('note')">닫기</button>
+  </div>
+</div>
+
+<!-- ═══ ENDING ═══ -->
+<div class="screen" id="screen-ending">
+  <div class="ending-badge">CASE CLOSED · LUMOS-7</div>
+  <div class="ending-title">진실은 빛보다 빨랐다</div>
+  <div class="ending-body">
+    당신은 8개 구역을 수색하고, 14개의 퍼즐을 해결했다.<br><br>
+    Dr. 한이준은 2041년의 미래에서 <em>빛보다 빠른 신호</em>를 과거로 보냈다.
+    그 신호가 먼저 도착한 것이다. 그가 사라진 것이 아니라 —<br>
+    <em>아직 도착하지 않은 것이다.</em><br><br>
+    LUMOS-7의 관측 기록에는 이렇게 적혀 있다:<br>
+    <em>「빛이 먼저 왔다. 그리고 진실이 뒤따른다.」</em>
+  </div>
+  <button class="btn-restart" onclick="location.reload()">↺ 처음부터</button>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// GAME STATE
+// ═══════════════════════════════════════════
+const GS = {
+  room: 'obs',
+  solved: {
+    prism:false, freq:false, rgb:false, maze:false, code:false,
+    dna:false, biocode:false, power:false, reactor:false,
+    morse:false, coord:false, starmap:false, launch:false, paradox:false
+  },
+  inventory: [],
+  hintsLeft: 3,
+  hintIndex: 0,
+  currentPuzzle: null,
+  notes: []
+};
+let solvedCount = 0;
+const TOTAL = 14;
+
+// ═══════════════════════════════════════════
+// ITEMS & NOTES
+// ═══════════════════════════════════════════
+const ITEMS = {
+  note_intro:    { name:'메모', icon:'📄', found:false, desc:'Dr. 한이준의 수기 메모.' },
+  freq_card:     { name:'주파수 카드', icon:'📻', found:false, desc:'연필로 긁힌 주파수 메모.' },
+  journal:       { name:'연구 일지', icon:'📓', found:false, desc:'Dr. 한이준의 연구 기록.' },
+  prism:         { name:'프리즘', icon:'🔷', found:false, desc:'광학 등급 프리즘.' },
+  masterkey:     { name:'마스터키', icon:'🔑', found:false, desc:'모든 구역 마스터키.' },
+  dna_sample:    { name:'DNA 샘플', icon:'🧬', found:false, desc:'α-라이라 생물체의 DNA 샘플.' },
+  power_diagram: { name:'전원 배선도', icon:'⚡', found:false, desc:'동력실 전원 시동 순서 다이어그램.' },
+  lyra_chart:    { name:'거문고자리 성도', icon:'🌟', found:false, desc:'거문고자리의 항법용 성도.' },
+  final_journal: { name:'최후의 일지', icon:'📜', found:false, desc:'Dr. 한이준의 마지막 기록.' }
+};
+
+const NOTES = {
+  note_intro: {
+    title: 'Dr. 한이준의 메모',
+    date: '2031.03.14 — 관측실 책상',
+    content: `빛이 먼저 왔다. 찾아라.
+
+어제 밤 주파수 수신기에서 이상한 신호를 포착했다.
+299.7 MHz — 정확히 빛의 속도를 10⁴로 나눈 값.
+우연이 아니다.
+
+프리즘을 맞추면 경로가 보인다.
+
+— 한이준`
+  },
+  freq_card: {
+    title: '주파수 메모 카드',
+    date: '2031.03.12 — 관측실 서랍',
+    content: `수신 대상 주파수:
+
+빛의 속도 c = 299,792,458 m/s
+λ(파장) = 1m일 때 f = c/λ
+
+메모: 2997...
+단위를 확인할 것.
+
+[MHz 단위 기준]
+→ 299.7 MHz`
+  },
+  journal: {
+    title: '연구 일지 — 최종 기록',
+    date: '2031.03.13 — 실험실',
+    content: `색광 합성 실험 결과:
+태양 코로나의 정확한 색상값이 필요하다.
+R=255, G=140, B=0 — 이것이 열쇠다.
+
+거울 배열을 통해 레이저를 출구로 유도하면
+서버실 접근이 가능해진다.
+
+서버실 코드는 기억하기 쉽게 설정했다.
+빛의 속도 첫 4자리... 아니면 10⁴로 나눈 값.
+2997이다.
+
+격리실에 외계 생물 샘플이 있다.
+DNA 패턴: A-T-C-G-A-T
+
+동력실 시동 순서: 3-1-4-2-6-5
+원자로 균형: α=85, β=120, γ=95
+
+그리고... 나는 10년 후 이 신호를 보낼 것이다.
+
+— 한이준`
+  },
+  power_diagram: {
+    title: '전원 시동 배선도',
+    date: '동력실 제어 패널',
+    content: `비상 시동 순서 (EMERGENCY STARTUP):
+
+스위치 3 → 1 → 4 → 2 → 6 → 5
+
+*주의: 순서가 틀리면 과부하 방지로 자동 초기화됨
+
+코어 균형 목표값:
+α코어: 85 MW (기준 출력)
+β코어: 120 MW (피크 출력)  
+γ코어: 95 MW (보조 출력)
+총합: 300 MW`
+  },
+  lyra_chart: {
+    title: '거문고자리 항법 성도',
+    date: '격납고 항법 콘솔',
+    content: `LYRA (거문고자리) 항법 설정:
+
+α Lyrae = Vega (베가) — 가장 밝은 별
+β Lyrae = Sheliak
+γ Lyrae = Sulafat
+δ Lyrae
+ε Lyrae = 이중성
+
+선택 순서: α → β → γ → δ → ε
+
+VEGA 좌표: RA 18h 36m 56.3s
+→ 좌표 코드: 1836`
+  },
+  final_journal: {
+    title: '최후의 일지',
+    date: '2031.03.14 — 비밀연구실',
+    content: `이것이 마지막 기록이다.
+
+나는 오늘 사라질 것이다. 하지만 죽지 않는다.
+시간 이동 장치의 실험체가 되기로 했다.
+
+2041년 — 10년 후의 나는 지금 이 시점으로
+빛 신호를 역방향 전송할 것이다.
+그 신호가 먼저 도착했기 때문에
+「빛이 먼저 왔다」라고 적은 것이다.
+
+당신이 여기까지 왔다면, 모든 것을 이해했을 것이다.
+
+발사 포드 코드는 LUMOS-7 설립 연도: 2031.
+
+— 한이준, 2031년 3월 14일 최후 기록`
+  }
+};
+
+const HINTS = {
+  prism:   ['A와 B 두 거울만 사용하면 됩니다.', 'A를 135°로, B도 135°로 맞춰보세요.'],
+  freq:    ['주파수 카드를 먼저 획득하세요.', '299.7 MHz — 2997을 10으로 나누면 됩니다.'],
+  rgb:     ['태양 코로나는 붉은-주황색입니다.', 'R=255, G=140, B=0이 정답입니다.'],
+  maze:    ['4개의 거울 중 2개는 이미 올바릅니다.', '(3,2)와 (5,2)는 \\, (5,5)와 (1,5)는 /가 되어야 합니다.'],
+  code:    ['서버 터미널 힌트: c/λ × 10⁻⁴', '빛의 속도 299,792,458의 앞 4자리 = 2997'],
+  dna:     ['분석기 화면의 패턴을 그대로 따르세요.', 'A-T-C-G-A-T 순서로 클릭하세요.'],
+  biocode: ['격리실 기록판의 숫자를 순서대로: 4, 3, 2, 1', '4321이 정답입니다.'],
+  power:   ['손상된 다이어그램 순서: 3-1-4-2-6-5', '3번 스위치부터 시작하세요.'],
+  reactor: ['α=85, β=120이면 γ는 자동으로 계산됩니다.', '300-85-120 = 95. γ를 95에 맞추세요.'],
+  morse:   ['.-.. = L, -.-- = Y, .-. = R, .- = A', '답: LYRA (거문고자리)'],
+  coord:   ['RA 18h 36m → 1836', '1836이 정답입니다.'],
+  starmap: ['가장 밝은 별(Vega)이 α입니다.', '알파 순서로 클릭: α→β→γ→δ→ε'],
+  launch:  ['LUMOS-7은 2021년 + 10년 후에 설립된 것이 아닙니다.', 'LUMOS-7 달 기지 설립 연도: 2031년'],
+  paradox: ['일지: 「나는 10년 후 이 신호를 보낼 것이다.」', '2031 + 10 = 2041']
+};
+
+// ═══════════════════════════════════════════
+// CHAPTER DATA
+// ═══════════════════════════════════════════
+const CHAPTERS = {
+  obs:  { num:1, title:'제1구역', sub:'관측실', story:'LUMOS-7의 첫 번째 구역. Dr. 한이준이 신호를 처음 포착한 곳이다. 어둠 속에서 망원경만이 희미하게 빛난다.' },
+  lab:  { num:2, title:'제2구역', sub:'실험실', story:'광학 실험이 진행되던 곳. 색광 합성 장치와 레이저 미로가 남겨져 있다. 실험의 흔적이 아직 생생하다.' },
+  srv:  { num:3, title:'제3구역', sub:'서버실', story:'LUMOS-7의 두뇌. 메인프레임이 모든 기록을 보관하고 있다. 올바른 코드만 있다면 비밀이 열린다.' },
+  iso:  { num:4, title:'제4구역', sub:'생물격리실', story:'BSL-4 등급의 격리 구역. 외계 생물 샘플이 보관되어 있다. DNA 패턴이 열쇠를 쥐고 있다.' },
+  pwr:  { num:5, title:'제5구역', sub:'동력실', story:'원자로 코어가 기지 전체를 움직인다. 잘못된 순서로 시동을 걸면 대재앙이 온다. 신중하게 접근하라.' },
+  com:  { num:6, title:'제6구역', sub:'통신실', story:'심우주 신호를 수신하는 곳. 거문고자리 베가에서 오는 신호... 우연일까, 필연일까.' },
+  hng:  { num:7, title:'제7구역', sub:'격납고', story:'탈출 포드가 대기 중이다. 발사 코드와 항법 설정만 완료되면 이 기지를 떠날 수 있다.' },
+  lab2: { num:8, title:'제8구역', sub:'비밀연구실', story:'Dr. 한이준의 숨겨진 개인 연구실. 여기에 모든 진실이 있다. 시간 역설의 끝이 보인다.' }
+};
+const visitedRooms = new Set();
+
+// ═══════════════════════════════════════════
+// SCREENS
+// ═══════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+}
+
+function startGame() {
+  showScreen('game');
+  setTimeout(() => showChapter('obs', () => {}), 300);
+}
+
+// ═══════════════════════════════════════════
+// CHAPTER TRANSITION
+// ═══════════════════════════════════════════
+function showChapter(roomId, callback) {
+  if (visitedRooms.has(roomId)) { if (callback) callback(); return; }
+  visitedRooms.add(roomId);
+  const ch = CHAPTERS[roomId];
+  if (!ch) { if (callback) callback(); return; }
+  const ov = document.getElementById('chapter-overlay');
+  document.getElementById('ch-eyebrow').textContent = 'CHAPTER ' + ch.num;
+  document.getElementById('ch-title').textContent = ch.title;
+  document.getElementById('ch-subtitle').textContent = ch.sub;
+  document.getElementById('ch-story').textContent = ch.story;
+  ov.classList.add('show');
+  const dismiss = () => {
+    ov.classList.remove('show');
+    ov.removeEventListener('click', dismiss);
+    if (callback) setTimeout(callback, 400);
+  };
+  ov.addEventListener('click', dismiss);
+  setTimeout(dismiss, 5000);
+}
+
+// ═══════════════════════════════════════════
+// ROOM NAVIGATION
+// ═══════════════════════════════════════════
+const ROOM_CHAIN = {
+  obs:  { prev: null,  next: 'lab',  req: ['prism','freq'] },
+  lab:  { prev: 'obs', next: 'srv',  req: ['rgb','maze'] },
+  srv:  { prev: 'lab', next: 'iso',  req: ['code'] },
+  iso:  { prev: 'srv', next: 'pwr',  req: ['dna','biocode'] },
+  pwr:  { prev: 'iso', next: 'com',  req: ['power','reactor'] },
+  com:  { prev: 'pwr', next: 'hng',  req: ['morse','coord'] },
+  hng:  { prev: 'com', next: 'lab2', req: ['starmap','launch'] },
+  lab2: { prev: 'hng', next: null,   req: [] }
+};
+
+const ROOM_NAMES = {
+  obs:'관측실', lab:'실험실', srv:'서버실',
+  iso:'격리실', pwr:'동력실', com:'통신실',
+  hng:'격납고', lab2:'비밀연구실'
+};
+
+function changeRoom(room) {
+  // check if accessible
+  let accessible = true;
+  const rooms = Object.keys(ROOM_CHAIN);
+  const targetIdx = rooms.indexOf(room);
+  const currentIdx = rooms.indexOf(GS.room);
+  
+  // Can always go back
+  if (targetIdx < currentIdx) {
+    accessible = true;
+  } else if (targetIdx === currentIdx) {
+    return;
+  } else {
+    // Must complete all previous rooms
+    for (let i = 0; i < targetIdx; i++) {
+      const r = rooms[i];
+      const req = ROOM_CHAIN[r].req;
+      for (const p of req) {
+        if (!GS.solved[p]) { accessible = false; break; }
+      }
+      if (!accessible) break;
+    }
+  }
+
+  if (!accessible) {
+    const chain = ROOM_CHAIN[room];
+    const missing = [];
+    for (let i = 0; i < targetIdx; i++) {
+      const r = rooms[i];
+      ROOM_CHAIN[r].req.forEach(p => { if (!GS.solved[p]) missing.push(p); });
+    }
+    showNotif('⛔ 이전 구역 퍼즐을 먼저 해결하세요', 'error');
+    return;
+  }
+
+  GS.room = room;
+  
+  // Update scenes
+  document.querySelectorAll('.room-scene').forEach(s => s.classList.remove('active'));
+  document.getElementById('scene-' + room).classList.add('active');
+
+  // Update nav buttons
+  const rooms_ = Object.keys(ROOM_CHAIN);
+  rooms_.forEach(r => {
+    const btn = document.getElementById('nav-' + r);
+    if (!btn) return;
+    btn.classList.remove('current','locked');
+    const accessible_ = isRoomAccessible(r);
+    if (r === room) btn.classList.add('current');
+    else if (!accessible_) btn.classList.add('locked');
+  });
+
+  // Chapter + narrative
+  const narrs = {
+    obs:  'LUMOS-7 <span class="accent">관측실</span> — 달 기지의 정문이자 Dr. 한이준이 처음 신호를 잡은 곳.',
+    lab:  '<span class="accent">실험실</span>에 들어섰다. 미완성 실험들이 그대로 남겨져 있다. 누가 이곳을 서둘러 떠난 것 같다.',
+    srv:  '<span class="accent">서버실</span> — 차가운 서버 팬 소리만이 울려 퍼진다. 메인프레임이 잠겨 있다.',
+    iso:  '<span class="accent">생물격리실</span>. 음압 에어락이 완전히 밀봉되어 있다. BSL-4 생물 샘플이 보관 중이다.',
+    pwr:  '<span class="accent">동력실</span>. 원자로의 낮은 진동음이 느껴진다. 전원 시동 순서를 복구해야 한다.',
+    com:  '<span class="accent">통신실</span> — 멀리서 오는 신호가 수신되고 있다. 모스 부호가 반복된다.',
+    hng:  '<span class="accent">격납고</span>. 탈출 포드가 대기 중이다. 항법과 발사 코드가 필요하다.',
+    lab2: '<span class="accent">비밀연구실</span>. Dr. 한이준의 가장 깊은 비밀이 여기에 있다. 모든 진실이 드러날 것이다.'
+  };
+  setNarrative(narrs[room] || '');
+  document.getElementById('hud-chapter').textContent = 'CHAPTER ' + CHAPTERS[room].num + ' · ' + ROOM_NAMES[room];
+
+  showChapter(room, () => {});
+  
+  // Auto-find items for this room
+  const autoFind = {
+    iso: 'dna_sample',
+    pwr: 'power_diagram',
+    hng: 'lyra_chart',
+  };
+  if (autoFind[room] && !ITEMS[autoFind[room]].found) {
+    setTimeout(() => findItem(autoFind[room]), 1200);
+  }
+}
+
+function isRoomAccessible(room) {
+  const rooms = Object.keys(ROOM_CHAIN);
+  const targetIdx = rooms.indexOf(room);
+  for (let i = 0; i < targetIdx; i++) {
+    const r = rooms[i];
+    for (const p of ROOM_CHAIN[r].req) {
+      if (!GS.solved[p]) return false;
+    }
+  }
+  return true;
+}
+
+// ═══════════════════════════════════════════
+// ITEMS
+// ═══════════════════════════════════════════
+function findItem(id) {
+  if (!ITEMS[id]) return;
+  if (ITEMS[id].found) {
+    if (NOTES[id]) showNoteModal(id);
+    return;
+  }
+  ITEMS[id].found = true;
+  GS.inventory.push(id);
+  const el = document.getElementById('inv-' + id);
+  if (el) {
+    el.classList.remove('empty');
+    el.addEventListener('click', () => { if (NOTES[id]) showNoteModal(id); else showNotif(ITEMS[id].desc,'info'); });
+  }
+  showNotif('🎒 ' + ITEMS[id].name + ' 획득!', 'success');
+  if (NOTES[id]) addNoteEntry(id);
+}
+
+function addNoteEntry(id) {
+  const list = document.getElementById('notes-list');
+  if (list.querySelector('.no-notes')) list.innerHTML = '';
+  const note = NOTES[id];
+  const div = document.createElement('div');
+  div.className = 'note-entry';
+  div.innerHTML = `<div class="note-title">${note.title}</div><div>${note.date}</div>`;
+  div.onclick = () => showNoteModal(id);
+  list.appendChild(div);
+}
+
+function showNoteModal(id) {
+  const note = NOTES[id];
+  if (!note) return;
+  document.getElementById('note-modal-title').textContent = note.title;
+  document.getElementById('note-modal-date').textContent = note.date;
+  document.getElementById('note-modal-content').textContent = note.content;
+  openModal('note');
+}
+
+function showNote() {
+  const collected = Object.keys(NOTES).filter(id => ITEMS[id]?.found);
+  if (!collected.length) { showNotif('수집한 문서가 없습니다.', 'info'); return; }
+  showNoteModal(collected[collected.length - 1]);
+}
+
+// ═══════════════════════════════════════════
+// MODALS
+// ═══════════════════════════════════════════
+function openModal(id) {
+  document.getElementById('modal-' + id).classList.add('active');
+  GS.currentPuzzle = id;
+  resetHintUI();
+  if (id === 'prism') initPrism();
+  if (id === 'freq') initFreq();
+  if (id === 'maze') initMaze();
+  if (id === 'starmap') initStarmap();
+  if (id === 'power') initPower();
+  if (id === 'dna') initDNA();
+}
+function closeModal(id) {
+  document.getElementById('modal-' + id).classList.remove('active');
+  GS.currentPuzzle = null;
+}
+function openPuzzle(id) {
+  if (GS.solved[id]) { showNotif('이 퍼즐은 이미 해결되었습니다.', 'info'); return; }
+  openModal(id);
+}
+
+// ═══════════════════════════════════════════
+// NARRATIVE
+// ═══════════════════════════════════════════
+function setNarrative(html) {
+  const el = document.getElementById('narrative-text');
+  el.style.opacity = '0';
+  setTimeout(() => { el.innerHTML = html; el.style.opacity = '1'; el.style.transition = 'opacity 0.4s'; }, 200);
+}
+
+// ═══════════════════════════════════════════
+// HINT
+// ═══════════════════════════════════════════
+function useHint() {
+  if (GS.hintsLeft <= 0) { showNotif('힌트가 모두 소진되었습니다.', 'error'); return; }
+  if (!GS.currentPuzzle || !HINTS[GS.currentPuzzle]) { showNotif('먼저 퍼즐을 여세요.', 'info'); return; }
+  const hints = HINTS[GS.currentPuzzle];
+  const txt = hints[Math.min(GS.hintIndex, hints.length - 1)];
+  document.getElementById('hint-text').textContent = txt;
+  document.getElementById('hint-text').classList.add('visible');
+  GS.hintIndex++;
+  GS.hintsLeft--;
+  document.getElementById('hint-count').textContent = GS.hintsLeft;
+}
+function resetHintUI() {
+  document.getElementById('hint-text').classList.remove('visible');
+  document.getElementById('hint-text').textContent = '';
+  GS.hintIndex = 0;
+}
+
+// ═══════════════════════════════════════════
+// NOTIFICATIONS
+// ═══════════════════════════════════════════
+function showNotif(msg, type = 'success') {
+  const n = document.createElement('div');
+  n.className = 'notif ' + type;
+  n.textContent = msg;
+  document.body.appendChild(n);
+  setTimeout(() => n.remove(), 3200);
+}
+
+// ═══════════════════════════════════════════
+// PUZZLE SOLVE
+// ═══════════════════════════════════════════
+function solvePuzzle(id) {
+  if (GS.solved[id]) return;
+  GS.solved[id] = true;
+  solvedCount++;
+  document.getElementById('hud-solved').textContent = solvedCount;
+  document.getElementById('hud-progress-bar').style.width = (solvedCount / TOTAL * 100) + '%';
+  const pstat = document.getElementById('pstat-' + id);
+  if (pstat) pstat.classList.add('done');
+  document.getElementById('modal-' + id).classList.add('success-flash');
+
+  const msgs = {
+    prism:   '프리즘 조준 성공! 망원경 렌즈에 레이저가 정렬되었다.',
+    freq:    '<span class="highlight">299.7 MHz</span> — 신호가 잡혔다. 관측실 잠금 일부 해제.',
+    rgb:     '태양 코로나색 재현 성공! 실험실 시스템이 응답한다.',
+    maze:    '레이저가 출구에 도달했다. <span class="accent">서버실로 가는 길이 열렸다.</span>',
+    code:    '<span class="important">메인프레임 잠금 해제!</span> 격리실 접근이 허가된다.',
+    dna:     'α-라이라 DNA 서열 인증 완료. 격리 잠금 일부 해제.',
+    biocode: '생물격리 잠금 해제. <span class="accent">동력실로 이동 가능.</span>',
+    power:   '전원 시동 시퀀스 완료! 원자로가 활성화되고 있다.',
+    reactor: '원자로 균형 잠금 완료. <span class="accent">통신실로 이동 가능.</span>',
+    morse:   'LYRA — 거문고자리. 신호의 발원지가 확인되었다.',
+    coord:   '좌표 1836 잠금. 베가 좌표가 확인됐다. <span class="accent">격납고로 이동 가능.</span>',
+    starmap: '거문고자리 항법 설정 완료. 탈출 포드 방향이 잡혔다.',
+    launch:  '<span class="important">탈출 포드 발사 준비 완료!</span> 비밀연구실에 마지막 열쇠가 있다.',
+    paradox: '<span class="important">진실이 밝혀졌다.</span> 2041년 — 그가 신호를 보낸 해.'
+  };
+
+  setTimeout(() => {
+    closeModal(id);
+    setNarrative(msgs[id] || '퍼즐 해결!');
+    checkProgress(id);
+  }, 700);
+
+  // Special effects
+  if (id === 'prism') {
+    const lg = document.getElementById('lens-glow');
+    if (lg) { lg.setAttribute('fill','rgba(0,200,255,0.3)'); lg.setAttribute('opacity','1'); }
+  }
+  if (id === 'code') findItem('masterkey');
+  if (id === 'dna') findItem('dna_sample');
+  if (id === 'final_journal') findItem('final_journal');
+}
+
+function checkProgress(id) {
+  updateRoomNavState();
+  if (solvedCount === TOTAL) {
+    setTimeout(() => showScreen('ending'), 2000);
+  }
+  // Unlock notifications
+  const unlockMsgs = {
+    freq:    () => GS.solved.prism ? '✅ 관측실 완료! 실험실로 이동 가능.' : null,
+    prism:   () => GS.solved.freq  ? '✅ 관측실 완료! 실험실로 이동 가능.' : null,
+    maze:    () => GS.solved.rgb   ? '✅ 실험실 완료! 서버실로 이동 가능.' : null,
+    rgb:     () => GS.solved.maze  ? '✅ 실험실 완료! 서버실로 이동 가능.' : null,
+    code:    () => '✅ 서버실 완료! 격리실로 이동 가능.',
+    biocode: () => GS.solved.dna   ? '✅ 격리실 완료! 동력실로 이동 가능.' : null,
+    dna:     () => GS.solved.biocode ? '✅ 격리실 완료! 동력실로 이동 가능.' : null,
+    reactor: () => GS.solved.power ? '✅ 동력실 완료! 통신실로 이동 가능.' : null,
+    power:   () => GS.solved.reactor ? '✅ 동력실 완료! 통신실로 이동 가능.' : null,
+    coord:   () => GS.solved.morse ? '✅ 통신실 완료! 격납고로 이동 가능.' : null,
+    morse:   () => GS.solved.coord ? '✅ 통신실 완료! 격납고로 이동 가능.' : null,
+    launch:  () => GS.solved.starmap ? '✅ 격납고 완료! 비밀연구실로 이동 가능.' : null,
+    starmap: () => GS.solved.launch ? '✅ 격납고 완료! 비밀연구실로 이동 가능.' : null,
+  };
+  if (unlockMsgs[id]) {
+    const msg = unlockMsgs[id]();
+    if (msg) setTimeout(() => showNotif(msg, 'success'), 800);
+  }
+}
+
+function updateRoomNavState() {
+  Object.keys(ROOM_CHAIN).forEach(r => {
+    const btn = document.getElementById('nav-' + r);
+    if (!btn) return;
+    btn.classList.remove('current','locked');
+    if (r === GS.room) btn.classList.add('current');
+    else if (!isRoomAccessible(r)) btn.classList.add('locked');
+  });
+}
+
+// ═══════════════════════════════════════════
+// PUZZLE 1: PRISM BEAM
+// ═══════════════════════════════════════════
+function initPrism() { updatePrism(); }
+
+function updatePrism() {
+  const canvas = document.getElementById('prism-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0,0,W,H);
+  const a = parseInt(document.getElementById('mirror-a').value);
+  const b = parseInt(document.getElementById('mirror-b').value);
+  const c = parseInt(document.getElementById('mirror-c').value);
+  document.getElementById('angle-a').textContent = a + '°';
+  document.getElementById('angle-b').textContent = b + '°';
+  document.getElementById('angle-c').textContent = c + '°';
+  ctx.fillStyle = '#020810'; ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle = '#0d1e32'; ctx.lineWidth = 0.5;
+  for (let x=0;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for (let y=0;y<H;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  const mirrors = [
+    {x:120,y:180,angle:a,label:'A'},
+    {x:120,y:80, angle:b,label:'B'},
+    {x:360,y:150,angle:c,label:'C'}
+  ];
+  mirrors.forEach(m => {
+    ctx.save(); ctx.translate(m.x,m.y); ctx.rotate(m.angle*Math.PI/180);
+    ctx.strokeStyle='#00c8ff'; ctx.lineWidth=3; ctx.shadowColor='#00c8ff'; ctx.shadowBlur=8;
+    ctx.beginPath(); ctx.moveTo(-22,0); ctx.lineTo(22,0); ctx.stroke(); ctx.restore();
+    ctx.fillStyle='#7ab0c8'; ctx.font='bold 11px monospace'; ctx.fillText(m.label,m.x+26,m.y-8);
+    ctx.fillStyle='#4a6a8a'; ctx.font='9px monospace'; ctx.fillText(m.angle+'°',m.x+26,m.y+6);
+  });
+  const target = {x:480,y:80,r:16};
+  ctx.beginPath(); ctx.arc(target.x,target.y,target.r,0,Math.PI*2);
+  ctx.strokeStyle='#00c8ff'; ctx.lineWidth=2; ctx.shadowColor='#00c8ff'; ctx.shadowBlur=14; ctx.stroke();
+  ctx.fillStyle='rgba(0,200,255,0.07)'; ctx.fill(); ctx.shadowBlur=0;
+  ctx.fillStyle='#00c8ff'; ctx.font='8px monospace'; ctx.textAlign='center';
+  ctx.fillText('🔭 TARGET',target.x,target.y+30); ctx.textAlign='left';
+  ctx.fillStyle='#ff6b35'; ctx.shadowColor='#ff6b35'; ctx.shadowBlur=10;
+  ctx.beginPath(); ctx.arc(0,180,6,0,Math.PI*2); ctx.fill(); ctx.shadowBlur=0;
+  ctx.fillStyle='#4a6a8a'; ctx.font='8px monospace'; ctx.fillText('LASER',2,196);
+  let pos={x:0,y:180}, dir={x:1,y:0};
+  const segments=[];
+  let segStart={x:0,y:180};
+  let hit=false;
+  const used=new Set();
+  for(let step=0;step<1000;step++){
+    pos={x:pos.x+dir.x,y:pos.y+dir.y};
+    if(pos.x<-5||pos.x>W+5||pos.y<-5||pos.y>H+5) break;
+    const dtx=pos.x-target.x,dty=pos.y-target.y;
+    if(Math.sqrt(dtx*dtx+dty*dty)<target.r+2){
+      segments.push({x1:segStart.x,y1:segStart.y,x2:pos.x,y2:pos.y}); hit=true; break;
+    }
+    for(let mi=0;mi<mirrors.length;mi++){
+      const key=mi+'_'+Math.round(pos.x)+'_'+Math.round(pos.y);
+      if(used.has(key)) continue;
+      const m=mirrors[mi];
+      const dx=pos.x-m.x,dy=pos.y-m.y;
+      if(Math.abs(dx)<8&&Math.abs(dy)<8){
+        segments.push({x1:segStart.x,y1:segStart.y,x2:pos.x,y2:pos.y});
+        segStart={x:pos.x,y:pos.y};
+        const rad=m.angle*Math.PI/180;
+        const nx=-Math.sin(rad),ny=Math.cos(rad);
+        const dot=dir.x*nx+dir.y*ny;
+        dir={x:dir.x-2*dot*nx,y:dir.y-2*dot*ny};
+        const len=Math.sqrt(dir.x*dir.x+dir.y*dir.y);
+        dir={x:dir.x/len,y:dir.y/len};
+        used.add(key); break;
+      }
+    }
+  }
+  if(!hit) segments.push({x1:segStart.x,y1:segStart.y,x2:pos.x,y2:pos.y});
+  ctx.strokeStyle=hit?'#00ff88':'#ff6b35'; ctx.lineWidth=1.8;
+  ctx.shadowColor=hit?'#00ff88':'#ff6b35'; ctx.shadowBlur=8;
+  segments.forEach(s=>{ctx.beginPath();ctx.moveTo(s.x1,s.y1);ctx.lineTo(s.x2,s.y2);ctx.stroke();});
+  ctx.shadowBlur=0;
+  const status=document.getElementById('prism-status');
+  if(hit){status.textContent='✅ 목표 조준 성공!';status.style.color='#00ff88';setTimeout(()=>solvePuzzle('prism'),700);}
+  else{status.textContent='거울 각도를 조절해 레이저를 목표에 맞추세요';status.style.color='var(--dim)';}
+}
+
+// ═══════════════════════════════════════════
+// PUZZLE 2: FREQUENCY
+// ═══════════════════════════════════════════
+function initFreq(){ updateFreq(); drawFreqSignal(); }
+
+function updateFreq(){
+  const val=parseInt(document.getElementById('freq-slider').value);
+  const mhz=(val/10).toFixed(1);
+  document.getElementById('freq-display').textContent=mhz;
+  const target=2997, diff=Math.abs(val-target);
+  const status=document.getElementById('freq-status');
+  if(diff<5){status.textContent='📶 강한 신호 감지!';status.style.color='#00ff88';}
+  else if(diff<30){status.textContent='📶 약한 신호...';status.style.color='#ffd700';}
+  else if(diff<80){status.textContent='잡음만 들린다.';status.style.color='var(--dim)';}
+  else{status.textContent='신호 없음.';status.style.color='var(--dim)';}
+  drawFreqSignal();
+}
+
+function drawFreqSignal(){
+  const canvas=document.getElementById('freq-canvas');
+  if(!canvas) return;
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width,H=canvas.height;
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#000'; ctx.fillRect(0,0,W,H);
+  const val=parseInt(document.getElementById('freq-slider').value);
+  const target=2997,diff=Math.abs(val-target);
+  const amp=Math.max(0,1-diff/100)*(H/2-4);
+  const noise=Math.max(2,8-amp/4);
+  const freq=0.05+(val/3500)*0.15;
+  ctx.beginPath(); ctx.strokeStyle=diff<30?'#00c8ff':'#1a3a5c'; ctx.lineWidth=1.5;
+  for(let x=0;x<W;x++){
+    const n=(Math.random()-0.5)*noise;
+    const y=H/2+Math.sin(x*freq)*amp+n;
+    x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+}
+
+function checkFreq(){
+  const val=parseInt(document.getElementById('freq-slider').value);
+  if(Math.abs(val-2997)<5){solvePuzzle('freq');}
+  else{showNotif('올바른 주파수가 아닙니다.','error');}
+}
+
+// ═══════════════════════════════════════════
+// PUZZLE 3: RGB
+// ═══════════════════════════════════════════
+function updateRGB(){
+  const r=parseInt(document.getElementById('rgb-r').value);
+  const g=parseInt(document.getElementById('rgb-g').value);
+  const b=parseInt(document.getElementById('rgb-b').value);
+  document.getElementById('rgb-r-val').textContent=r;
+  document.getElementById('rgb-g-val').textContent=g;
+  document.getElementById('rgb-b-val').textContent=b;
+  document.getElementById('color-preview').style.background=`rgb(${r},${g},${b})`;
+  const dist=Math.sqrt((r-255)**2+(g-140)**2+b**2);
+  const pct=Math.round((1-dist/Math.sqrt(255**2*3))*100);
+  const el=document.getElementById('color-match');
+  el.textContent='일치율: '+pct+'%';
+  el.style.color=pct>95?'#00ff88':pct>80?'#ffd700':'var(--accent)';
+}
+
+function checkRGB(){
+  const r=parseInt(document.getElementById('rgb-r').value);
+  const g=parseInt(document.getElementById('rgb-g').value);
+  const b=parseInt(document.getElementById('rgb-b').value);
+  if(Math.abs(r-255)<=8&&Math.abs(g-140)<=12&&b<=20){solvePuzzle('rgb');}
+  else{showNotif('색상이 맞지 않습니다.','error');}
+}
+
+// ═══════════════════════════════════════════
+// PUZZLE 4: MIRROR MAZE
+// ═══════════════════════════════════════════
+const MAZE_SIZE=7, CELL=44;
+let mazeGrid=[], mazeInited=false;
+
+function initMaze(){
+  if(mazeInited){drawMaze();return;}
+  mazeInited=true;
+  mazeGrid=Array.from({length:MAZE_SIZE},()=>Array(MAZE_SIZE).fill(0));
+  mazeGrid[3][2]=1; mazeGrid[5][2]=1; mazeGrid[5][5]=2; mazeGrid[1][5]=2;
+  mazeGrid[2][4]=2; mazeGrid[4][1]=1;
+  drawMaze();
+}
+
+function drawMaze(){
+  const canvas=document.getElementById('maze-canvas');
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width,H=canvas.height;
+  const offX=Math.floor((W-MAZE_SIZE*CELL)/2);
+  const offY=Math.floor((H-MAZE_SIZE*CELL)/2);
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#020810'; ctx.fillRect(0,0,W,H);
+  for(let r=0;r<MAZE_SIZE;r++){
+    for(let c=0;c<MAZE_SIZE;c++){
+      const x=offX+c*CELL,y=offY+r*CELL;
+      ctx.strokeStyle='#1a3a5c'; ctx.lineWidth=0.5; ctx.strokeRect(x,y,CELL,CELL);
+    }
+  }
+  const srcRow=3,tgtRow=1;
+  ctx.fillStyle='#ff6b35'; ctx.shadowColor='#ff6b35'; ctx.shadowBlur=10;
+  ctx.beginPath(); ctx.arc(offX-16,offY+srcRow*CELL+CELL/2,7,0,Math.PI*2); ctx.fill(); ctx.shadowBlur=0;
+  ctx.fillStyle='#4a6a8a'; ctx.font='8px monospace'; ctx.fillText('SRC',offX-28,offY+srcRow*CELL+CELL/2+16);
+  ctx.fillStyle='#ffd700'; ctx.shadowColor='#ffd700'; ctx.shadowBlur=12;
+  ctx.beginPath(); ctx.arc(offX+MAZE_SIZE*CELL+16,offY+tgtRow*CELL+CELL/2,9,0,Math.PI*2); ctx.fill(); ctx.shadowBlur=0;
+  ctx.fillStyle='#ffd700'; ctx.font='11px monospace'; ctx.fillText('★',offX+MAZE_SIZE*CELL+11,offY+tgtRow*CELL+CELL/2+4);
+  for(let r=0;r<MAZE_SIZE;r++){
+    for(let c=0;c<MAZE_SIZE;c++){
+      const x=offX+c*CELL,y=offY+r*CELL,t=mazeGrid[r][c];
+      if(t===0)continue;
+      ctx.save(); ctx.strokeStyle='#00c8ff'; ctx.lineWidth=2.5; ctx.shadowColor='#00c8ff'; ctx.shadowBlur=8;
+      ctx.beginPath();
+      const pad=6;
+      if(t===1){ctx.moveTo(x+pad,y+CELL-pad);ctx.lineTo(x+CELL-pad,y+pad);}
+      else{ctx.moveTo(x+pad,y+pad);ctx.lineTo(x+CELL-pad,y+CELL-pad);}
+      ctx.stroke(); ctx.restore();
+      ctx.fillStyle='#4a6a8a'; ctx.font='9px monospace';
+      ctx.fillText(t===1?'/':'\\',x+CELL/2-3,y+CELL/2+3);
+    }
+  }
+  const result=traceLaser(srcRow,tgtRow);
+  ctx.save();
+  ctx.strokeStyle=result.hit?'#00ff88':'#ff6b35'; ctx.lineWidth=1.8;
+  ctx.shadowColor=result.hit?'#00ff88':'#ff6b35'; ctx.shadowBlur=8;
+  ctx.beginPath();
+  result.segments.forEach((seg,i)=>{
+    const x1=offX+seg.x1*CELL+CELL/2, y1=offY+seg.y1*CELL+CELL/2;
+    const x2=offX+seg.x2*CELL+CELL/2, y2=offY+seg.y2*CELL+CELL/2;
+    const drawX1=i===0?offX-16:x1;
+    const drawX2=(i===result.segments.length-1&&result.hit)?offX+MAZE_SIZE*CELL+16:x2;
+    ctx.moveTo(drawX1,y1); ctx.lineTo(drawX2,y2);
+  });
+  ctx.stroke(); ctx.restore();
+  const statusEl=document.getElementById('maze-status');
+  if(result.hit){statusEl.textContent='✅ 레이저가 출구에 도달했습니다!';statusEl.style.color='#00ff88';setTimeout(()=>solvePuzzle('maze'),700);}
+  else{statusEl.textContent='레이저를 출구로 반사시키세요';statusEl.style.color='var(--dim)';}
+}
+
+function traceLaser(srcRow,tgtRow){
+  let r=srcRow,c=0,dr=0,dc=1;
+  const segments=[];
+  let hit=false, segStart={r,c:-0.5};
+  for(let step=0;step<100;step++){
+    const m=mazeGrid[r][c];
+    if(m===1){
+      segments.push({x1:segStart.c,y1:segStart.r,x2:c,y2:r});
+      segStart={r,c};
+      const tmp=dc; dc=-dr; dr=-tmp;
+    }else if(m===2){
+      segments.push({x1:segStart.c,y1:segStart.r,x2:c,y2:r});
+      segStart={r,c};
+      const tmp=dc; dc=dr; dr=tmp;
+    }
+    const nc=c+dc,nr=r+dr;
+    if(nr<0||nr>=MAZE_SIZE||nc<0||nc>=MAZE_SIZE){
+      segments.push({x1:segStart.c,y1:segStart.r,x2:nc,y2:nr});
+      if(nc>=MAZE_SIZE&&nr===tgtRow) hit=true;
+      break;
+    }
+    c=nc; r=nr;
+  }
+  return{segments,hit};
+}
+
+document.getElementById('maze-canvas')?.addEventListener('click',e=>{
+  const canvas=document.getElementById('maze-canvas');
+  const rect=canvas.getBoundingClientRect();
+  const scaleX=canvas.width/rect.width, scaleY=canvas.height/rect.height;
+  const mx=(e.clientX-rect.left)*scaleX, my=(e.clientY-rect.top)*scaleY;
+  const offX=(canvas.width-MAZE_SIZE*CELL)/2, offY=(canvas.height-MAZE_SIZE*CELL)/2;
+  const c=Math.floor((mx-offX)/CELL), r=Math.floor((my-offY)/CELL);
+  if(r>=0&&r<MAZE_SIZE&&c>=0&&c<MAZE_SIZE&&mazeGrid[r][c]!==0){
+    mazeGrid[r][c]=mazeGrid[r][c]===1?2:1; drawMaze();
+  }
+});
+
+// ═══════════════════════════════════════════
+// PUZZLE 5: CODE
+// ═══════════════════════════════════════════
+function codeInput(idx){
+  const val=document.getElementById('code-'+idx).value;
+  if(val&&idx<3)document.getElementById('code-'+(idx+1)).focus();
+}
+function codeKey(e,idx){
+  if(e.key==='Backspace'&&!document.getElementById('code-'+idx).value&&idx>0)
+    document.getElementById('code-'+(idx-1)).focus();
+  if(e.key==='Enter')checkCode();
+}
+function checkCode(){
+  const code=[0,1,2,3].map(i=>document.getElementById('code-'+i).value).join('');
+  const status=document.getElementById('code-status');
+  if(code==='2997'){status.textContent='✅ 코드 일치! 잠금 해제 중...';status.style.color='#00ff88';solvePuzzle('code');}
+  else{
+    status.textContent='❌ 잘못된 코드.'; status.style.color='var(--danger)';
+    [0,1,2,3].forEach(i=>{const el=document.getElementById('code-'+i);el.style.borderColor='var(--danger)';setTimeout(()=>el.style.borderColor='',1000);});
+  }
+}
+
+// ═══════════════════════════════════════════
+// PUZZLE 6: DNA
+// ═══════════════════════════════════════════
+const DNA_ANSWER = ['A','T','C','G','A','T'];
+let dnaSequence = [];
+
+function initDNA() { dnaSequence=[]; renderDNA(); }
+
+function dnaClick(base) {
+  if (dnaSequence.length >= 6) return;
+  dnaSequence.push(base);
+  renderDNA();
+  if (dnaSequence.length === 6) {
+    setTimeout(checkDNA, 300);
+  }
+}
+
+function renderDNA() {
+  const display = document.getElementById('dna-display');
+  if (dnaSequence.length === 0) {
+    display.innerHTML = '<span style="font-size:0.75rem;color:var(--dim)">서열을 입력하세요...</span>';
+    return;
+  }
+  display.innerHTML = dnaSequence.map(b => `<div class="dna-chip ${b}">${b}</div>`).join('');
+}
+
+function checkDNA() {
+  const match = dnaSequence.every((b,i) => b === DNA_ANSWER[i]) && dnaSequence.length === 6;
+  const status = document.getElementById('dna-status');
+  if (match) {
+    status.textContent = '✅ DNA 서열 일치! 인증 완료.'; status.style.color = '#00ff88';
+    solvePuzzle('dna');
+  } else {
+    status.textContent = '❌ 서열 불일치. 다시 시도하세요.'; status.style.color = 'var(--danger)';
+    setTimeout(() => { dnaSequence=[]; renderDNA(); status.textContent='버튼을 순서대로 클릭하세요'; status.style.color='var(--dim)'; }, 1000);
+  }
+}
+
+function resetDNA() { dnaSequence=[]; renderDNA(); document.getElementById('dna-status').textContent='버튼을 순서대로 클릭하세요'; }
+
+// ═══════════════════════════════════════════
+// PUZZLE 7: BIOCODE
+// ═══════════════════════════════════════════
+function bioInput(idx){const val=document.getElementById('bio-'+idx).value;if(val&&idx<3)document.getElementById('bio-'+(idx+1)).focus();}
+function bioKey(e,idx){if(e.key==='Backspace'&&!document.getElementById('bio-'+idx).value&&idx>0)document.getElementById('bio-'+(idx-1)).focus();if(e.key==='Enter')checkBiocode();}
+function checkBiocode(){
+  const code=[0,1,2,3].map(i=>document.getElementById('bio-'+i).value).join('');
+  const status=document.getElementById('biocode-status');
+  if(code==='4321'){status.textContent='✅ 격리 잠금 해제!';status.style.color='#00ff88';solvePuzzle('biocode');}
+  else{status.textContent='❌ 잘못된 코드.';status.style.color='var(--danger)';[0,1,2,3].forEach(i=>{const el=document.getElementById('bio-'+i);el.style.borderColor='var(--danger)';setTimeout(()=>el.style.borderColor='',1000);});}
+}
+
+// ═══════════════════════════════════════════
+// PUZZLE 8: POWER SWITCHES
+// ═══════════════════════════════════════════
+const SWITCH_ORDER = [3,1,4,2,6,5];
+let switchProgress = [];
+
+function initPower() { switchProgress=[]; updateSwitchUI(); }
+
+function switchClick(num) {
+  const expected = SWITCH_ORDER[switchProgress.length];
+  if (num === expected) {
+    switchProgress.push(num);
+    document.getElementById('sw-'+num).classList.add('activated');
+    updateSwitchUI();
+    if (switchProgress.length === 6) {
+      document.getElementById('power-status').textContent = '✅ 시동 시퀀스 완료!';
+      document.getElementById('power-status').style.color = '#00ff88';
+      solvePuzzle('power');
+    }
+  } else {
+    document.getElementById('power-status').textContent = '❌ 잘못된 순서! 초기화됩니다.';
+    document.getElementById('power-status').style.color = 'var(--danger)';
+    setTimeout(() => {
+      switchProgress = [];
+      [1,2,3,4,5,6].forEach(i => document.getElementById('sw-'+i).classList.remove('activated'));
+      updateSwitchUI();
+      document.getElementById('power-status').textContent = '스위치를 올바른 순서로 활성화하세요';
+      document.getElementById('power-status').style.color = 'var(--dim)';
+    }, 1000);
+  }
+}
+
+function updateSwitchUI() {
+  const container = document.getElementById('sw-order-display');
+  container.innerHTML = SWITCH_ORDER.map((n,i) => {
+    let cls = 'sw-step';
+    if (i < switchProgress.length) cls += ' done';
+    else if (i === switchProgress.length) cls += ' current';
+    return `<span class="${cls}">${n}</span>`;
+  }).join('<span style="color:var(--dim);font-size:0.7rem">→</span>');
+}
+
+// ═══════════════════════════════════════════
+// PUZZLE 9: REACTOR
+// ═══════════════════════════════════════════
+function updateReactor() {
+  const a=parseInt(document.getElementById('core-a').value);
+  const b=parseInt(document.getElementById('core-b').value);
+  const g=parseInt(document.getElementById('core-g').value);
+  document.getElementById('core-a-val').textContent=a;
+  document.getElementById('core-b-val').textContent=b;
+  document.getElementById('core-g-val').textContent=g;
+  const total=a+b+g;
+  document.getElementById('reactor-total').textContent=total;
+  document.getElementById('reactor-total').style.color=total===300?'#00ff88':total>320||total<280?'var(--danger)':'var(--accent)';
+}
+
+function checkReactor() {
+  const a=parseInt(document.getElementById('core-a').value);
+  const b=parseInt(document.getElementById('core-b').value);
+  const g=parseInt(document.getElementById('core-g').value);
+  const status=document.getElementById('reactor-status');
+  if(Math.abs(a-85)<=3&&Math.abs(b-120)<=3&&Math.abs(g-95)<=3){
+    status.textContent='✅ 원자로 균형 잠금!';status.style.color='#00ff88';solvePuzzle('reactor');
+  }else{
+    status.textContent='❌ 균형 미달. α=85, β=120, γ=95를 맞추세요.';status.style.color='var(--danger)';
+  }
+}
+
+// ═══════════════════════════════════════════
+// PUZZLE 10: MORSE
+// ═══════════════════════════════════════════
+function checkMorse() {
+  const val = document.getElementById('morse-input').value.trim().toUpperCase();
+  const status = document.getElementById('morse-status');
+  if (val === 'LYRA') {
+    status.textContent='✅ 콜사인 확인 — LYRA (거문고자리)!';status.style.color='#00ff88';
+    findItem('lyra_chart');
+    solvePuzzle('morse');
+  }else{status.textContent='❌ 잘못된 콜사인. 모스 부호를 다시 확인하세요.';status.style.color='var(--danger)';}
+}
+
+// ═══════════════════════════════════════════
+// PUZZLE 11: COORD
+// ═══════════════════════════════════════════
+function checkCoord() {
+  const val = document.getElementById('coord-input').value.trim();
+  const status = document.getElementById('coord-status');
+  if (val === '1836') {
+    status.textContent='✅ 좌표 잠금 — RA 18h 36m (베가/VEGA)!';status.style.color='#00ff88';
+    solvePuzzle('coord');
+  }else{status.textContent='❌ 잘못된 좌표. RA 시(h)와 분(m)을 조합하세요.';status.style.color='var(--danger)';}
+}
+
+// ═══════════════════════════════════════════
+// PUZZLE 12: STARMAP
+// ═══════════════════════════════════════════
+const LYRA_STARS = [
+  {x:200,y:120,label:'α',name:'Vega',size:7,color:'#ffd700'},
+  {x:280,y:170,label:'β',name:'Sheliak',size:4,color:'#c8e0ff'},
+  {x:160,y:185,label:'γ',name:'Sulafat',size:4,color:'#c8e0ff'},
+  {x:260,y:220,label:'δ',name:'δ Lyr',size:3.5,color:'#c8e0ff'},
+  {x:310,y:210,label:'ε',name:'ε Lyr',size:3.5,color:'#c8e0ff'}
+];
+let starmapClicks = [];
+let starmapInited = false;
+
+function initStarmap() { starmapClicks=[]; drawStarmap(); }
+function resetStarmap() { starmapClicks=[]; drawStarmap(); document.getElementById('starmap-status').textContent='별을 순서대로 클릭하세요 (α부터)'; }
+
+function drawStarmap() {
+  const canvas = document.getElementById('starmap-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#000'; ctx.fillRect(0,0,W,H);
+  // Background stars
+  const bgStars = [{x:50,y:60,r:0.7},{x:400,y:40,r:0.9},{x:440,y:200,r:0.8},{x:30,y:220,r:0.6},{x:380,y:230,r:0.7},{x:100,y:250,r:0.5},{x:330,y:100,r:0.7},{x:80,y:150,r:0.6},{x:450,y:140,r:0.5}];
+  bgStars.forEach(s=>{ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle='rgba(200,224,255,0.4)';ctx.fill();});
+  // Draw constellation lines (for clicked stars)
+  if (starmapClicks.length > 1) {
+    ctx.strokeStyle='rgba(255,215,0,0.25)'; ctx.lineWidth=1; ctx.setLineDash([4,4]);
+    ctx.beginPath();
+    starmapClicks.forEach((idx,i)=>{
+      const s=LYRA_STARS[idx];
+      i===0?ctx.moveTo(s.x,s.y):ctx.lineTo(s.x,s.y);
+    });
+    ctx.stroke(); ctx.setLineDash([]);
+  }
+  // Draw stars
+  LYRA_STARS.forEach((s,i)=>{
+    const isClicked=starmapClicks.includes(i);
+    const clickIdx=starmapClicks.indexOf(i);
+    ctx.beginPath();
+    ctx.arc(s.x,s.y,s.size+(isClicked?3:0),0,Math.PI*2);
+    ctx.fillStyle=isClicked?'#00ff88':s.color;
+    ctx.shadowColor=isClicked?'#00ff88':s.color;
+    ctx.shadowBlur=isClicked?16:8;
+    ctx.fill(); ctx.shadowBlur=0;
+    ctx.fillStyle='#8aaccc'; ctx.font='11px monospace';
+    ctx.fillText(s.label, s.x+s.size+4, s.y-s.size);
+    ctx.fillStyle='rgba(138,172,204,0.5)'; ctx.font='9px monospace';
+    ctx.fillText(s.name, s.x+s.size+4, s.y+s.size+8);
+    if (isClicked) {
+      ctx.fillStyle='#00ff88'; ctx.font='bold 10px monospace';
+      ctx.fillText(clickIdx+1, s.x-s.size-12, s.y+4);
+    }
+  });
+  // Grid guide text
+  ctx.fillStyle='#1a3050'; ctx.font='7px monospace';
+  ctx.fillText('LYRA CONSTELLATION NAVIGATION MAP', 10, H-12);
+}
+
+document.getElementById('starmap-canvas')?.addEventListener('click', e=>{
+  const canvas=document.getElementById('starmap-canvas');
+  const rect=canvas.getBoundingClientRect();
+  const scaleX=canvas.width/rect.width, scaleY=canvas.height/rect.height;
+  const mx=(e.clientX-rect.left)*scaleX, my=(e.clientY-rect.top)*scaleY;
+  for(let i=0;i<LYRA_STARS.length;i++){
+    const s=LYRA_STARS[i];
+    const dx=mx-s.x,dy=my-s.y;
+    if(Math.sqrt(dx*dx+dy*dy)<s.size*3+8){
+      if(starmapClicks.includes(i)){showNotif('이미 선택된 별입니다.','info');return;}
+      const expected=starmapClicks.length;
+      if(i!==expected){
+        showNotif(`순서 오류! 지금은 ${['α','β','γ','δ','ε'][expected]}를 선택해야 합니다.`,'error');
+        starmapClicks=[]; drawStarmap(); return;
+      }
+      starmapClicks.push(i);
+      drawStarmap();
+      if(starmapClicks.length===5){
+        document.getElementById('starmap-status').textContent='✅ 거문고자리 항법 설정 완료!';
+        document.getElementById('starmap-status').style.color='#00ff88';
+        setTimeout(()=>solvePuzzle('starmap'),700);
+      } else {
+        document.getElementById('starmap-status').textContent=`${starmapClicks.length}/5 선택됨 — 다음: ${['α','β','γ','δ','ε'][starmapClicks.length]}`;
+      }
+      return;
+    }
+  }
+});
+
+// ═══════════════════════════════════════════
+// PUZZLE 13: LAUNCH
+// ═══════════════════════════════════════════
+function launchInput(idx){const val=document.getElementById('launch-'+idx).value;if(val&&idx<3)document.getElementById('launch-'+(idx+1)).focus();}
+function launchKey(e,idx){if(e.key==='Backspace'&&!document.getElementById('launch-'+idx).value&&idx>0)document.getElementById('launch-'+(idx-1)).focus();if(e.key==='Enter')checkLaunch();}
+function checkLaunch(){
+  const code=[0,1,2,3].map(i=>document.getElementById('launch-'+i).value).join('');
+  const status=document.getElementById('launch-status');
+  if(code==='2031'){status.textContent='✅ 발사 코드 확인! 탈출 포드 활성화.';status.style.color='#00ff88';solvePuzzle('launch');}
+  else{status.textContent='❌ 잘못된 코드. LUMOS-7 설립 연도를 찾으세요.';status.style.color='var(--danger)';[0,1,2,3].forEach(i=>{const el=document.getElementById('launch-'+i);el.style.borderColor='var(--danger)';setTimeout(()=>el.style.borderColor='',1000);});}
+}
+
+// ═══════════════════════════════════════════
+// PUZZLE 14: PARADOX
+// ═══════════════════════════════════════════
+function paraInput(idx){const val=document.getElementById('para-'+idx).value;if(val&&idx<3)document.getElementById('para-'+(idx+1)).focus();}
+function paraKey(e,idx){if(e.key==='Backspace'&&!document.getElementById('para-'+idx).value&&idx>0)document.getElementById('para-'+(idx-1)).focus();if(e.key==='Enter')checkParadox();}
+function checkParadox(){
+  const code=[0,1,2,3].map(i=>document.getElementById('para-'+i).value).join('');
+  const status=document.getElementById('paradox-status');
+  if(code==='2041'){
+    status.textContent='✅ 2041년 — 진실이 밝혀졌다!';status.style.color='#00ff88';
+    findItem('final_journal');
+    solvePuzzle('paradox');
+  }else{status.textContent='❌ 연도가 맞지 않습니다. 일지를 다시 읽으세요.';status.style.color='var(--danger)';[0,1,2,3].forEach(i=>{const el=document.getElementById('para-'+i);el.style.borderColor='var(--danger)';setTimeout(()=>el.style.borderColor='',1000);});}
+}
+
+// ═══════════════════════════════════════════
+// ITEM CLICK HANDLERS
+// ═══════════════════════════════════════════
+Object.keys(ITEMS).forEach(id=>{
+  const el=document.getElementById('inv-'+id);
+  if(el) el.addEventListener('click',()=>{
+    if(!ITEMS[id].found)return;
+    if(NOTES[id])showNoteModal(id);
+    else showNotif(ITEMS[id].desc,'info');
+  });
+});
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+updateRGB();
+updateReactor();
+
+// Periodic freq update
+setInterval(()=>{
+  if(document.getElementById('modal-freq')?.classList.contains('active'))drawFreqSignal();
+},100);
+
+// ESC closes modals
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    document.querySelectorAll('.modal-overlay.active').forEach(m=>{m.classList.remove('active');GS.currentPuzzle=null;});
+  }
+});
+
+// Obs door click
+document.getElementById('door-obs')?.addEventListener('click',function(){
+  if(GS.solved.prism&&GS.solved.freq)changeRoom('lab');
+  else showNotif('⛔ 관측실 퍼즐을 먼저 해결하세요.','error');
+});
+</script>
+</body>
+</html>

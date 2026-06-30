@@ -1,0 +1,44 @@
+{
+  "updatedAt": "2026-06-30",
+  "games": [
+    {
+      "id": "light-first",
+      "title": "빛이 먼저 왔다",
+      "subtitle": "LUMOS-7 달 기지",
+      "genre": "SF 스릴러",
+      "file": "games/light-first.html",
+      "status": "완성",
+      "puzzles": 14,
+      "accent": "#00c8ff",
+      "bg": "#050a14",
+      "emoji": "🛰️",
+      "createdAt": "2026-06-29"
+    },
+    {
+      "id": "magic-school",
+      "title": "마법학교 졸업은 글렀어요",
+      "subtitle": "졸업시험 최후의 밤",
+      "genre": "판타지",
+      "file": "games/magic-school.html",
+      "status": "완성",
+      "puzzles": 0,
+      "accent": "#ffd700",
+      "bg": "#0d0520",
+      "emoji": "🎓",
+      "createdAt": "2026-06-26"
+    },
+    {
+      "id": "your-letter",
+      "title": "너의 편지를 아직 읽지 못했어",
+      "subtitle": "리마스터드",
+      "genre": "감성 미스터리",
+      "file": "games/your-letter.html",
+      "status": "완성",
+      "puzzles": 0,
+      "accent": "#e8637a",
+      "bg": "#fff8f5",
+      "emoji": "💌",
+      "createdAt": "2026-06-27"
+    }
+  ]
+}
