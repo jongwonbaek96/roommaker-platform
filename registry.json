@@ -1,6 +1,32 @@
 {
-  "updatedAt": "2026-06-30",
+  "updatedAt": "2026-07-07",
   "games": [
+    {
+      "id": "midnight-frequency",
+      "title": "자정의 주파수",
+      "subtitle": "이 방송은 당신에게만 들립니다",
+      "genre": "공포",
+      "file": "games/midnight-frequency.html",
+      "status": "완성",
+      "puzzles": 13,
+      "accent": "#ff3b30",
+      "bg": "#0a0505",
+      "emoji": "📻",
+      "createdAt": "2026-07-07"
+    },
+    {
+      "id": "dawn-444",
+      "title": "새벽 4시 44분",
+      "subtitle": "가장 어두운 시간, 해 뜨기 2시간 32분 전",
+      "genre": "감성 심리극",
+      "file": "games/dawn-444.html",
+      "status": "완성",
+      "puzzles": 20,
+      "accent": "#8fb4ff",
+      "bg": "#07070f",
+      "emoji": "🌅",
+      "createdAt": "2026-07-06"
+    },
     {
       "id": "light-first",
       "title": "빛이 먼저 왔다",

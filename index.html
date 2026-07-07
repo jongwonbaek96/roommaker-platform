@@ -27,10 +27,17 @@
     display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 6px 20px rgba(108,140,255,.4)}
   h1{font-size:1.25rem;font-weight:800;letter-spacing:-.01em}
   .sub{font-size:.78rem;color:var(--dim);margin-top:2px}
-  .bar{display:flex;gap:10px;margin:6px 4px 18px;flex-wrap:wrap}
+  .auth{margin-left:auto}
+  .authbtn{background:var(--panel);border:1px solid var(--border);color:var(--text);
+    border-radius:11px;padding:9px 14px;font-size:.8rem;font-weight:700;cursor:pointer;font-family:inherit}
+  .authbtn.on{border-color:var(--ok);color:var(--ok)}
+  .bar{display:flex;gap:10px;margin:6px 4px 14px;flex-wrap:wrap}
   .stat{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:10px 14px;flex:1;min-width:90px}
   .stat .n{font-size:1.4rem;font-weight:800}
   .stat .l{font-size:.7rem;color:var(--dim);margin-top:2px}
+  .banner{font-size:.76rem;border-radius:12px;padding:10px 13px;margin:0 4px 14px;line-height:1.5}
+  .banner.warn{background:rgba(255,176,32,.12);border:1px solid rgba(255,176,32,.35);color:#ffce6b}
+  .banner.ro{background:rgba(108,140,255,.1);border:1px solid rgba(108,140,255,.3);color:#aebbff}
   .search{width:100%;background:var(--panel);border:1px solid var(--border);color:var(--text);
     border-radius:14px;padding:13px 16px;font-size:.95rem;margin:0 0 18px}
   .search::placeholder{color:var(--dim)}
@@ -38,7 +45,7 @@
   @media(min-width:640px){.grid{grid-template-columns:1fr 1fr}}
   @media(min-width:1000px){.grid{grid-template-columns:1fr 1fr 1fr}}
   .card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);
-    overflow:hidden;display:flex;flex-direction:column;transition:transform .15s,box-shadow .15s}
+    overflow:hidden;display:flex;flex-direction:column;transition:transform .15s}
   .card:active{transform:scale(.985)}
   .cover{height:96px;display:flex;align-items:center;justify-content:center;font-size:44px;position:relative}
   .badge{position:absolute;top:10px;right:10px;font-size:.66rem;font-weight:700;padding:4px 9px;border-radius:20px;
@@ -48,16 +55,17 @@
   .body{padding:14px 16px 16px;flex:1;display:flex;flex-direction:column;gap:6px}
   .ttl{font-size:1.05rem;font-weight:800;letter-spacing:-.01em}
   .meta{font-size:.78rem;color:var(--dim)}
+  .memo{font-size:.74rem;color:#aeb9d6;background:var(--bg);border:1px solid var(--border);
+    border-radius:8px;padding:7px 9px;margin-top:2px;white-space:pre-wrap}
   .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
   .tag{font-size:.68rem;color:var(--accent);background:rgba(108,140,255,.12);
     border:1px solid rgba(108,140,255,.25);padding:3px 8px;border-radius:8px}
   .actions{display:flex;gap:8px;margin-top:12px}
-  .btn{flex:1;border:none;border-radius:11px;padding:11px;font-size:.85rem;font-weight:700;cursor:pointer;
-    font-family:inherit}
+  .btn{flex:1;border:none;border-radius:11px;padding:11px;font-size:.85rem;font-weight:700;cursor:pointer;font-family:inherit}
   .btn.play{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
   .btn.edit{background:var(--panel2);color:var(--text);border:1px solid var(--border)}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
   .empty{text-align:center;color:var(--dim);padding:50px 0;font-size:.9rem}
-  /* modal */
   .ov{position:fixed;inset:0;background:rgba(4,7,16,.7);backdrop-filter:blur(6px);
     display:none;align-items:flex-end;justify-content:center;z-index:50}
   .ov.show{display:flex}
@@ -73,6 +81,11 @@
   .fld textarea{resize:vertical;min-height:64px}
   .row{display:flex;gap:8px;margin-top:18px}
   .note{font-size:.72rem;color:var(--dim);margin-top:10px;line-height:1.5}
+  .err{font-size:.78rem;color:#ff8a9b;margin-top:8px;min-height:1em}
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);
+    background:var(--ok);color:#06281a;font-weight:700;font-size:.85rem;padding:11px 18px;border-radius:12px;
+    opacity:0;transition:.25s;z-index:60;pointer-events:none}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
 </head>
 <body>
@@ -80,10 +93,12 @@
   <div class="logo">🗝️</div>
   <div>
     <h1>룸메이커 관리</h1>
-    <div class="sub">방탈출 게임 라이브러리</div>
+    <div class="sub" id="sync-sub">방탈출 게임 라이브러리</div>
   </div>
+  <div class="auth"><button class="authbtn" id="authbtn" onclick="onAuthBtn()">로그인</button></div>
 </header>
 
+<div id="banner-wrap"></div>
 <div class="bar" id="stats"></div>
 <input class="search" id="search" placeholder="🔍 게임 검색 (제목·장르)">
 <div class="grid" id="grid"></div>
@@ -100,86 +115,151 @@
     </div>
     <div class="fld"><label>메모</label><textarea id="m-memo" placeholder="기획 메모, 수정할 점 등"></textarea></div>
     <div class="row">
-      <button class="btn edit" onclick="closeModal()">취소</button>
-      <button class="btn play" onclick="saveEdit()">저장</button>
+      <button class="btn edit" onclick="closeModal('ov')">취소</button>
+      <button class="btn play" id="savebtn" onclick="saveEdit()">저장</button>
     </div>
-    <div class="note">메모·상태 변경은 이 기기에 저장됩니다. (전체 동기화는 다음 단계)</div>
+    <div class="err" id="m-err"></div>
+    <div class="note">저장하면 모든 기기에 즉시 반영됩니다.</div>
   </div>
 </div>
 
+<div class="ov" id="login">
+  <div class="sheet">
+    <h3>로그인</h3>
+    <div class="fld"><label>이메일</label><input id="l-email" type="email" autocomplete="username"></div>
+    <div class="fld"><label>비밀번호</label><input id="l-pw" type="password" autocomplete="current-password"></div>
+    <div class="row">
+      <button class="btn edit" onclick="closeModal('login')">취소</button>
+      <button class="btn play" id="loginbtn" onclick="doLogin()">로그인</button>
+    </div>
+    <div class="err" id="l-err"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-let GAMES=[], EDIT=null;
-const LS='roommaker_overrides';
-const ov=()=>JSON.parse(localStorage.getItem(LS)||'{}');
-const setOv=o=>localStorage.setItem(LS,JSON.stringify(o));
+const C = window.ROOMMAKER_CONFIG || {};
+const configured = C.SUPABASE_URL && C.SUPABASE_URL.indexOf('http')===0 && C.SUPABASE_ANON_KEY && C.SUPABASE_ANON_KEY.length > 20;
+let sb=null, GAMES=[], EDIT=null, isAuthed=false;
 
-function merged(g){const o=ov()[g.id]||{};return {...g,...o};}
+const $=id=>document.getElementById(id);
+function toast(t){const e=$('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1800);}
+function closeModal(id){$(id).classList.remove('show');}
+function banner(type,msg){$('banner-wrap').innerHTML='<div class="banner '+type+'">'+msg+'</div>';}
 
-async function load(){
-  try{
-    const r=await fetch('registry.json?'+Date.now());
-    const data=await r.json();
-    GAMES=data.games||[];
-  }catch(e){ document.getElementById('grid').innerHTML='<div class="empty">registry.json을 불러올 수 없어요.</div>'; return; }
+async function init(){
+  if(configured){
+    sb = supabase.createClient(C.SUPABASE_URL, C.SUPABASE_ANON_KEY);
+    const r = await sb.auth.getSession();
+    setAuth(!!(r.data && r.data.session));
+    sb.auth.onAuthStateChange((_e,s)=>setAuth(!!s));
+    await loadFromDB();
+    sb.channel('games-rt').on('postgres_changes',
+      {event:'*',schema:'public',table:'games'}, ()=>loadFromDB()).subscribe();
+    $('sync-sub').textContent='클라우드 동기화 · 모든 기기 연동';
+  } else {
+    banner('warn','아직 Supabase 미설정 상태예요. config.js에 URL/KEY를 넣으면 모든 기기 공유 편집이 켜집니다. 지금은 읽기 전용입니다.');
+    await loadFromRegistry();
+  }
+  $('search').addEventListener('input',render);
+  $('ov').addEventListener('click',e=>{if(e.target.id==='ov')closeModal('ov');});
+  $('login').addEventListener('click',e=>{if(e.target.id==='login')closeModal('login');});
+}
+
+function setAuth(on){
+  isAuthed=on;
+  const b=$('authbtn');
+  b.textContent = on?'로그아웃':'로그인';
+  b.classList.toggle('on',on);
+  if(configured){
+    $('banner-wrap').innerHTML = on ? '' :
+      '<div class="banner ro">읽기 전용 모드입니다. 편집하려면 우측 상단 <b>로그인</b>을 누르세요.</div>';
+  }
+  render();
+}
+
+async function loadFromDB(){
+  const res = await sb.from('games').select('*').order('sort',{ascending:true});
+  if(res.error){ banner('warn','데이터를 불러오지 못했어요: '+res.error.message); return; }
+  GAMES=res.data||[]; render();
+}
+async function loadFromRegistry(){
+  try{ const r=await fetch('registry.json?'+Date.now()); GAMES=(await r.json()).games||[]; }
+  catch(e){ GAMES=[]; }
   render();
 }
 
 function render(){
-  const q=(document.getElementById('search').value||'').toLowerCase();
-  const list=GAMES.map(merged).filter(g=>
-    !q||g.title.toLowerCase().includes(q)||(g.genre||'').toLowerCase().includes(q));
-  const done=GAMES.map(merged).filter(g=>g.status==='완성').length;
-  document.getElementById('stats').innerHTML=
-    `<div class="stat"><div class="n">${GAMES.length}</div><div class="l">전체 게임</div></div>
-     <div class="stat"><div class="n">${done}</div><div class="l">완성</div></div>
-     <div class="stat"><div class="n">${GAMES.length-done}</div><div class="l">진행중</div></div>`;
-  const grid=document.getElementById('grid');
-  document.getElementById('empty').style.display=list.length?'none':'block';
-  grid.innerHTML=list.map(g=>{
+  const q=($('search').value||'').toLowerCase();
+  const list=GAMES.filter(g=>!q||(g.title||'').toLowerCase().includes(q)||(g.genre||'').toLowerCase().includes(q));
+  const done=GAMES.filter(g=>g.status==='완성').length;
+  $('stats').innerHTML=
+    '<div class="stat"><div class="n">'+GAMES.length+'</div><div class="l">전체 게임</div></div>'+
+    '<div class="stat"><div class="n">'+done+'</div><div class="l">완성</div></div>'+
+    '<div class="stat"><div class="n">'+(GAMES.length-done)+'</div><div class="l">진행중</div></div>';
+  $('empty').style.display=list.length?'none':'block';
+  $('grid').innerHTML=list.map(function(g){
     const wip=g.status!=='완성';
-    return `<div class="card">
-      <div class="cover" style="background:linear-gradient(135deg,${g.accent}33,${g.accent}0a)">
-        <span>${g.emoji||'🎮'}</span>
-        <span class="badge ${wip?'wip':'done'}">${g.status}</span>
-      </div>
-      <div class="body">
-        <div class="ttl">${g.title}</div>
-        <div class="meta">${g.subtitle||''}</div>
-        <div class="tags">
-          ${g.genre?`<span class="tag">${g.genre}</span>`:''}
-          ${g.puzzles?`<span class="tag">퍼즐 ${g.puzzles}</span>`:''}
-        </div>
-        <div class="actions">
-          <button class="btn play" onclick="play('${g.file}')">▶ 플레이</button>
-          <button class="btn edit" onclick="openEdit('${g.id}')">✎ 편집</button>
-        </div>
-      </div>
-    </div>`;
+    return '<div class="card">'+
+      '<div class="cover" style="background:linear-gradient(135deg,'+g.accent+'33,'+g.accent+'0a)">'+
+        '<span>'+(g.emoji||'🎮')+'</span><span class="badge '+(wip?'wip':'done')+'">'+g.status+'</span>'+
+      '</div>'+
+      '<div class="body">'+
+        '<div class="ttl">'+g.title+'</div>'+
+        '<div class="meta">'+(g.subtitle||'')+'</div>'+
+        '<div class="tags">'+
+          (g.genre?'<span class="tag">'+g.genre+'</span>':'')+
+          (g.puzzles?'<span class="tag">퍼즐 '+g.puzzles+'</span>':'')+
+        '</div>'+
+        (g.memo?'<div class="memo">📝 '+g.memo+'</div>':'')+
+        '<div class="actions">'+
+          '<button class="btn play" onclick="play(\''+g.file+'\')">▶ 플레이</button>'+
+          '<button class="btn edit" '+(isAuthed?'':'disabled')+' onclick="openEdit(\''+g.id+'\')">✎ 편집</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
   }).join('');
 }
 
 function play(f){ window.open(f,'_blank'); }
 
 function openEdit(id){
-  const g=merged(GAMES.find(x=>x.id===id));
-  EDIT=id;
-  m_name.value=g.title; m_sub.value=g.subtitle||''; m_genre.value=g.genre||'';
-  m_status.value=g.status; m_memo.value=g.memo||'';
-  document.getElementById('m-title').textContent=g.title+' 편집';
-  document.getElementById('ov').classList.add('show');
+  if(!isAuthed) return;
+  const g=GAMES.find(x=>x.id===id); EDIT=id;
+  $('m-name').value=g.title; $('m-sub').value=g.subtitle||''; $('m-genre').value=g.genre||'';
+  $('m-status').value=g.status||'완성'; $('m-memo').value=g.memo||'';
+  $('m-title').textContent=g.title+' 편집'; $('m-err').textContent='';
+  $('ov').classList.add('show');
 }
-function closeModal(){document.getElementById('ov').classList.remove('show');}
-function saveEdit(){
-  const o=ov();
-  o[EDIT]={title:m_name.value,subtitle:m_sub.value,genre:m_genre.value,
-    status:m_status.value,memo:m_memo.value};
-  setOv(o); closeModal(); render();
+async function saveEdit(){
+  if(!sb||!isAuthed) return;
+  $('savebtn').disabled=true; $('m-err').textContent='';
+  const patch={title:$('m-name').value,subtitle:$('m-sub').value,genre:$('m-genre').value,
+    status:$('m-status').value,memo:$('m-memo').value};
+  const res=await sb.from('games').update(patch).eq('id',EDIT);
+  $('savebtn').disabled=false;
+  if(res.error){ $('m-err').textContent='저장 실패: '+res.error.message; return; }
+  closeModal('ov'); toast('저장됨 · 모든 기기 반영'); loadFromDB();
 }
-['m-name','m-sub','m-genre','m-status','m-memo'].forEach(id=>window[id.replace('-','_')]=document.getElementById(id));
-document.getElementById('search').addEventListener('input',render);
-document.getElementById('ov').addEventListener('click',e=>{if(e.target.id==='ov')closeModal();});
-load();
-if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}
+
+function onAuthBtn(){
+  if(!configured){ banner('warn','먼저 config.js에 Supabase 값을 넣어야 로그인할 수 있어요.'); return; }
+  if(isAuthed){ sb.auth.signOut(); toast('로그아웃됨'); }
+  else { $('l-err').textContent=''; $('login').classList.add('show'); }
+}
+async function doLogin(){
+  $('loginbtn').disabled=true; $('l-err').textContent='';
+  const res=await sb.auth.signInWithPassword({email:$('l-email').value.trim(),password:$('l-pw').value});
+  $('loginbtn').disabled=false;
+  if(res.error){ $('l-err').textContent='로그인 실패: '+res.error.message; return; }
+  closeModal('login'); toast('로그인됨 · 편집 가능');
+}
+
+init();
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(function(){});}
 </script>
 </body>
 </html>

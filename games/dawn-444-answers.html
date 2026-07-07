@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>새벽 4시 44분 — 운영자 정답 가이드</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{--bg:#07070f;--panel:#101020;--panel2:#171730;--line:#26264a;
+  --txt:#d8d8ea;--dim:#8a8aa8;--accent:#8fb4ff;--gold:#ffc46b;
+  --font:'Noto Serif KR','Georgia',serif;}
+body{background:var(--bg);font-family:var(--font);color:var(--txt);min-height:100vh;}
+#wrap{max-width:560px;margin:0 auto;padding:30px 18px 70px;}
+h1{font-size:1.3rem;color:#eaeefc;text-align:center;margin-bottom:6px;}
+.sub{font-size:.8rem;color:var(--dim);text-align:center;margin-bottom:28px;line-height:1.8;}
+
+/* 게이트 */
+#gate{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:70vh;text-align:center;}
+#gate .lock{font-size:2.6rem;margin-bottom:18px;}
+#gate p{font-size:.86rem;color:var(--dim);line-height:2;margin-bottom:22px;}
+#gate input{width:180px;padding:13px;border:2px solid var(--line);border-radius:12px;
+  background:var(--panel2);color:var(--accent);font-family:var(--font);font-size:1.2rem;
+  text-align:center;letter-spacing:6px;outline:none;margin-bottom:14px;}
+#gate button{padding:13px 34px;border:none;border-radius:12px;cursor:pointer;
+  background:linear-gradient(135deg,#3a4f8a,#5a7fd6);color:#fff;font-family:var(--font);font-size:.92rem;}
+#gateMsg{min-height:20px;font-size:.78rem;color:#e88a8a;margin-top:10px;}
+
+/* 본문 */
+#sheet{display:none;}
+.chp{margin:30px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--line);
+  font-size:.95rem;color:var(--gold);}
+.chp small{color:var(--dim);font-weight:400;}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+  padding:15px 16px;margin-bottom:11px;}
+.card .no{font-size:.68rem;color:var(--gold);letter-spacing:1px;margin-bottom:5px;}
+.card .ttl{font-size:.95rem;color:#eaeefc;font-weight:700;margin-bottom:9px;}
+.card .ans{display:inline-block;background:#1c2a1e;border:1px solid #2f5a3a;color:#9fe0b5;
+  border-radius:9px;padding:6px 13px;font-size:.92rem;margin-bottom:9px;}
+.card .how{font-size:.8rem;color:var(--dim);line-height:1.85;}
+.card .how b{color:var(--accent);font-weight:400;}
+.meta-box{background:var(--panel2);border:1px solid var(--gold);border-radius:14px;
+  padding:16px;margin:26px 0;font-size:.84rem;line-height:2;}
+.meta-box h3{font-size:.85rem;color:var(--gold);margin-bottom:8px;}
+.lchips{display:flex;gap:8px;margin:8px 0;}
+.lchip{width:42px;height:42px;border:1.5px solid var(--gold);border-radius:10px;color:var(--gold);
+  display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+.top-link{display:block;text-align:center;margin-top:34px;font-size:.8rem;color:var(--dim);}
+a{color:var(--accent);}
+</style>
+</head>
+<body>
+<div id="wrap">
+
+  <!-- 암호 게이트 -->
+  <div id="gate">
+    <div class="lock">🗝️</div>
+    <h1>운영자 정답 가이드</h1>
+    <p>「새벽 4시 44분」의 모든 정답과 풀이가 담긴 페이지입니다.<br>
+    운영자 암호 4자리를 입력하세요.<br>
+    <small>(플레이어라면 — 여기 답은 없어요. 방으로 돌아가요. 당신은 풀 수 있어요.)</small></p>
+    <input id="pw" maxlength="4" inputmode="numeric" placeholder="····"
+      onkeydown="if(event.key==='Enter')openSheet()">
+    <button onclick="openSheet()">열기</button>
+    <div id="gateMsg"></div>
+  </div>
+
+  <!-- 정답표 -->
+  <div id="sheet">
+    <h1>🌅 새벽 4시 44분 — 정답 가이드</h1>
+    <p class="sub">20문제 · 제한 시간 60분 · 챕터별 문틀 글자 포함<br>플레이어 화면과 같은 순서로 정리되어 있습니다.</p>
+
+    <div class="meta-box">
+      <h3>📜 핵심 메타 정보</h3>
+      챕터 클리어마다 문틀에 글자가 새겨진다 (19번 최종 정답 재료):
+      <div class="lchips"><div class="lchip">다</div><div class="lchip">시</div><div class="lchip">일</div><div class="lchip">어</div><div class="lchip">나</div></div>
+      ① 1번의 <b>7:16</b>은 17번에서 일출 시각으로 재등장하는 복선<br>
+      ② 프롤로그의 "문을 민다"는 20번 엔딩(당기면 열림)의 복선<br>
+      ③ 5장 글자 「나」는 5장 입장 시 문틀에서 자동 획득
+    </div>
+
+    <div class="chp">1장. 어둠의 방 <small>— 문틀 글자 「다」</small></div>
+    <div class="card"><div class="no">PUZZLE 01</div><div class="ttl">거울이 훔친 시간</div>
+      <span class="ans">716</span>
+      <div class="how">거울 속 시계 4:44는 좌우 반전 → 실제 시각은 12시 대칭인 <b>7시 16분</b> (12:00−4:44).</div></div>
+    <div class="card"><div class="no">PUZZLE 02</div><div class="ttl">일곱 통의 문자</div>
+      <span class="ans">빛은 등 뒤에 있다</span>
+      <div class="how">문자 7통을 <b>수신 시각순</b>으로 정렬 후 각 첫 글자를 읽기 (09:12 빛 → 19:58 다). 띄어쓰기 무관 판정.</div></div>
+    <div class="card"><div class="no">PUZZLE 03</div><div class="ttl">빨간 펜의 이력서</div>
+      <span class="ans">아래를 봐</span>
+      <div class="how">교정 동그라미 친 글자 4개를 순서대로: 아·래·를·봐.</div></div>
+    <div class="card"><div class="no">PUZZLE 04</div><div class="ttl">첫 번째 X의 주파수</div>
+      <span class="ans">1111</span>
+      <div class="how">달력의 첫 X = 11월 11일 → AM 1111kHz.</div></div>
+
+    <div class="chp">2장. 기억의 복도 <small>— 문틀 글자 「시」</small></div>
+    <div class="card"><div class="no">PUZZLE 05</div><div class="ttl">다섯 장의 사진</div>
+      <span class="ans">생일 → 운동회 → 졸업식 → 바다 → 눈사람</span>
+      <div class="how">나이 단서(초 5개=5살 → 수능 D-100) 순. 완성 시 뒷면 글자 "웃던 아이다".</div></div>
+    <div class="card"><div class="no">PUZZLE 06</div><div class="ttl">내가 좋아했던 숫자들</div>
+      <span class="ans">573</span>
+      <div class="how">사진 속 숫자를 시간순으로: 초 <b>5</b>개 → 등번호 <b>7</b> → <b>3</b>반.</div></div>
+    <div class="card"><div class="no">PUZZLE 07</div><div class="ttl">어린 나의 암호</div>
+      <span class="ans">미래</span>
+      <div class="how">자음 한 칸 되돌리기: 니→미, 매→래. 전체 문장 "미래의 나에게. 힘들면 우리가 놀던 데로 와."</div></div>
+    <div class="card"><div class="no">PUZZLE 08</div><div class="ttl">놀이터 좌표</div>
+      <span class="ans">(4, 3) 타일 — 위에서 3번째 줄, 왼쪽에서 4번째</span>
+      <div class="how">시소(1,1)에서 미끄럼틀 방향(+x) 3칸 → (4,1), 그네 방향(+y) 2칸 → <b>(4,3)</b>.</div></div>
+
+    <div class="chp">3장. 거울의 방 <small>— 문틀 글자 「일」</small></div>
+    <div class="card"><div class="no">PUZZLE 09</div><div class="ttl">여섯 개의 거울</div>
+      <span class="ans">다 거짓말이야</span>
+      <div class="how">각 거울의 기울어진 글자 1개씩, 1→6번 순서로: 다·거·짓·말·이·야.</div></div>
+    <div class="card"><div class="no">PUZZLE 10</div><div class="ttl">저울의 방정식</div>
+      <span class="ans">왼쪽: 재능+운+스펙 / 오른쪽: 시도+실패+버티기</span>
+      <div class="how">왼쪽 9kg = 오른쪽 3kg × <b>3</b> (오른쪽 접시 뒷면의 ×3). 정확히 이 조합만 정답 — 숫자만 맞으면 "명판을 다시 읽어 보자" 피드백.</div></div>
+    <div class="card"><div class="no">PUZZLE 11</div><div class="ttl">찢어진 자기소개서</div>
+      <span class="ans">나는 자라는 중입니다</span>
+      <div class="how">조각 뒷면 글자 재배열. 띄어쓰기 무관 판정.</div></div>
+    <div class="card"><div class="no">PUZZLE 12</div><div class="ttl">어둠에서만 보이는 것</div>
+      <span class="ans">★1 → ★7 순서로 연결 (북두칠성)</span>
+      <div class="how">무등급 점 5개는 함정. ★1(가장 희미)부터 차례로 클릭, 잘못 누르면 리셋. 완성 후 [국자 끝…] 버튼.</div></div>
+
+    <div class="chp">4장. 연결의 방 <small>— 문틀 글자 「어」</small></div>
+    <div class="card"><div class="no">PUZZLE 13</div><div class="ttl">부재중 23통</div>
+      <span class="ans">23</span>
+      <div class="how">12(엄마)+7(준호)+3(선배)+1(모르는 번호).</div></div>
+    <div class="card"><div class="no">PUZZLE 14</div><div class="ttl">보낸 사람 없는 편지</div>
+      <span class="ans">접힌 자국 1개 → 2개 → 3개 → 4개 순</span>
+      <div class="how">"야, 나 준호" 조각이 처음, "벤치…" 조각이 마지막.</div></div>
+    <div class="card"><div class="no">PUZZLE 15</div><div class="ttl">네 개의 자리</div>
+      <span class="ans">북=엄마 · 남=은사 · 동=준호 · 서=나</span>
+      <div class="how">문은 남쪽. ①엄마=북(문을 마주 봄) → ③은사=남 → ②엄마(남향 착석) 기준 왼손 방향=<b>동쪽</b>이 준호.</div></div>
+    <div class="card"><div class="no">PUZZLE 16</div><div class="ttl">정답이 없는 문제</div>
+      <span class="ans">아무 내용이나 입력 후 [보내기]</span>
+      <div class="how">빈 칸만 불가("빈 마음은 전송되지 않습니다"). 정답은 내용이 아니라 전송.</div></div>
+
+    <div class="chp">5장. 새벽의 문 <small>— 입장 시 문틀 글자 「나」</small></div>
+    <div class="card"><div class="no">PUZZLE 17</div><div class="ttl">해가 뜨는 시간</div>
+      <span class="ans">0232</span>
+      <div class="how">일출 7:16 − 현재 4:44 = <b>2시간 32분</b>. (1번 답 7:16의 회수)</div></div>
+    <div class="card"><div class="no">PUZZLE 18</div><div class="ttl">물 주는 순서</div>
+      <span class="ans">후회 → 미련 → 불안 → 용기 → 내일</span>
+      <div class="how">심은 해가 오래된 순서 (2019→2026).</div></div>
+    <div class="card"><div class="no">PUZZLE 19</div><div class="ttl">다섯 개의 문이 남긴 것</div>
+      <span class="ans">다시일어나</span>
+      <div class="how">챕터 문틀 글자 5개를 지나온 순서대로. 플레이어는 상단 [단서]에서 확인 가능.</div></div>
+    <div class="card"><div class="no">PUZZLE 20</div><div class="ttl">문을 여는 법</div>
+      <span class="ans">한마디 입력 → [문을 당긴다]</span>
+      <div class="how">[문을 민다]는 계속 실패. 한마디가 비어 있으면 당겨도 안 열림. 입력한 한마디는 엔딩 카드에 표시.</div></div>
+
+    <div class="meta-box">
+      <h3>⏱ 운영 참고</h3>
+      제한 시간 <b>60분</b> — 초과 시 자동으로 '탈출 실패' 엔딩 (10분 미만부터 타이머 빨간색 점멸).<br>
+      힌트는 문제당 3단계, 사용 페널티 없음 (횟수만 엔딩에 표시).<br>
+      예상 병목: 7번(암호) · 10번(저울 ×3) · 15번(자리 논리).
+    </div>
+
+    <a class="top-link" href="dawn-444.html">← 게임으로 돌아가기</a>
+  </div>
+
+</div>
+<script>
+function openSheet(){
+  var v=document.getElementById('pw').value.trim();
+  if(v==='0716'){
+    document.getElementById('gate').style.display='none';
+    document.getElementById('sheet').style.display='block';
+    window.scrollTo(0,0);
+  }else{
+    document.getElementById('gateMsg').textContent='암호가 다릅니다.';
+    document.getElementById('pw').value='';
+  }
+}
+</script>
+</body>
+</html>

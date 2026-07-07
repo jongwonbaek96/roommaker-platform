@@ -1,0 +1,1493 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>자정의 주파수 — FM 91.9 목련방송</title>
+<!-- v1.1 feedback update -->
+
+<style>
+:root {
+  --bg: #0a0505; --panel: #150c0a; --panel2: #1d1210; --border: #3a2420;
+  --accent: #ff3b30; --gold: #c9a84c; --green: #7fb069;
+  --text: #d8cfc0; --dim: #7a6a5a; --danger: #ff3355;
+  --glow: 0 0 20px rgba(255,59,48,0.45);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: 'Malgun Gothic','맑은 고딕',sans-serif;
+  height: 100vh; overflow: hidden; user-select: none;
+}
+body::after {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 9999;
+  background: repeating-linear-gradient(to bottom, transparent 0 3px, rgba(0,0,0,0.09) 3px 4px);
+}
+em { color: var(--gold); font-style: normal; }
+.screen { position: fixed; inset: 0; display: none; overflow-y: auto; }
+.screen.active { display: flex; flex-direction: column; align-items: center; }
+
+/* ═══ TITLE ═══ */
+#screen-title { justify-content: center; text-align: center;
+  background: radial-gradient(ellipse at 50% 30%, #1a0d0a 0%, #0a0505 70%); }
+.onair {
+  display: inline-block; padding: 8px 26px; border: 2px solid var(--accent);
+  border-radius: 6px; color: var(--accent); font-weight: 900; letter-spacing: 0.4em;
+  font-size: 1rem; box-shadow: var(--glow); animation: onairblink 2.4s infinite;
+  margin-bottom: 28px;
+}
+@keyframes onairblink { 0%,100%{opacity:1} 50%{opacity:0.35} }
+.title-main { font-size: 3rem; font-weight: 900; color: #fff; letter-spacing: 0.08em;
+  text-shadow: 0 0 40px rgba(255,59,48,0.5); margin-bottom: 14px; }
+.title-sub { color: var(--dim); font-size: 0.95rem; letter-spacing: 0.25em; margin-bottom: 8px; }
+.title-freq { color: var(--gold); font-family: monospace; font-size: 1.1rem; margin-bottom: 40px; }
+.btn-primary {
+  background: linear-gradient(180deg, #2a1512, #1d0e0b);
+  border: 1px solid var(--accent); color: #ffb3ad;
+  padding: 12px 34px; font-size: 1rem; border-radius: 8px; cursor: pointer;
+  letter-spacing: 0.15em; transition: all 0.25s; font-family: inherit;
+}
+.btn-primary:hover { box-shadow: var(--glow); color: #fff; }
+.btn-ghost { background: none; border: 1px solid var(--border); color: var(--dim);
+  padding: 8px 18px; border-radius: 6px; cursor: pointer; font-family: inherit; }
+.btn-ghost:hover { color: var(--text); border-color: var(--dim); }
+
+/* ═══ PROLOGUE ═══ */
+#screen-prologue { justify-content: center; background: #060303; }
+.prologue-box { max-width: 620px; padding: 40px; line-height: 2; font-size: 1.02rem; }
+.prologue-box p { margin-bottom: 1.2em; opacity: 0; animation: fadein 1.2s forwards; }
+.prologue-box p:nth-child(1){animation-delay:.2s} .prologue-box p:nth-child(2){animation-delay:1.2s}
+.prologue-box p:nth-child(3){animation-delay:2.2s} .prologue-box p:nth-child(4){animation-delay:3.2s}
+.prologue-box p:nth-child(5){animation-delay:4.2s}
+@keyframes fadein { to { opacity: 1; } }
+
+/* ═══ CHAPTER OVERLAY ═══ */
+#chapter-overlay { position: fixed; inset: 0; z-index: 800; background: #000;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.5s; text-align: center; padding: 24px; }
+#chapter-overlay.show { opacity: 1; pointer-events: all; }
+.ch-eyebrow { font-size: 0.7rem; letter-spacing: 0.5em; color: var(--accent); margin-bottom: 12px; }
+.ch-title { font-size: 2.4rem; font-weight: 900; color: #fff; margin-bottom: 8px;
+  text-shadow: 0 0 40px rgba(255,59,48,0.55); }
+.ch-sub { color: var(--gold); letter-spacing: 0.3em; margin-bottom: 22px; }
+.ch-story { max-width: 560px; color: var(--dim); line-height: 1.9; font-size: 0.92rem; }
+.ch-tap { margin-top: 30px; font-size: 0.7rem; color: #3a2a20; letter-spacing: 0.3em; }
+
+/* ═══ GAME LAYOUT ═══ */
+#screen-game { display: none; }
+#screen-game.active { display: flex; }
+#hud { width: 100%; display: flex; align-items: center; gap: 14px;
+  padding: 10px 18px; background: var(--panel); border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 50; }
+#hud .hud-onair { color: var(--accent); font-weight: 900; font-size: 0.75rem;
+  letter-spacing: 0.2em; border: 1px solid var(--accent); padding: 3px 10px; border-radius: 4px;
+  animation: onairblink 2.4s infinite; }
+#hud-chapter { color: var(--gold); font-size: 0.8rem; letter-spacing: 0.1em; }
+#hud-clock { margin-left: auto; font-family: monospace; color: var(--dim); font-size: 0.9rem; }
+#room-nav { display: flex; gap: 6px; flex-wrap: wrap; padding: 10px 18px; width: 100%;
+  background: var(--panel); border-bottom: 1px solid var(--border); }
+.room-btn { background: var(--panel2); border: 1px solid var(--border); color: var(--dim);
+  padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.78rem; font-family: inherit; }
+.room-btn.current { border-color: var(--accent); color: #ffb3ad; }
+.room-btn.locked { opacity: 0.35; cursor: not-allowed; }
+.room-btn.done { color: var(--green); border-color: #2e4a28; }
+#game-body { width: 100%; max-width: 860px; padding: 20px 18px 60px; }
+.room-scene { display: none; }
+.room-scene.active { display: block; animation: fadein 0.5s; }
+.narrative { background: var(--panel); border: 1px solid var(--border); border-left: 3px solid var(--gold);
+  padding: 16px 20px; border-radius: 8px; line-height: 1.9; font-size: 0.93rem; margin-bottom: 18px;
+  white-space: pre-line; }
+.objects { display: flex; gap: 12px; flex-wrap: wrap; }
+.obj-card { background: var(--panel2); border: 1px solid var(--border); border-radius: 10px;
+  padding: 16px; width: 190px; cursor: pointer; transition: all 0.25s; text-align: center; }
+.obj-card:hover { border-color: var(--gold); transform: translateY(-2px); }
+.obj-card.solved { border-color: #2e4a28; opacity: 0.75; }
+.obj-emoji { font-size: 2rem; margin-bottom: 8px; }
+.obj-name { font-size: 0.88rem; color: var(--text); margin-bottom: 4px; }
+.obj-tag { font-size: 0.68rem; letter-spacing: 0.15em; color: var(--dim); }
+.obj-card.solved .obj-tag { color: var(--green); }
+
+/* ═══ MODAL ═══ */
+.modal-overlay { position: fixed; inset: 0; z-index: 600; background: rgba(0,0,0,0.82);
+  display: none; align-items: center; justify-content: center; padding: 16px; }
+.modal-overlay.open { display: flex; }
+.modal-box { background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+  width: 640px; max-width: 96vw; max-height: 92vh; overflow-y: auto; padding: 26px; position: relative; }
+.modal-close { position: absolute; top: 12px; right: 14px; background: none; border: none;
+  color: var(--dim); font-size: 1.1rem; cursor: pointer; }
+.modal-title { font-size: 0.68rem; letter-spacing: 0.4em; color: var(--accent); margin-bottom: 6px; }
+.modal-heading { font-size: 1.3rem; font-weight: 900; color: #fff; margin-bottom: 12px; }
+.modal-desc { color: var(--dim); line-height: 1.8; font-size: 0.88rem; margin-bottom: 16px; white-space: pre-line; }
+.doc-paper { background: #16100c; border: 1px solid #33251d; border-radius: 8px;
+  padding: 16px 18px; font-size: 0.88rem; line-height: 1.9; margin-bottom: 16px; white-space: pre-line;
+  font-family: 'Malgun Gothic', monospace; color: #cbbfa8; }
+.doc-paper .scribble { color: var(--accent); font-style: italic; }
+.answer-row { display: flex; gap: 8px; align-items: center; margin: 14px 0; flex-wrap: wrap; }
+.answer-input { background: #0d0807; border: 1px solid var(--border); color: var(--gold);
+  padding: 10px 14px; border-radius: 6px; font-size: 1.05rem; font-family: monospace;
+  letter-spacing: 0.2em; width: 220px; }
+.answer-input:focus { outline: none; border-color: var(--gold); }
+.status-text { min-height: 22px; font-size: 0.85rem; margin: 8px 0; color: var(--dim); }
+.status-text.ok { color: var(--green); }
+.status-text.bad { color: var(--danger); }
+.hint-box { background: #1a1408; border: 1px solid #4a3a18; border-radius: 8px;
+  padding: 12px 16px; font-size: 0.85rem; color: #d8c080; margin: 10px 0; display: none; line-height: 1.7; }
+.hint-box.show { display: block; }
+.ans-box { background: #1a0d0d; border: 1px solid #5c2420; border-radius: 8px;
+  padding: 12px 16px; font-size: 0.85rem; color: #e8a8a0; margin: 10px 0; display: none; line-height: 1.7; }
+.ans-box.show { display: block; }
+table.label-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: 0.85rem; }
+table.label-table th, table.label-table td { border: 1px solid var(--border); padding: 7px 10px; text-align: center; }
+table.label-table th { color: var(--gold); background: var(--panel2); font-weight: normal; }
+table.label-table td { color: var(--text); }
+.moon { color: #9fb4ff; } .sun { color: #e0a040; }
+
+/* ═══ NOTIF ═══ */
+#notif-area { position: fixed; top: 70px; right: 18px; z-index: 900; display: flex;
+  flex-direction: column; gap: 8px; }
+.notif { background: var(--panel); border: 1px solid var(--gold); color: var(--text);
+  padding: 12px 18px; border-radius: 8px; font-size: 0.85rem; max-width: 320px;
+  animation: notifin 0.4s; box-shadow: 0 4px 20px rgba(0,0,0,0.6); }
+.notif.danger { border-color: var(--danger); color: #ffb3c0; }
+@keyframes notifin { from { transform: translateX(40px); opacity: 0; } }
+
+/* ═══ GAME 1: FUSEBOX ═══ */
+#fusebox-stage { position: relative; height: 340px; background: #000; border-radius: 10px;
+  overflow: hidden; margin-bottom: 12px; cursor: none; }
+#fusebox-dark { position: absolute; inset: 0; z-index: 5; pointer-events: none;
+  background: radial-gradient(circle 95px at var(--fx,50%) var(--fy,50%), transparent 0 60px, rgba(0,0,0,0.97) 100px); }
+.fuse-sw { position: absolute; width: 54px; height: 74px; background: var(--panel2);
+  border: 1px solid var(--border); border-radius: 6px; cursor: pointer; z-index: 2;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+.fuse-sw .lever { width: 14px; height: 30px; background: #3a2a20; border-radius: 4px; transition: all 0.2s; }
+.fuse-sw.on .lever { background: var(--green); box-shadow: 0 0 10px rgba(127,176,105,0.7); }
+.fuse-sw .lbl { font-size: 0.75rem; color: var(--dim); font-family: monospace; }
+#fusebox-diagram { position: absolute; left: 14px; top: 14px; width: 200px; background: #14100a;
+  border: 1px solid #33251d; padding: 10px 12px; font-size: 0.75rem; color: #b8a880;
+  border-radius: 6px; z-index: 2; line-height: 1.7; }
+#fusebox-ghost { position: absolute; inset: 0; z-index: 6; background: rgba(0,0,0,0.85);
+  display: none; align-items: center; justify-content: center; pointer-events: none; }
+#fusebox-ghost .silhouette { width: 60px; height: 160px; background: #1a1a1a;
+  border-radius: 30px 30px 8px 8px; filter: blur(4px); }
+
+/* ═══ GAME 2: REEL ═══ */
+#reel-strip { display: flex; gap: 6px; justify-content: center; margin-bottom: 12px; flex-wrap: wrap; }
+.reel-piece { width: 88px; height: 72px; background: #14100c; border: 1px solid var(--border);
+  border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+.reel-piece.sel { border-color: var(--gold); box-shadow: 0 0 12px rgba(201,168,76,0.4); }
+.reel-piece canvas { width: 100%; height: 100%; }
+
+/* ═══ QUIZ 3: LETTERS ═══ */
+.letter-grid { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 12px; }
+.letter-env { background: #16100c; border: 1px solid var(--border); border-radius: 8px;
+  padding: 12px; width: 160px; cursor: pointer; text-align: center; }
+.letter-env:hover { border-color: var(--gold); }
+.letter-env .notes-mark { color: var(--gold); letter-spacing: 2px; margin-bottom: 6px; font-size: 0.8rem; }
+.letter-env .first-line { font-size: 0.78rem; color: var(--dim); line-height: 1.6; }
+
+/* ═══ GAME 3: MANUSCRIPT ═══ */
+#ms-grid { display: grid; grid-template-columns: repeat(4, 108px); gap: 4px; justify-content: center;
+  margin-bottom: 12px; }
+.ms-piece { width: 108px; height: 76px; background: #17120d; border: 1px solid var(--border);
+  cursor: pointer; overflow: hidden; position: relative; transition: transform 0.25s; }
+.ms-piece .inner { position: absolute; width: 432px; height: 228px;
+  background: #1e1812; color: #c8b898; font-size: 0.72rem; line-height: 1.9; padding: 10px 14px;
+  font-family: 'Malgun Gothic'; white-space: pre-line; }
+.ms-piece.ok { border-color: #2e4a28; }
+
+/* ═══ GAME 4: NOISE ═══ */
+#noise-canvas { width: 100%; height: 190px; background: #0d0807; border: 1px solid var(--border);
+  border-radius: 8px; margin-bottom: 12px; }
+.slider-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.slider-row label { width: 70px; font-size: 0.82rem; color: var(--dim); }
+.slider-row input[type=range] { flex: 1; accent-color: var(--gold); }
+#noise-voice { min-height: 40px; font-size: 0.9rem; color: var(--gold); text-align: center;
+  margin: 10px 0; line-height: 1.7; opacity: 0.3; transition: opacity 0.5s; }
+
+/* ═══ GAME 5: IGNITION ═══ */
+#gauges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 12px; }
+.gauge { width: 108px; text-align: center; cursor: pointer; }
+.gauge canvas { background: #0d0807; border: 1px solid var(--border); border-radius: 8px; width: 108px; height: 88px; }
+.gauge.lit canvas { border-color: #7a4a20; box-shadow: 0 0 14px rgba(255,140,50,0.35); }
+.gauge .glabel { font-size: 0.72rem; color: var(--dim); margin-top: 4px; }
+
+/* ═══ GAME 6/7: ROOF ═══ */
+.dial-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.dial-row label { width: 70px; font-size: 0.82rem; color: var(--dim); }
+.dial-row input[type=range] { flex: 1; accent-color: var(--accent); }
+.dial-row .val { width: 56px; font-family: monospace; color: var(--gold); text-align: right; }
+#signal-meter { height: 26px; background: #0d0807; border: 1px solid var(--border); border-radius: 6px;
+  overflow: hidden; margin-bottom: 12px; }
+#signal-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #4a2010, var(--accent)); transition: width 0.2s; }
+#morse-lamp { width: 60px; height: 60px; border-radius: 50%; background: #241510;
+  border: 2px solid var(--border); margin: 0 auto 10px; transition: all 0.08s; }
+#morse-lamp.on { background: var(--gold); box-shadow: 0 0 30px rgba(201,168,76,0.8); }
+#morse-text { text-align: center; font-family: monospace; font-size: 1.2rem; color: var(--gold);
+  min-height: 28px; letter-spacing: 3px; margin-bottom: 10px; }
+.morse-table { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-bottom: 12px; }
+.morse-cell { background: var(--panel2); border: 1px solid var(--border); border-radius: 4px;
+  padding: 4px 8px; font-family: monospace; font-size: 0.75rem; color: var(--dim); }
+
+/* ═══ GAME 8: BROADCAST ═══ */
+#bc-timer { font-family: monospace; font-size: 1.6rem; color: var(--accent); text-align: center;
+  margin-bottom: 10px; letter-spacing: 0.1em; }
+#bc-stage-label { text-align: center; color: var(--gold); font-size: 0.9rem; margin-bottom: 14px; min-height: 24px; }
+#bc-area { min-height: 220px; }
+.bc-btn { background: var(--panel2); border: 1px solid var(--border); color: var(--text);
+  padding: 12px 16px; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 0.9rem; margin: 4px; }
+.bc-btn:hover { border-color: var(--gold); }
+.bc-btn.done { border-color: #2e4a28; color: var(--green); }
+#bc-signal-bar { position: relative; height: 34px; background: #0d0807; border: 1px solid var(--border);
+  border-radius: 6px; overflow: hidden; margin-bottom: 12px; }
+#bc-signal-zone { position: absolute; left: 62%; width: 14%; top: 0; bottom: 0;
+  background: rgba(255,59,48,0.25); border-left: 1px solid var(--accent); border-right: 1px solid var(--accent); }
+#bc-signal-needle { position: absolute; top: 0; bottom: 0; width: 3px; background: var(--gold); left: 0; }
+.bc-track-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.bc-track { width: 56px; height: 56px; border-radius: 8px; background: var(--panel2);
+  border: 1px solid var(--border); color: var(--gold); font-size: 1.2rem; font-family: monospace;
+  cursor: pointer; }
+.bc-track.done { border-color: #2e4a28; color: var(--green); }
+
+/* ═══ ENDING ═══ */
+.ending-screen { justify-content: center; text-align: center;
+  background: radial-gradient(ellipse at 50% 40%, #140a08 0%, #060303 75%); }
+.ending-badge { font-size: 0.7rem; letter-spacing: 0.5em; color: var(--accent); margin-bottom: 18px; }
+.ending-title { font-size: 2.2rem; font-weight: 900; color: #fff; margin-bottom: 24px;
+  text-shadow: 0 0 40px rgba(255,59,48,0.4); }
+.ending-body { max-width: 580px; color: var(--dim); line-height: 2.1; font-size: 0.95rem;
+  margin-bottom: 36px; padding: 0 20px; white-space: pre-line; }
+#ending-choice { justify-content: center; text-align: center; background: #060303; }
+.choice-row { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin-top: 30px; }
+.choice-card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+  padding: 24px 20px; width: 220px; cursor: pointer; transition: all 0.3s; }
+.choice-card:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: var(--glow); }
+.choice-card .c-title { font-size: 1.1rem; font-weight: 900; color: #fff; margin-bottom: 10px; }
+.choice-card .c-desc { font-size: 0.8rem; color: var(--dim); line-height: 1.7; }
+
+@media (max-width: 640px) {
+  .title-main { font-size: 2rem; }
+  #ms-grid { grid-template-columns: repeat(4, 76px); }
+  .ms-piece { width: 76px; height: 56px; }
+  .ms-piece .inner { width: 304px; height: 168px; font-size: 0.55rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ TITLE ═══ -->
+<div class="screen active" id="screen-title">
+  <div class="onair">ON AIR</div>
+  <div class="title-main">자정의 주파수</div>
+  <div class="title-sub">이 방송은 당신에게만 들립니다</div>
+  <div class="title-freq">FM 91.9 목련방송 · 심야 생방송</div>
+  <button class="btn-primary" onclick="showScreen('prologue')">▶ 주파수를 맞춘다</button>
+</div>
+
+<!-- ═══ PROLOGUE ═══ -->
+<div class="screen" id="screen-prologue">
+  <div class="prologue-box">
+    <p>라디오에서 잡음이 나올 때, 그 안에서 목소리를 들었다고 말하는 사람들이 있다.
+죽은 사람의 목소리라고들 한다.</p>
+    <p>만약 그게 사실이라면 — 그 목소리는 어디서, 누가, 송출하는 걸까.</p>
+    <p>폭우가 쏟아지는, 자정 직전의 밤.
+당신은 언덕 위의 낡은 방송국, FM 91.9 목련방송 앞에 서 있다.</p>
+    <p>왜 여기까지 왔는지는 잘 기억나지 않는다.
+그냥, 이 불빛을 따라와야 할 것 같았다.</p>
+    <p style="text-align:center; margin-top:30px;">
+      <button class="btn-primary" onclick="startGame()">문을 민다</button>
+    </p>
+  </div>
+</div>
+
+<!-- ═══ CHAPTER OVERLAY ═══ -->
+<div id="chapter-overlay">
+  <div class="ch-eyebrow" id="ch-eyebrow">CHAPTER 1</div>
+  <div class="ch-title" id="ch-title">로비 · 경비실</div>
+  <div class="ch-sub" id="ch-sub"></div>
+  <div class="ch-story" id="ch-story"></div>
+  <div class="ch-tap">— 화면을 누르면 계속 —</div>
+</div>
+
+<!-- ═══ GAME ═══ -->
+<div class="screen" id="screen-game">
+  <div id="hud">
+    <span class="hud-onair">ON AIR</span>
+    <span id="hud-chapter">CHAPTER 1 · 로비</span>
+    <span id="hud-clock">23:57</span>
+  </div>
+  <div id="room-nav"></div>
+  <div id="game-body"></div>
+</div>
+
+<div id="notif-area"></div>
+
+<!-- ═══ ENDING CHOICE ═══ -->
+<div class="screen ending-screen" id="screen-choice">
+  <div class="ending-badge">LAST BROADCAST · FM 91.9</div>
+  <div class="ending-title">방송이 끝나간다</div>
+  <div class="ending-body">콘솔에 세 개의 버튼이 남는다.
+서하율이 조용히 헤드폰을 벗고, 당신을 바라본다.
+"…선택은 게스트의 몫이에요. 언제나 그랬어요."</div>
+  <div class="choice-row">
+    <div class="choice-card" onclick="showEnding('A')">
+      <div class="c-title">[ 송출 ]</div>
+      <div class="c-desc">나의 마지막 사연을 읽고, 주파수 너머로 떠난다.</div>
+    </div>
+    <div class="choice-card" onclick="showEnding('B')">
+      <div class="c-title">[ 잔류 ]</div>
+      <div class="c-desc">서하율처럼 남는다. 언젠가 도착할 다음 게스트를 기다린다.</div>
+    </div>
+    <div class="choice-card" onclick="showEnding('C')">
+      <div class="c-title">[ 잡음 ]</div>
+      <div class="c-desc">송출을 거부한다. 산 사람들에게 닿으려 한다. 어떻게든.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ENDINGS ═══ -->
+<div class="screen ending-screen" id="screen-ending-A">
+  <div class="ending-badge">ENDING A · 송출</div>
+  <div class="ending-title">잘 지내요, 정말이에요</div>
+  <div class="ending-body">당신은 마이크 앞에서 일곱 번째 사연을 읽는다.
+"저는 오늘 밤 11시 57분에, 교차로에서 — 여러분보다 조금 먼저, 집에 갑니다."
+
+엄마의 김치찌개는 짜지 않았다고. 금요일 야근은 사실 즐거웠다고.
+동생아, 방은 치워도 된다고.
+
+송출 버튼을 누른다. ON AIR 램프가 꺼진다.
+
+어느 집 부엌에서, 어느 사무실에서, 어느 언니의 방에서 —
+라디오 잡음이 아주 잠깐, 목소리처럼 들렸다.
+
+<em>자정의 주파수는 오늘도 정시에 시작됩니다.</em></div>
+  <button class="btn-primary" onclick="location.reload()">↺ 처음부터</button>
+</div>
+
+<div class="screen ending-screen" id="screen-ending-B">
+  <div class="ending-badge">ENDING B · 잔류</div>
+  <div class="ending-title">방송은 계속되어야 하니까</div>
+  <div class="ending-body">서하율이 처음으로 소리 내어 웃는다. "…교대네요. 3년 만에."
+
+그는 낡은 코트를 걸치고 문을 나선다. 이번에는 그가 게스트다.
+당신은 헤드폰을 고쳐 쓴다. 콘솔 너머, 언덕 아래 도시의 불빛들.
+
+언젠가 이 언덕을 올라올, 비에 젖지 않은 누군가를 위해.
+
+<em>— 여기는 FM 91.9, 자정의 주파수.
+…오늘 밤 게스트님, 도착하셨군요.</em></div>
+  <button class="btn-primary" onclick="location.reload()">↺ 처음부터</button>
+</div>
+
+<div class="screen ending-screen" id="screen-ending-C">
+  <div class="ending-badge">BAD END · 잡음</div>
+  <div class="ending-title">어떤 목소리는 끝내 말이 되지 못한다</div>
+  <div class="ending-body">당신은 송출을 거부했다. 주파수를 거슬러, 산 사람들의 밤으로 몸을 던졌다.
+
+당신의 목소리는 도시의 모든 라디오에 아주 얇게 스며들었다.
+잡음으로. 영원히 잡음으로.
+
+사람들은 가끔 라디오에서 이상한 소리를 듣는다.
+꼭 누가 부르는 것 같다고.
+
+누구를 부르는지는, 이제 당신도 기억하지 못한다.</div>
+  <button class="btn-primary" onclick="location.reload()">↺ 처음부터</button>
+</div>
+
+<!-- ═══ Q1 순찰일지 ═══ -->
+<div class="modal-overlay" id="modal-q1">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('q1')">✕</button>
+    <div class="modal-title">QUIZ 01 · 로비</div>
+    <div class="modal-heading">순찰일지</div>
+    <div class="modal-desc">사물함은 4자리 자물쇠로 잠겨 있다. 안에 방송국 마스터키가 보인다.</div>
+    <div class="doc-paper">23:10 — 로비 순찰. 이상 무. 우산꽂이에 우산 세 개뿐.
+23:25 — 자료실 문 잠김 확인. 복도 형광등 네 번째가 깜빡임.
+23:40 — 편집실 벽시계 건전지 교체. 바늘은 0시에 맞춰둠.
+23:55 — 옥상 점검… 계단 일곱 개를 오르다 (글씨가 번져 있다)
+
+<span class="scribble">"문은 거꾸로 걸어온 사람에게만 열린다."</span></div>
+    <div class="answer-row">
+      <input class="answer-input" id="q1-input" maxlength="4" inputmode="numeric" placeholder="····">
+      <button class="btn-primary" onclick="checkQ1()">열기</button>
+      <button class="btn-ghost" onclick="toggleHint('q1')">💡 힌트</button>
+      <button class="btn-ghost" onclick="toggleAns('q1')">🔓 정답</button>
+    </div>
+    <div class="hint-box" id="hint-q1">일지의 각 줄에는 숫자가 하나씩 숨어 있다. 시각 말고, 문장 속에. 그리고 낙서는 걷는 '방향'에 대한 말이다.</div>
+    <div class="ans-box" id="ans-q1">정답: 7043 — 문장 속 숨은 숫자 3·4·0·7을 낙서대로 '거꾸로' 읽는다.</div>
+    <div class="status-text" id="q1-status"></div>
+  </div>
+</div>
+
+<!-- ═══ G1 배전반 ═══ -->
+<div class="modal-overlay" id="modal-g1">
+  <div class="modal-box" style="width:720px">
+    <button class="modal-close" onclick="closeModal('g1')">✕</button>
+    <div class="modal-title">GAME 01 · 로비</div>
+    <div class="modal-heading">배전반 복구</div>
+    <div class="modal-desc">완전한 어둠. 손전등 빛만이 당신을 따라온다.
+벽 어딘가의 배선도를 찾아, 적힌 순서대로 퓨즈를 올려라. 순서가 틀리면 전부 내려간다.</div>
+    <div id="fusebox-stage">
+      <div id="fusebox-diagram">⚡ 배선도
+점화 순서:
+Ⅳ → Ⅰ → Ⅵ → Ⅲ → Ⅴ → Ⅱ</div>
+      <div id="fusebox-dark"></div>
+      <div id="fusebox-ghost"><div class="silhouette"></div></div>
+    </div>
+    <div class="answer-row">
+      <button class="btn-ghost" onclick="toggleHint('g1')">💡 힌트</button>
+      <button class="btn-ghost" onclick="toggleAns('g1')">🔓 정답</button>
+    </div>
+    <div class="hint-box" id="hint-g1">손전등을 왼쪽 위로. 배선도가 붙어 있다. 로마 숫자를 잘 읽을 것.</div>
+    <div class="ans-box" id="ans-g1">정답 순서: Ⅳ → Ⅰ → Ⅵ → Ⅲ → Ⅴ → Ⅱ</div>
+    <div class="status-text" id="g1-status">퓨즈 0 / 6</div>
+  </div>
+</div>
+
+<!-- ═══ Q2 카세트 연대기 ═══ -->
+<div class="modal-overlay" id="modal-q2">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('q2')">✕</button>
+    <div class="modal-title">QUIZ 02 · 자료실</div>
+    <div class="modal-heading">카세트 연대기</div>
+    <div class="modal-desc">유리 보관함 안에 «자정의 주파수 — 최종회» 릴 테이프. 잠금장치는 3자리.</div>
+    <table class="label-table">
+      <tr><th>선반</th><th>제목</th><th>표시</th><th>재생시간</th></tr>
+      <tr><td>1</td><td>새벽 강가</td><td class="sun">☀</td><td>52:10</td></tr>
+      <tr><td>2</td><td>자정의 주파수 제12회</td><td class="moon">☾</td><td>47:33</td></tr>
+      <tr><td>3</td><td>정오 음악실</td><td class="sun">☀</td><td>30:00</td></tr>
+      <tr><td>4</td><td>자정의 주파수 제31회</td><td class="moon">☾</td><td>29:58</td></tr>
+      <tr><td>5</td><td>저녁 종점</td><td class="sun">☀</td><td>44:12</td></tr>
+      <tr><td>6</td><td>자정의 주파수 제7회</td><td class="moon">☾</td><td>61:05</td></tr>
+      <tr><td>7</td><td>아침 체조</td><td class="sun">☀</td><td>15:00</td></tr>
+      <tr><td>8</td><td>심야 낭독회</td><td class="sun">☀</td><td>33:20</td></tr>
+    </table>
+    <div class="doc-paper"><span class="scribble">"밤에 녹음된 것들만이 진짜다. 짧은 것부터 들어라."</span></div>
+    <div class="answer-row">
+      <input class="answer-input" id="q2-input" maxlength="3" inputmode="numeric" placeholder="···">
+      <button class="btn-primary" onclick="checkQ2()">해제</button>
+      <button class="btn-ghost" onclick="toggleHint('q2')">💡 힌트</button>
+      <button class="btn-ghost" onclick="toggleAns('q2')">🔓 정답</button>
+    </div>
+    <div class="hint-box" id="hint-q2">'밤'은 제목이 아니라 라벨의 기호가 말해준다. '심야 낭독회'를 의심하라. 답은 시간이 아니라 선반 번호다.</div>
+    <div class="ans-box" id="ans-q2">정답: 426 — ☾ 표시(2·4·6번 선반)만 골라, 재생시간 짧은 순으로 선반 번호를 읽는다: 4(29:58) → 2(47:33) → 6(61:05).</div>
+    <div class="status-text" id="q2-status"></div>
+  </div>
+</div>
+
+<!-- ═══ G2 릴 테이프 ═══ -->
+<div class="modal-overlay" id="modal-g2">
+  <div class="modal-box" style="width:700px">
+    <button class="modal-close" onclick="closeModal('g2')">✕</button>
+    <div class="modal-title">GAME 02 · 자료실</div>
+    <div class="modal-heading">릴 테이프 이어붙이기</div>
+    <div class="modal-desc">최종회 테이프가 여섯 조각으로 끊어져 있다. 단면이 너무 깔끔하다 — 누군가 일부러 잘랐다.
+조각 두 개를 차례로 눌러 자리를 바꿔라. 파형이 한 줄로 이어져야 한다.</div>
+    <div id="reel-strip"></div>
+    <div class="answer-row">
+      <button class="btn-primary" onclick="checkReel()">▶ 재생</button>
+      <button class="btn-ghost" onclick="toggleHint('g2')">💡 힌트</button>
+    </div>
+    <div class="hint-box" id="hint-g2">끊긴 자리의 파형 높이가 이어져야 한다. 왼쪽 끝은 낮게 시작해서, 가운데서 크게 출렁이고, 오른쪽 끝에서 잦아든다.</div>
+    <div class="status-text" id="g2-status"></div>
+  </div>
+</div>
+
+<!-- ═══ Q3 여섯 통의 사연 ═══ -->
+<div class="modal-overlay" id="modal-q3">
+  <div class="modal-box" style="width:720px">
+    <button class="modal-close" onclick="closeModal('q3')">✕</button>
+    <div class="modal-title">QUIZ 03 · 작가실</div>
+    <div class="modal-heading">여섯 통의 사연</div>
+    <div class="modal-desc">소인도 우표도 없는 봉투 여섯 통. 봉투마다 음표가 그려져 있다.
+타자기에 종이가 물려 있다: <em>"방송 암호를 입력하시오."</em></div>
+    <div class="letter-grid" id="letter-grid"></div>
+    <div class="doc-paper"><span class="scribble">"사연은 순서대로."</span></div>
+    <div class="answer-row">
+      <input class="answer-input" id="q3-input" style="width:280px; letter-spacing:0.1em;" placeholder="여섯 글자">
+      <button class="btn-primary" onclick="checkQ3()">입력</button>
+      <button class="btn-ghost" onclick="toggleHint('q3')">💡 힌트</button>
+      <button class="btn-ghost" onclick="toggleAns('q3')">🔓 정답</button>
+    </div>
+    <div class="hint-box" id="hint-q3">음표 개수가 방송 순서다. ♪ 하나부터 여섯까지 순서대로 놓고, 각 사연의 '첫 글자'만 읽어라.</div>
+    <div class="ans-box" id="ans-q3">정답: 지금나가지마 — ♪1~♪6 순서로 정렬한 뒤 각 사연의 첫 글자를 잇는다.</div>
+    <div class="status-text" id="q3-status"></div>
+  </div>
+</div>
+
+<!-- ═══ G3 찢어진 원고 ═══ -->
+<div class="modal-overlay" id="modal-g3">
+  <div class="modal-box" style="width:560px">
+    <button class="modal-close" onclick="closeModal('g3')">✕</button>
+    <div class="modal-title">GAME 03 · 작가실</div>
+    <div class="modal-heading">찢어진 원고</div>
+    <div class="modal-desc">휴지통에서 찾은 일곱 번째 사연. 열두 조각으로 찢겨 있다.
+조각을 눌러 돌려라. 모든 조각의 방향이 맞아야 글이 읽힌다.</div>
+    <div id="ms-grid"></div>
+    <div class="answer-row">
+      <button class="btn-ghost" onclick="toggleHint('g3')">💡 힌트</button>
+    </div>
+    <div class="hint-box" id="hint-g3">원고지의 줄은 가로로 흐른다. 글자가 기울어져 있다면 아직이다.</div>
+    <div class="status-text" id="g3-status"></div>
+  </div>
+</div>
+
+<!-- ═══ G4 노이즈 제거 ═══ -->
+<div class="modal-overlay" id="modal-g4">
+  <div class="modal-box" style="width:700px">
+    <button class="modal-close" onclick="closeModal('g4')">✕</button>
+    <div class="modal-title">GAME 04 · 편집실</div>
+    <div class="modal-heading">노이즈 제거</div>
+    <div class="modal-desc">라벨: "게스트님께". 재생하면 온통 잡음이다.
+흐릿한 목표 파형에 당신의 파형을 포개라. 오차가 5% 아래로 3초 — 목소리가 살아난다.</div>
+    <canvas id="noise-canvas" width="640" height="190"></canvas>
+    <div class="slider-row"><label>주파수</label><input type="range" id="ns-freq" min="0" max="100" value="20"><span class="val" id="ns-freq-v"></span></div>
+    <div class="slider-row"><label>증폭</label><input type="range" id="ns-amp" min="0" max="100" value="80"><span class="val" id="ns-amp-v"></span></div>
+    <div class="slider-row"><label>필터</label><input type="range" id="ns-fil" min="0" max="100" value="10"><span class="val" id="ns-fil-v"></span></div>
+    <div id="noise-voice">— …게스트…님… 들리…세요… —</div>
+    <div class="answer-row"><button class="btn-ghost" onclick="toggleHint('g4')">💡 힌트</button></div>
+    <div class="hint-box" id="hint-g4">주파수부터 대강 맞추고, 증폭으로 키를 맞춘 뒤, 필터로 마무리하라. 주파수를 다시 만지면 필터도 다시.</div>
+    <div class="status-text" id="g4-status">오차: ---%</div>
+  </div>
+</div>
+
+<!-- ═══ G5 송출기 점화 ═══ -->
+<div class="modal-overlay" id="modal-g5">
+  <div class="modal-box" style="width:680px">
+    <button class="modal-close" onclick="closeModal('g5')">✕</button>
+    <div class="modal-title">GAME 05 · 송출 기계실</div>
+    <div class="modal-heading">송출기 점화</div>
+    <div class="modal-desc">절차서: <em>"점화는 순서다. 서두르면 전부 태운다."</em>
+1번부터 차례대로, 바늘이 초록 구간에 든 순간 계기를 눌러라. 3번 빗나가면 과부하다.</div>
+    <div id="gauges"></div>
+    <div class="answer-row"><button class="btn-ghost" onclick="toggleHint('g5')">💡 힌트</button></div>
+    <div class="hint-box" id="hint-g5">뒤로 갈수록 바늘이 빨라진다. 바늘의 리듬을 두어 번 보고, 초록에 '들어오기 직전'에 손을 준비하라.</div>
+    <div class="status-text" id="g5-status">계기 0 / 5 · 실패 0 / 3</div>
+  </div>
+</div>
+
+<!-- ═══ Q4 마지막 큐시트 ═══ -->
+<div class="modal-overlay" id="modal-q4">
+  <div class="modal-box" style="width:700px">
+    <button class="modal-close" onclick="closeModal('q4')">✕</button>
+    <div class="modal-title">QUIZ 04 · 스튜디오 B</div>
+    <div class="modal-heading">마지막 큐시트</div>
+    <div class="modal-desc">서하율의 마지막 큐시트. 다섯 곡의 순서가 지워져 있다.
+"이게 끝나야 저도, 당신도, 다음으로 갈 수 있어요."</div>
+    <table class="label-table">
+      <tr><th>곡명</th><th>트랙 번호</th><th>메모</th></tr>
+      <tr><td>파도</td><td>3</td><td>—</td></tr>
+      <tr><td>자정</td><td>7</td><td>—</td></tr>
+      <tr><td>목련</td><td>1</td><td>—</td></tr>
+      <tr><td>잡음 속에서</td><td>9</td><td>—</td></tr>
+      <tr><td>집으로</td><td>5</td><td>"청취자를 배웅하는 곡"</td></tr>
+    </table>
+    <div class="doc-paper">단서 — 부스 곳곳의 메모:
+① "첫 곡부터 «목련»을 틀 수는 없잖아요."
+② «자정»은 «파도» 바로 다음에 흐른다.
+③ 배웅하는 곡은 언제나 방송의 끝에 있다.
+④ «목련»은 «잡음 속에서»보다 먼저 나온다.
+⑤ «파도»는 세 번째가 아니다.
+
+<span class="scribble">"곡이 흐르는 순서대로, 트랙의 숫자를 읽어라."</span></div>
+    <div class="answer-row">
+      <input class="answer-input" id="q4-input" maxlength="5" inputmode="numeric" placeholder="·····">
+      <button class="btn-primary" onclick="checkQ4()">큐시트 완성</button>
+      <button class="btn-ghost" onclick="toggleHint('q4')">💡 힌트</button>
+      <button class="btn-ghost" onclick="toggleAns('q4')">🔓 정답</button>
+    </div>
+    <div class="hint-box" id="hint-q4">③으로 마지막 곡부터 못 박아라. «파도»«자정» 쌍이 들어갈 자리는 두 곳뿐이고, 그중 하나는 «목련»이 갈 곳을 없앤다.</div>
+    <div class="ans-box" id="ans-q4">정답: 37195 — 파도(3) → 자정(7) → 목련(1) → 잡음 속에서(9) → 집으로(5).</div>
+    <div class="status-text" id="q4-status"></div>
+  </div>
+</div>
+
+<!-- ═══ G6 안테나 정렬 ═══ -->
+<div class="modal-overlay" id="modal-g6">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('g6')">✕</button>
+    <div class="modal-title">GAME 06 · 옥상</div>
+    <div class="modal-heading">안테나 정렬</div>
+    <div class="modal-desc">밤하늘 저편에서 무언가가 신호를 보내고 있다.
+다이얼 두 개를 돌려 신호를 찾아라. 게이지가 차오를수록 가까운 것이다.</div>
+    <div id="signal-meter"><div id="signal-fill"></div></div>
+    <div class="dial-row"><label>방위각</label><input type="range" id="ant-az" min="0" max="359" value="0"><span class="val" id="ant-az-v">0°</span></div>
+    <div class="dial-row"><label>앙각</label><input type="range" id="ant-el" min="0" max="90" value="0"><span class="val" id="ant-el-v">0°</span></div>
+    <div class="answer-row">
+      <button class="btn-primary" id="ant-lock" style="display:none" onclick="lockAntenna()">📡 신호 고정</button>
+      <button class="btn-ghost" onclick="toggleHint('g6')">💡 힌트</button>
+    </div>
+    <div class="hint-box" id="hint-g6">먼저 방위각만 천천히 훑어 게이지가 꿈틀하는 지점을 찾아라. 그다음 앙각이다.</div>
+    <div class="status-text" id="g6-status">신호 강도: 0%</div>
+  </div>
+</div>
+
+<!-- ═══ G7 자정의 모스 ═══ -->
+<div class="modal-overlay" id="modal-g7">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('g7')">✕</button>
+    <div class="modal-title">GAME 07 · 옥상</div>
+    <div class="modal-heading">자정의 모스</div>
+    <div class="modal-desc">스피커가 점과 선으로 깜빡인다. 누군가, 저편에서, 이쪽으로.
+대조표를 보고 일곱 글자를 해독하라.</div>
+    <div id="morse-lamp"></div>
+    <div class="answer-row" style="justify-content:center">
+      <button class="btn-ghost" onclick="playMorse()">↻ 다시 듣기</button>
+    </div>
+    <div class="morse-table" id="morse-table"></div>
+    <div class="answer-row">
+      <input class="answer-input" id="g7-input" style="width:260px" maxlength="7" placeholder="ABCDEFG">
+      <button class="btn-primary" onclick="checkMorse()">해독</button>
+      <button class="btn-ghost" onclick="toggleHint('g7')">💡 힌트</button>
+      <button class="btn-ghost" onclick="toggleAns('g7')">🔓 정답</button>
+    </div>
+    <div class="hint-box" id="hint-g7">짧은 불빛이 점(·), 긴 불빛이 선(−). 글자 사이에는 긴 침묵이 있다.
+수신 기록: ·−− / · / ·−·· / −·−· / −−− / −− / ·</div>
+    <div class="ans-box" id="ans-g7">정답: WELCOME — ·−−(W) ·(E) ·−··(L) −·−·(C) −−−(O) −−(M) ·(E)</div>
+    <div class="status-text" id="g7-status"></div>
+  </div>
+</div>
+
+<!-- ═══ Q5 23:57 ═══ -->
+<div class="modal-overlay" id="modal-q5">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('q5')">✕</button>
+    <div class="modal-title">QUIZ 05 · 스튜디오 A</div>
+    <div class="modal-heading">방송 신청서</div>
+    <div class="modal-desc">스튜디오 A의 문에 신청서가 붙어 있다. 게스트 확인란.
+이름을 묻지 않는다. 대신 —</div>
+    <div class="doc-paper" style="text-align:center; font-size:1.05rem;">"당신은 <em>언제</em> 도착했습니까?"</div>
+    <div class="answer-row" style="justify-content:center">
+      <input class="answer-input" id="q5-input" style="width:140px; text-align:center;" maxlength="5" placeholder="HH:MM">
+      <button class="btn-primary" onclick="checkQ5()">서명</button>
+      <button class="btn-ghost" onclick="toggleHint('q5')">💡 힌트</button>
+      <button class="btn-ghost" onclick="toggleAns('q5')">🔓 정답</button>
+    </div>
+    <div class="hint-box" id="hint-q5">시계는 당신이 온 순간부터 움직이지 않았다. 방송의 시간이 아니라, 당신의 시간이다. — 화면 오른쪽 위를 봐라.</div>
+    <div class="ans-box" id="ans-q5">정답: 23:57 — 이 방송국의 모든 시계가 멈춰 있는 시각. 당신이 '도착'한 시각.</div>
+    <div class="status-text" id="q5-status"></div>
+  </div>
+</div>
+
+<!-- ═══ G8 마지막 생방송 ═══ -->
+<div class="modal-overlay" id="modal-g8">
+  <div class="modal-box" style="width:720px">
+    <button class="modal-close" onclick="closeModal('g8')">✕</button>
+    <div class="modal-title">GAME 08 · 스튜디오 A</div>
+    <div class="modal-heading">마지막 생방송</div>
+    <div class="modal-desc">"자정이에요. 생방송입니다. …준비되셨어요, 게스트님?"
+60초. 죽은 공기(dead air)를 만들면 방송사고다.</div>
+    <div id="bc-timer">60.0</div>
+    <div id="bc-stage-label"></div>
+    <div id="bc-area"></div>
+    <div class="status-text" id="g8-status"></div>
+  </div>
+</div>
+
+<!-- ═══ NOTE MODAL ═══ -->
+<div class="modal-overlay" id="modal-note">
+  <div class="modal-box" style="width:480px">
+    <button class="modal-close" onclick="closeModal('note')">✕</button>
+    <div class="modal-title">발견</div>
+    <div class="modal-heading" id="note-title"></div>
+    <div class="doc-paper" id="note-body"></div>
+    <button class="btn-primary" onclick="closeModal('note')">닫기</button>
+  </div>
+</div>
+<script>
+'use strict';
+// ═════════════════════ STATE ═════════════════════
+const GS = { solved: {}, room: 'lobby', visited: new Set() };
+const ROOM_ORDER = ['lobby','archive','writer','edit','machine','studiob','roof','studioa'];
+
+const ROOMS = {
+  lobby: { num:1, name:'로비 · 경비실', story:'문은 잠겨 있지 않았다. 정전된 로비, 물 떨어지는 소리. 스피커 너머의 목소리: "오늘 밤 게스트님. 도착하셨군요."',
+    narrative:'비를 뚫고 왔는데, 옷이 말라 있다. …건물 처마가 깊었나 보다. 당신은 그렇게 생각하기로 한다.\nCCTV 화면 속 로비에는 아무도 없다. 방금 당신이 걸어 들어온 그 각도인데도.\n벽시계는 11시 57분에 멈춰 있다.\n\n전기부터 살려야 한다.',
+    objects:[
+      { id:'g1', emoji:'⚡', name:'두꺼비집', tag:'GAME 01' },
+      { id:'q1', emoji:'📔', name:'순찰일지 · 사물함', tag:'QUIZ 01', gate:'g1', gateMsg:'너무 어둡다. 전기를 먼저 살리자.' },
+      { id:'note-poster', emoji:'📻', name:'빛바랜 포스터', tag:'조사', type:'note',
+        nTitle:'«자정의 주파수»', nBody:'진행 서하율.\n"당신의 마지막 사연을 기다립니다."\n\n\'마지막\'이라는 단어가 조금 이상하다고 생각했지만,\n오래된 심야방송의 감성이려니 한다.' }
+    ]},
+  archive: { num:2, name:'자료실', story:'벽면 가득 카세트테이프. 수십 년 치 방송이 잠들어 있다. 당신은 숨을 깊이 들이마신다 — 아무 냄새도 나지 않는다.',
+    narrative:'코가 막혔나. 감기 기운인가. 당신은 또, 그렇게 생각하기로 한다.\n유리 보관함 안에 «자정의 주파수 — 최종회» 릴 테이프가 보인다.',
+    objects:[
+      { id:'q2', emoji:'📼', name:'카세트 보관함', tag:'QUIZ 02' },
+      { id:'g2', emoji:'🎞️', name:'끊어진 릴 테이프', tag:'GAME 02', gate:'q2', gateMsg:'보관함이 잠겨 있다. 3자리 코드가 필요하다.' }
+    ]},
+  writer: { num:3, name:'작가실', story:'책상 위에 사연 봉투 여섯 통. 소인이 없다. 우표도, 주소도. 그냥 도착해 있는 편지들.',
+    narrative:'사연들이 이상하다. 전부 \'떠난 누군가\'에 대한 이야기다.\n김치찌개. 금요일 야근. 동생과 다투던 방.\n어딘가에서 겪은 것 같은 장면들이 자꾸 겹친다. 잘 기억나지는 않지만.',
+    objects:[
+      { id:'q3', emoji:'✉️', name:'여섯 통의 사연', tag:'QUIZ 03' },
+      { id:'g3', emoji:'📝', name:'휴지통 속 원고', tag:'GAME 03', gate:'q3', gateMsg:'사연부터다. 순서가 있다는 느낌이 든다.' }
+    ]},
+  edit: { num:4, name:'편집실', story:'어둠 속에서 문이 쾅 닫혔다. 아주 가까이에서, 낮은 목소리 — "아직. 아직 읽으면 안 돼요."',
+    narrative:'당신은 편집실로 숨어들어 문을 잠갔다. 심장이 —\n심장이 뛰고 있나? 가슴에 손을 올린다. 잘 모르겠다. 손끝이 무디다.\n\n콘솔 위에 테이프 하나. 라벨: "게스트님께".',
+    objects:[
+      { id:'g4', emoji:'🎚️', name:'"게스트님께" 테이프', tag:'GAME 04' }
+    ]},
+  machine: { num:5, name:'송출 기계실', story:'방송국의 심장. 전원이 내려간 지 오래인데, 계기판 바늘 하나만 미세하게 떨리고 있다. 아직 무언가를 내보내고 있는 것처럼.',
+    narrative:'절차서가 벽에 붙어 있다: "점화는 순서다. 서두르면 전부 태운다."',
+    objects:[
+      { id:'g5', emoji:'🎛️', name:'진공관 송출기', tag:'GAME 05' },
+      { id:'note-glass', emoji:'🪟', name:'유리창', tag:'조사', type:'note', gate:'g5', gateMsg:'어두워서 아무것도 비치지 않는다.',
+        nTitle:'유리창', nBody:'진공관의 주황빛에 비친 유리창에, 당신의 얼굴이 —\n\n비치지 않는다.\n\n당신은 유리에 손을 댄다. 입김을 불어본다.\n김이 서리지 않는다.\n\n뒤에서, 이번에는 도망치지 않아도 될 것 같은 목소리:\n"…이제 아셨죠. 부스로 와요. 커피는 못 드리지만."' }
+    ]},
+  studiob: { num:6, name:'스튜디오 B · 서하율의 부스', story:'서하율은 부스 안에 앉아 있었다. 3년 전 실종된 그 DJ. 포스터보다 조금 야윈 얼굴로, 그는 웃는다.',
+    narrative:'"저도 이 방송국에 \'도착\'했어요. 3년 전, 터널에서.\n이 주파수는요, 떠나는 사람들이 마지막 말을 남기는 곳이에요.\n산 사람들은 잡음으로만 듣죠. 그래도 닿아요. 꼭 필요한 사람에게는."\n\n"당신을 계속 지켜본 건, 순서 때문이에요. 진실을 먼저 알면 사람은 부서져요.\n사연을 먼저 읽고, 자기 이야기는 마지막에. 그게 이 방송의 유일한 규칙이에요."\n\n그가 큐시트를 내민다. 5곡의 순서가 지워진, 그의 마지막 큐시트.\n"도와줄래요? 이게 끝나야 저도, 당신도, 다음으로 갈 수 있어요."',
+    objects:[
+      { id:'q4', emoji:'📋', name:'마지막 큐시트', tag:'QUIZ 04' }
+    ]},
+  roof: { num:7, name:'옥상 송신탑', story:'폭우는 그쳐 있었다. 아니, 처음부터 오지 않았는지도 모른다. 옥상 바닥이 말라 있다.',
+    narrative:'송신탑 너머로 교차로의 신호등이 보인다. 깜빡이는 노란불.\n당신은 그 교차로를 안다. 매일 건너던 곳이다.\n오늘도 건넜다. 자정이 되기 조금 전에. 노란 우산을 쓰고. 그리고 —\n\n기억은 거기서 끊긴다.',
+    objects:[
+      { id:'g6', emoji:'📡', name:'안테나', tag:'GAME 06' },
+      { id:'g7', emoji:'🔦', name:'수신 스피커', tag:'GAME 07', gate:'g6', gateMsg:'신호가 잡히지 않는다. 안테나부터.' }
+    ]},
+  studioa: { num:8, name:'스튜디오 A · 온에어', story:'붉은 램프가 당신을 기다린다. 문 앞의 방송 신청서. 이름을 묻지 않는다. 대신 — "당신은 언제 도착했습니까?"',
+    narrative:'멈춘 벽시계. 마른 옷. 냄새 없는 밤. 비치지 않는 유리. 김 서리지 않는 입김.\n모든 것이, 처음부터, 하나의 시각을 가리키고 있었다.',
+    objects:[
+      { id:'q5', emoji:'🚪', name:'방송 신청서', tag:'QUIZ 05' },
+      { id:'g8', emoji:'🎙️', name:'온에어 콘솔', tag:'GAME 08 · FINAL', gate:'q5', gateMsg:'문이 잠겨 있다. 신청서에 서명해야 한다.' }
+    ]}
+};
+
+const PUZZLE_ROOM = {};
+ROOM_ORDER.forEach(r => ROOMS[r].objects.forEach(o => { if (!o.type) PUZZLE_ROOM[o.id] = r; }));
+
+// ═════════════════════ SCREENS / NAV ═════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+}
+function startGame() {
+  buildRooms();
+  showScreen('game');
+  setTimeout(() => enterRoom('lobby'), 200);
+}
+function roomAccessible(r) {
+  const idx = ROOM_ORDER.indexOf(r);
+  for (let i = 0; i < idx; i++) {
+    const prev = ROOMS[ROOM_ORDER[i]];
+    for (const o of prev.objects) if (!o.type && !GS.solved[o.id]) return false;
+  }
+  return true;
+}
+function roomDone(r) {
+  return ROOMS[r].objects.every(o => o.type || GS.solved[o.id]);
+}
+function buildRooms() {
+  const nav = document.getElementById('room-nav');
+  nav.innerHTML = '';
+  ROOM_ORDER.forEach(r => {
+    const b = document.createElement('button');
+    b.className = 'room-btn'; b.id = 'nav-' + r;
+    b.textContent = ROOMS[r].num + '. ' + ROOMS[r].name.split(' · ')[0];
+    b.onclick = () => enterRoom(r);
+    nav.appendChild(b);
+  });
+  const body = document.getElementById('game-body');
+  body.innerHTML = '';
+  ROOM_ORDER.forEach(r => {
+    const sc = document.createElement('div');
+    sc.className = 'room-scene'; sc.id = 'scene-' + r;
+    const na = document.createElement('div');
+    na.className = 'narrative'; na.textContent = ROOMS[r].narrative;
+    sc.appendChild(na);
+    const objs = document.createElement('div'); objs.className = 'objects';
+    ROOMS[r].objects.forEach(o => {
+      const c = document.createElement('div');
+      c.className = 'obj-card'; c.id = 'obj-' + o.id;
+      c.innerHTML = '<div class="obj-emoji">' + o.emoji + '</div><div class="obj-name">' + o.name + '</div><div class="obj-tag">' + o.tag + '</div>';
+      c.onclick = () => clickObject(o);
+      objs.appendChild(c);
+    });
+    sc.appendChild(objs);
+    body.appendChild(sc);
+  });
+  updateNav();
+}
+function enterRoom(r) {
+  if (!roomAccessible(r)) { showNotif('아직 갈 수 없다. 이 층의 일이 끝나지 않았다.', 'danger'); return; }
+  GS.room = r;
+  document.querySelectorAll('.room-scene').forEach(s => s.classList.remove('active'));
+  document.getElementById('scene-' + r).classList.add('active');
+  document.getElementById('hud-chapter').textContent = 'CHAPTER ' + ROOMS[r].num + ' · ' + ROOMS[r].name;
+  updateNav();
+  if (!GS.visited.has(r)) {
+    GS.visited.add(r);
+    showChapter(r);
+  }
+}
+function updateNav() {
+  ROOM_ORDER.forEach(r => {
+    const b = document.getElementById('nav-' + r);
+    if (!b) return;
+    b.classList.toggle('locked', !roomAccessible(r));
+    b.classList.toggle('current', GS.room === r);
+    b.classList.toggle('done', roomDone(r));
+  });
+  ROOM_ORDER.forEach(r => ROOMS[r].objects.forEach(o => {
+    const c = document.getElementById('obj-' + o.id);
+    if (c && !o.type) c.classList.toggle('solved', !!GS.solved[o.id]);
+  }));
+}
+function showChapter(r) {
+  const ov = document.getElementById('chapter-overlay');
+  document.getElementById('ch-eyebrow').textContent = 'CHAPTER ' + ROOMS[r].num;
+  document.getElementById('ch-title').textContent = ROOMS[r].name;
+  document.getElementById('ch-sub').textContent = 'FM 91.9 · 23:57';
+  document.getElementById('ch-story').textContent = ROOMS[r].story;
+  ov.classList.add('show');
+  const dismiss = () => { ov.classList.remove('show'); ov.removeEventListener('click', dismiss); };
+  ov.addEventListener('click', dismiss);
+}
+function clickObject(o) {
+  if (o.gate && !GS.solved[o.gate]) { showNotif(o.gateMsg || '아직이다.', 'danger'); return; }
+  if (o.type === 'note') {
+    document.getElementById('note-title').textContent = o.nTitle;
+    document.getElementById('note-body').textContent = o.nBody;
+    openModal('note');
+    return;
+  }
+  openPuzzle(o.id);
+}
+function openModal(id) { document.getElementById('modal-' + id).classList.add('open'); }
+function closeModal(id) { document.getElementById('modal-' + id).classList.remove('open'); stopLoops(id); }
+function toggleHint(id) { document.getElementById('hint-' + id).classList.toggle('show'); }
+function toggleAns(id) { document.getElementById('ans-' + id).classList.toggle('show'); }
+function showNotif(msg, type) {
+  const n = document.createElement('div');
+  n.className = 'notif' + (type === 'danger' ? ' danger' : '');
+  n.textContent = msg;
+  document.getElementById('notif-area').appendChild(n);
+  setTimeout(() => n.remove(), 3600);
+}
+const INIT = {};
+function openPuzzle(id) {
+  if (GS.solved[id]) { showNotif('이미 끝난 일이다.'); return; }
+  openModal(id);
+  const initFn = window['init_' + id];
+  if (initFn) initFn(!INIT[id]);
+  INIT[id] = true;
+}
+function solvePuzzle(id, msg) {
+  if (GS.solved[id]) return;
+  GS.solved[id] = true;
+  updateNav();
+  setTimeout(() => {
+    closeModal(id);
+    if (msg) showNotif(msg);
+    const r = PUZZLE_ROOM[id];
+    if (roomDone(r)) {
+      const idx = ROOM_ORDER.indexOf(r);
+      if (ROOM_ORDER[idx + 1]) {
+        setTimeout(() => showNotif('✅ ' + ROOMS[r].name.split(' · ')[0] + ' 완료. 다음 구역이 열렸다.'), 700);
+      }
+    }
+    if (id === 'g8') setTimeout(() => showScreen('choice'), 900);
+  }, 900);
+}
+// running loops registry (cleanup on close)
+const LOOPS = {};
+function stopLoops(id) {
+  if (LOOPS[id]) { LOOPS[id].forEach(x => { cancelAnimationFrame(x.raf); clearTimeout(x.to); clearInterval(x.iv); }); LOOPS[id] = null; }
+}
+function regLoop(id, h) { (LOOPS[id] = LOOPS[id] || []).push(h); }
+function norm(s) { return (s || '').replace(/[\s,.·!?'"‘’“”]/g, '').toLowerCase(); }
+
+// ═════════════════════ QUIZ 1 — 순찰일지 (7043) ═════════════════════
+function checkQ1() {
+  const v = document.getElementById('q1-input').value.trim();
+  const st = document.getElementById('q1-status');
+  if (v === '7043') {
+    st.textContent = '✅ 사물함이 열린다. 마스터키 — 그리고 물에 번진 직원증 하나.';
+    st.className = 'status-text ok';
+    solvePuzzle('q1', '🗝️ 마스터키 획득. 얼굴을 알아볼 수 없는 직원증도 챙겼다.');
+  } else if (v === '3407') {
+    st.textContent = '자물쇠가 반쯤 돌다 멈춘다. …방향이 틀렸나.';
+    st.className = 'status-text bad';
+  } else {
+    st.textContent = '열리지 않는다.';
+    st.className = 'status-text bad';
+  }
+}
+
+// ═════════════════════ GAME 1 — 배전반 ═════════════════════
+const FUSE_ORDER = [4, 1, 6, 3, 5, 2];
+let fuseStep = 0;
+function init_g1(first) {
+  if (!first) return;
+  const stage = document.getElementById('fusebox-stage');
+  const dark = document.getElementById('fusebox-dark');
+  const ROMAN = ['Ⅰ','Ⅱ','Ⅲ','Ⅳ','Ⅴ','Ⅵ'];
+  const pos = [[280,40],[360,150],[430,50],[500,160],[580,60],[520,250]];
+  ROMAN.forEach((rm, i) => {
+    const sw = document.createElement('div');
+    sw.className = 'fuse-sw'; sw.id = 'fuse-' + (i + 1);
+    sw.style.left = pos[i][0] + 'px'; sw.style.top = pos[i][1] + 'px';
+    sw.innerHTML = '<div class="lever"></div><div class="lbl">' + rm + '</div>';
+    sw.onclick = () => fuseClick(i + 1);
+    stage.appendChild(sw);
+  });
+  const move = e => {
+    const r = stage.getBoundingClientRect();
+    const x = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
+    const y = (e.touches ? e.touches[0].clientY : e.clientY) - r.top;
+    dark.style.setProperty('--fx', x + 'px');
+    dark.style.setProperty('--fy', y + 'px');
+  };
+  stage.addEventListener('pointermove', move);
+  stage.addEventListener('touchmove', move, { passive: true });
+}
+function fuseClick(n) {
+  if (GS.solved.g1) return;
+  if (n === FUSE_ORDER[fuseStep]) {
+    document.getElementById('fuse-' + n).classList.add('on');
+    fuseStep++;
+    document.getElementById('g1-status').textContent = '퓨즈 ' + fuseStep + ' / 6';
+    if (fuseStep === 6) {
+      document.getElementById('g1-status').textContent = '✅ 전원 복구. 형광등이 몇 번 경련하더니 로비가 드러난다.';
+      document.getElementById('fusebox-dark').style.display = 'none';
+      solvePuzzle('g1', '💡 전기가 들어왔다. 이제 주변이 보인다.');
+    }
+  } else {
+    // spark + reset + silhouette
+    fuseStep = 0;
+    for (let i = 1; i <= 6; i++) document.getElementById('fuse-' + i).classList.remove('on');
+    document.getElementById('g1-status').textContent = '⚡ 스파크! 퓨즈가 전부 내려갔다. 퓨즈 0 / 6';
+    const gh = document.getElementById('fusebox-ghost');
+    gh.style.display = 'flex';
+    setTimeout(() => { gh.style.display = 'none'; }, 450);
+    showNotif('…어둠 반대편에, 방금, 누가 서 있지 않았나.', 'danger');
+  }
+}
+
+// ═════════════════════ QUIZ 2 — 카세트 (426) ═════════════════════
+function checkQ2() {
+  const v = document.getElementById('q2-input').value.trim();
+  const st = document.getElementById('q2-status');
+  if (v === '426') {
+    st.textContent = '✅ 보관함이 열린다. — 최종회 테이프의 중간이 끊어져 있다.';
+    st.className = 'status-text ok';
+    solvePuzzle('q2', '📼 최종회 릴 테이프를 꺼냈다. 단면이 너무 깔끔하다.');
+  } else {
+    st.textContent = '잠금장치가 꿈쩍도 하지 않는다.';
+    st.className = 'status-text bad';
+  }
+}
+
+// ═════════════════════ GAME 2 — 릴 테이프 ═════════════════════
+let reelOrder = [], reelSel = -1;
+function reelWave(x) { // x: 0..6 global
+  return Math.sin(x * 2.1) * Math.exp(-Math.pow(x - 3, 2) / 6) * 0.9 + Math.sin(x * 5.3) * 0.12;
+}
+function init_g2(first) {
+  if (first) {
+    reelOrder = [0,1,2,3,4,5];
+    do { reelOrder.sort(() => Math.random() - 0.5); } while (reelOrder.every((v, i) => v === i));
+  }
+  renderReel();
+}
+function renderReel() {
+  const strip = document.getElementById('reel-strip');
+  strip.innerHTML = '';
+  reelOrder.forEach((piece, slot) => {
+    const d = document.createElement('div');
+    d.className = 'reel-piece' + (slot === reelSel ? ' sel' : '');
+    const cv = document.createElement('canvas'); cv.width = 88; cv.height = 72;
+    const ctx = cv.getContext('2d');
+    ctx.strokeStyle = '#c9a84c'; ctx.lineWidth = 2; ctx.beginPath();
+    for (let px = 0; px <= 88; px++) {
+      const gx = piece + px / 88;
+      const y = 36 - reelWave(gx) * 30;
+      px === 0 ? ctx.moveTo(px, y) : ctx.lineTo(px, y);
+    }
+    ctx.stroke();
+    ctx.strokeStyle = '#3a2420'; ctx.strokeRect(0, 0, 88, 72);
+    d.appendChild(cv);
+    d.onclick = () => reelClick(slot);
+    strip.appendChild(d);
+  });
+}
+function reelClick(slot) {
+  if (reelSel === -1) { reelSel = slot; }
+  else if (reelSel === slot) { reelSel = -1; }
+  else {
+    const t = reelOrder[reelSel];
+    reelOrder[reelSel] = reelOrder[slot];
+    reelOrder[slot] = t;
+    reelSel = -1;
+  }
+  renderReel();
+}
+function checkReel() {
+  const st = document.getElementById('g2-status');
+  if (reelOrder.every((v, i) => v === i)) {
+    st.className = 'status-text ok';
+    st.textContent = '✅ 테이프가 데크에서 돌아간다…';
+    setTimeout(() => showNotif('『…저는 조금 더, 여기 남기로 했어요. 기다리는 사람이 있거든요. 언젠가, 꼭 올 사람이.』 — 서하율, 3년 전 최종회'), 600);
+    setTimeout(() => showNotif('복도에서 젖은 발소리. 문틈으로 보이는 복도에는 — 아무도 없다.', 'danger'), 2600);
+    solvePuzzle('g2');
+  } else {
+    st.className = 'status-text bad';
+    st.textContent = '테이프가 튄다. 파형이 이어지지 않는다.';
+  }
+}
+
+// ═════════════════════ QUIZ 3 — 사연 (지금나가지마) ═════════════════════
+const LETTERS = [
+  { n: 1, first: '지난 봄에 아들이 좋아하던 김치찌개를 끓였는데, 간을 봐줄 사람이 없더라고요…' },
+  { n: 2, first: '금요일마다 같이 야근하던 동기가 있었습니다. 회의실 자리가 아직 비어 있어요…' },
+  { n: 3, first: '나는 언니가 세상에서 제일 싫었는데, 언니 방을 아직 못 치우겠어…' },
+  { n: 4, first: '가을이 오면 같이 걷던 길이 있어요. 올해는 혼자 걸었습니다…' },
+  { n: 5, first: '지붕 고치는 걸 도와주던 청년이 있었는데, 이번 장마엔 물이 새요…' },
+  { n: 6, first: '마지막으로 통화했을 때, 그 애가 웃었어요. 그게 다행이에요…' }
+];
+function init_q3(first) {
+  if (!first) return;
+  const grid = document.getElementById('letter-grid');
+  const shuffled = LETTERS.slice().sort(() => Math.random() - 0.5);
+  shuffled.forEach(L => {
+    const d = document.createElement('div');
+    d.className = 'letter-env';
+    d.innerHTML = '<div class="notes-mark">' + '♪'.repeat(L.n) + '</div><div class="first-line">' + L.first + '</div>';
+    grid.appendChild(d);
+  });
+}
+function checkQ3() {
+  const v = norm(document.getElementById('q3-input').value);
+  const st = document.getElementById('q3-status');
+  if (v === '지금나가지마') {
+    st.className = 'status-text ok';
+    st.textContent = '✅ 타자기가 혼자 한 줄을 친다: 「접수되었습니다.」';
+    solvePuzzle('q3', '✉️ …경고일까. 부탁일까. 왜 여섯 명 모두, 떠난 사람 이야기를 했을까.');
+  } else {
+    st.className = 'status-text bad';
+    st.textContent = '타자기가 반응하지 않는다.';
+  }
+}
+
+// ═════════════════════ GAME 3 — 찢어진 원고 ═════════════════════
+const MS_TEXT = '저는 오늘 밤,\n교차로에서 ______\n\n(뒷부분은 잉크가 번져\n아직 읽을 수 없다)\n\n— 발신인: ______';
+let msRot = [];
+function init_g3(first) {
+  if (!first) return;
+  const grid = document.getElementById('ms-grid');
+  msRot = [];
+  for (let i = 0; i < 12; i++) {
+    let r;
+    do { r = Math.floor(Math.random() * 4); } while (i < 2 && r === 0);
+    msRot.push(r);
+    const p = document.createElement('div');
+    p.className = 'ms-piece'; p.id = 'ms-' + i;
+    const inner = document.createElement('div');
+    inner.className = 'inner';
+    inner.textContent = MS_TEXT;
+    const col = i % 4, row = Math.floor(i / 4);
+    inner.style.left = (-col * 108) + 'px';
+    inner.style.top = (-row * 76) + 'px';
+    p.appendChild(inner);
+    p.style.transform = 'rotate(' + r * 90 + 'deg)';
+    p.onclick = () => msClick(i);
+    grid.appendChild(p);
+  }
+  msStatus();
+}
+function msClick(i) {
+  if (GS.solved.g3) return;
+  msRot[i] = (msRot[i] + 1) % 4;
+  const p = document.getElementById('ms-' + i);
+  p.style.transform = 'rotate(' + msRot[i] * 90 + 'deg)';
+  p.classList.toggle('ok', msRot[i] === 0);
+  msStatus();
+  if (msRot.every(r => r === 0)) {
+    document.getElementById('g3-status').textContent = '✅ 원고가 맞춰졌다. 첫 줄 — "저는 오늘 밤, 교차로에서…"';
+    document.getElementById('g3-status').className = 'status-text ok';
+    setTimeout(() => showNotif('형광등이 나갔다. 문이 쾅 닫혔다. 아주 가까이에서 — "아직. 아직 읽으면 안 돼요."', 'danger'), 800);
+    solvePuzzle('g3');
+  }
+}
+function msStatus() {
+  const ok = msRot.filter(r => r === 0).length;
+  document.getElementById('g3-status').textContent = '맞춰진 조각 ' + ok + ' / 12';
+}
+
+// ═════════════════════ GAME 4 — 노이즈 제거 ═════════════════════
+const NS_T = { f: 3.4, a: 0.62 };
+let nsHold = 0, nsLast = 0;
+function init_g4(first) {
+  stopLoops('g4');
+  const h = { raf: 0 };
+  regLoop('g4', h);
+  nsHold = 0; nsLast = performance.now();
+  const cv = document.getElementById('noise-canvas');
+  const ctx = cv.getContext('2d');
+  const loop = (t) => {
+    if (!document.getElementById('modal-g4').classList.contains('open')) return;
+    const f = 1 + +document.getElementById('ns-freq').value / 100 * 5;
+    const a = +document.getElementById('ns-amp').value / 100;
+    const fl = +document.getElementById('ns-fil').value / 100;
+    const flT = 0.5 + (f - NS_T.f) * 0.15; // interference
+    document.getElementById('ns-freq-v').textContent = f.toFixed(2);
+    document.getElementById('ns-amp-v').textContent = a.toFixed(2);
+    document.getElementById('ns-fil-v').textContent = fl.toFixed(2);
+    const err = (Math.abs(f - NS_T.f) / 5 + Math.abs(a - NS_T.a) + Math.abs(fl - flT)) / 3 * 100;
+    // draw
+    ctx.clearRect(0, 0, 640, 190);
+    ctx.setLineDash([4, 5]); ctx.strokeStyle = 'rgba(200,180,140,0.35)'; ctx.lineWidth = 1.5;
+    drawWave(ctx, NS_T.f, NS_T.a, 0);
+    ctx.setLineDash([]); ctx.strokeStyle = '#c9a84c'; ctx.lineWidth = 2;
+    const noiseAmt = Math.min(1, err / 40);
+    drawWave(ctx, f, a, noiseAmt);
+    const st = document.getElementById('g4-status');
+    st.textContent = '오차: ' + err.toFixed(1) + '%';
+    st.className = 'status-text' + (err < 5 ? ' ok' : '');
+    document.getElementById('noise-voice').style.opacity = Math.max(0.15, 1 - err / 35);
+    const dt = t - nsLast; nsLast = t;
+    if (err < 5 && !GS.solved.g4) {
+      nsHold += dt;
+      st.textContent = '오차: ' + err.toFixed(1) + '% · 유지 ' + (nsHold / 1000).toFixed(1) + 's / 3.0s';
+      if (nsHold >= 3000) {
+        document.getElementById('noise-voice').textContent = '『놀라게 해서 미안해요. 쫓아온 게 아니에요. 원고는 순서가 있어요 — 마지막에 읽어야 해요. 그래야 당신이 무너지지 않아요. 기계실을 지나 제 부스로 와요.』';
+        document.getElementById('noise-voice').style.opacity = 1;
+        solvePuzzle('g4', '🎚️ 서하율의 목소리였다. 쫓아온 게 아니라 — 순서를 지키게 한 것이었다.');
+        return;
+      }
+    } else nsHold = 0;
+    h.raf = requestAnimationFrame(loop);
+  };
+  h.raf = requestAnimationFrame(loop);
+}
+function drawWave(ctx, f, a, noise) {
+  ctx.beginPath();
+  for (let x = 0; x <= 640; x += 2) {
+    const y = 95 - Math.sin(x / 640 * f * Math.PI * 2) * a * 70 - (noise ? (Math.random() - 0.5) * noise * 40 : 0);
+    x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+}
+
+// ═════════════════════ GAME 5 — 송출기 점화 ═════════════════════
+const IGN_SPEED = [1.4, 1.9, 2.5, 3.2, 4.0];
+let ignCur = 0, ignFail = 0;
+function init_g5(first) {
+  stopLoops('g5');
+  const h = { raf: 0 }; regLoop('g5', h);
+  const wrap = document.getElementById('gauges');
+  if (first) {
+    wrap.innerHTML = '';
+    for (let i = 0; i < 5; i++) {
+      const g = document.createElement('div');
+      g.className = 'gauge'; g.id = 'gauge-' + i;
+      const cv = document.createElement('canvas'); cv.width = 108; cv.height = 88; cv.id = 'gcv-' + i;
+      g.appendChild(cv);
+      const lb = document.createElement('div'); lb.className = 'glabel'; lb.textContent = '계기 ' + (i + 1);
+      g.appendChild(lb);
+      g.onclick = () => ignClick(i);
+      wrap.appendChild(g);
+    }
+  }
+  ignCur = 0; ignFail = 0;
+  document.querySelectorAll('.gauge').forEach(g => g.classList.remove('lit'));
+  ignStatus();
+  const loop = (t) => {
+    if (!document.getElementById('modal-g5').classList.contains('open')) return;
+    for (let i = 0; i < 5; i++) drawGauge(i, t / 1000);
+    h.raf = requestAnimationFrame(loop);
+  };
+  h.raf = requestAnimationFrame(loop);
+}
+function needleAngle(i, t) { return Math.sin(t * IGN_SPEED[i]) * 1.15; }
+function drawGauge(i, t) {
+  const cv = document.getElementById('gcv-' + i);
+  const ctx = cv.getContext('2d');
+  ctx.clearRect(0, 0, 108, 88);
+  const cx = 54, cy = 78, R = 60;
+  // arc
+  ctx.strokeStyle = '#3a2420'; ctx.lineWidth = 8; ctx.beginPath();
+  ctx.arc(cx, cy, R, Math.PI + 0.35, 2 * Math.PI - 0.35); ctx.stroke();
+  // green zone
+  ctx.strokeStyle = i < ignCur ? '#7fb069' : 'rgba(127,176,105,0.8)'; ctx.beginPath();
+  ctx.arc(cx, cy, R, 1.5 * Math.PI - 0.21, 1.5 * Math.PI + 0.21); ctx.stroke();
+  // needle
+  const a = i < ignCur ? 0 : needleAngle(i, t);
+  const na = 1.5 * Math.PI + a;
+  ctx.strokeStyle = i < ignCur ? '#ffb060' : '#d8cfc0'; ctx.lineWidth = 2.5; ctx.beginPath();
+  ctx.moveTo(cx, cy);
+  ctx.lineTo(cx + Math.cos(na) * (R - 8), cy + Math.sin(na) * (R - 8));
+  ctx.stroke();
+}
+function ignClick(i) {
+  if (GS.solved.g5) return;
+  const t = performance.now() / 1000;
+  if (i !== ignCur) { ignMiss('순서가 아니다. ' + (ignCur + 1) + '번 계기부터.'); return; }
+  if (Math.abs(needleAngle(i, t)) < 0.21) {
+    document.getElementById('gauge-' + i).classList.add('lit');
+    ignCur++;
+    ignStatus();
+    if (ignCur === 5) {
+      document.getElementById('g5-status').textContent = '✅ 송출기가 낮게 울기 시작한다. 진공관들이 주황빛으로 달아오른다.';
+      document.getElementById('g5-status').className = 'status-text ok';
+      solvePuzzle('g5', '🎛️ 송출기 가동. …유리창을 봐야 할 것 같다.');
+    }
+  } else ignMiss('바늘이 초록을 벗어났다.');
+}
+function ignMiss(msg) {
+  ignFail++;
+  if (ignFail >= 3) {
+    ignFail = 0; ignCur = 0;
+    document.querySelectorAll('.gauge').forEach(g => g.classList.remove('lit'));
+    showNotif('⚠️ 과부하! 계기가 전부 꺼졌다. 처음부터.', 'danger');
+  } else showNotif(msg, 'danger');
+  ignStatus();
+}
+function ignStatus() {
+  document.getElementById('g5-status').textContent = '계기 ' + ignCur + ' / 5 · 실패 ' + ignFail + ' / 3';
+}
+
+// ═════════════════════ QUIZ 4 — 큐시트 (37195) ═════════════════════
+function checkQ4() {
+  const v = document.getElementById('q4-input').value.trim();
+  const st = document.getElementById('q4-status');
+  if (v === '37195') {
+    st.className = 'status-text ok';
+    st.textContent = '✅ 파도 → 자정 → 목련 → 잡음 속에서 → 집으로. 큐시트가 완성됐다.';
+    setTimeout(() => showNotif('낡은 프린터가 혼자 움직인다. 「자정의 주파수 — 추모 특집」 …게스트 칸은, 아직 비어 있다.', 'danger'), 700);
+    solvePuzzle('q4');
+  } else {
+    st.className = 'status-text bad';
+    st.textContent = '서하율이 고개를 젓는다. "…그 순서는 아니에요."';
+  }
+}
+
+// ═════════════════════ GAME 6 — 안테나 ═════════════════════
+let antAz = 0, antEl = 0;
+function init_g6(first) {
+  if (first) {
+    antAz = 40 + Math.floor(Math.random() * 280);
+    antEl = 20 + Math.floor(Math.random() * 50);
+    const upd = () => {
+      const az = +document.getElementById('ant-az').value;
+      const el = +document.getElementById('ant-el').value;
+      document.getElementById('ant-az-v').textContent = az + '°';
+      document.getElementById('ant-el-v').textContent = el + '°';
+      let dAz = Math.abs(az - antAz); if (dAz > 180) dAz = 360 - dAz;
+      const dEl = Math.abs(el - antEl);
+      const azScore = Math.max(0, 100 - dAz * 1.2);
+      const elScore = Math.max(0, 100 - dEl * 2.2);
+      let s = azScore * 0.62 + elScore * 0.38 * (azScore / 100);
+      if (dAz <= 3 && dEl <= 3) s = 100;
+      document.getElementById('signal-fill').style.width = s + '%';
+      document.getElementById('g6-status').textContent = '신호 강도: ' + Math.round(s) + '%';
+      document.getElementById('ant-lock').style.display = s >= 97 ? '' : 'none';
+    };
+    document.getElementById('ant-az').addEventListener('input', upd);
+    document.getElementById('ant-el').addEventListener('input', upd);
+    upd();
+  }
+}
+function lockAntenna() {
+  document.getElementById('g6-status').textContent = '✅ 신호 고정. …누군가, 저편에서 응답하고 있다.';
+  document.getElementById('g6-status').className = 'status-text ok';
+  solvePuzzle('g6', '📡 규칙적인 점과 선이 들려온다. 수신 스피커로.');
+}
+
+// ═════════════════════ GAME 7 — 모스 (WELCOME) ═════════════════════
+const MORSE = { A:'·−', B:'−···', C:'−·−·', D:'−··', E:'·', G:'−−·', L:'·−··', M:'−−', O:'−−−', R:'·−·', S:'···', T:'−', W:'·−−' };
+const MORSE_WORD = 'WELCOME';
+function init_g7(first) {
+  if (first) {
+    const tbl = document.getElementById('morse-table');
+    Object.keys(MORSE).forEach(k => {
+      const c = document.createElement('div');
+      c.className = 'morse-cell';
+      c.textContent = k + ' ' + MORSE[k];
+      tbl.appendChild(c);
+    });
+  }
+  playMorse();
+}
+function playMorse() {
+  stopLoops('g7');
+  const lamp = document.getElementById('morse-lamp');
+  let delay = 400;
+  const DOT = 220, DASH = 620, GAP = 260, LGAP = 950;
+  MORSE_WORD.split('').forEach((ch, ci) => {
+    MORSE[ch].split('').forEach(sym => {
+      const dur = sym === '·' ? DOT : DASH;
+      const h1 = { to: setTimeout(() => lamp.classList.add('on'), delay) };
+      const h2 = { to: setTimeout(() => lamp.classList.remove('on'), delay + dur) };
+      regLoop('g7', h1); regLoop('g7', h2);
+      delay += dur + GAP;
+    });
+    if (ci < MORSE_WORD.length - 1) delay += LGAP;
+  });
+}
+function checkMorse() {
+  const v = document.getElementById('g7-input').value.trim().toUpperCase();
+  const st = document.getElementById('g7-status');
+  if (v === 'WELCOME') {
+    st.className = 'status-text ok';
+    st.textContent = '✅ WELCOME — 환영합니다.';
+    setTimeout(() => showNotif('환영한다고 한다. 이 신호는 당신이 도착하기 전부터, 계속, 보내지고 있었다.', 'danger'), 700);
+    solvePuzzle('g7');
+  } else {
+    st.className = 'status-text bad';
+    st.textContent = '해독이 어긋났다. 다시 들어보자.';
+  }
+}
+
+// ═════════════════════ QUIZ 5 — 23:57 ═════════════════════
+function checkQ5() {
+  const raw = document.getElementById('q5-input').value.trim();
+  const v = raw.replace(':', '');
+  const st = document.getElementById('q5-status');
+  if (v === '2357' || v === '1157') {
+    st.className = 'status-text ok';
+    st.textContent = '✅ 문이 열린다. — 아니, 받아들여진다.';
+    solvePuzzle('q5', '🚪 여섯 통의 사연이 책상에 다시 놓여 있다. 이제는, 다르게 읽힌다. 전부 당신에게 온 편지였다.');
+  } else if (v === '0000' || v === '2400') {
+    st.className = 'status-text bad';
+    st.textContent = '…시계는 자정에 닿지 못했다.';
+  } else {
+    st.className = 'status-text bad';
+    st.textContent = '신청서가 반응하지 않는다.';
+  }
+}
+
+// ═════════════════════ GAME 8 — 마지막 생방송 ═════════════════════
+let bcStage = 0, bcT0 = 0, bcSeq = [], bcNeedleT0 = 0;
+const BC_STAGES = ['시그널 송출', '오프닝 멘트', '사연 낭독', '곡 송출', '클로징'];
+function init_g8() {
+  stopLoops('g8');
+  bcStage = 0;
+  bcT0 = performance.now();
+  const h = { raf: 0 }; regLoop('g8', h);
+  const loop = () => {
+    if (!document.getElementById('modal-g8').classList.contains('open')) return;
+    const left = 60 - (performance.now() - bcT0) / 1000;
+    document.getElementById('bc-timer').textContent = Math.max(0, left).toFixed(1);
+    if (left <= 0 && !GS.solved.g8) { bcFail(); return; }
+    h.raf = requestAnimationFrame(loop);
+  };
+  h.raf = requestAnimationFrame(loop);
+  renderBcStage();
+}
+function bcFail() {
+  showNotif('📵 죽은 공기(dead air)가 흐른다… 방송사고. 처음부터.', 'danger');
+  init_g8();
+}
+function bcLabel() {
+  document.getElementById('bc-stage-label').textContent =
+    'STAGE ' + (bcStage + 1) + ' / 5 — ' + BC_STAGES[bcStage];
+}
+function bcNext() {
+  bcStage++;
+  if (bcStage >= 5) {
+    document.getElementById('g8-status').textContent = '✅ 방송 종료. ON AIR 램프가 천천히 숨을 고른다.';
+    document.getElementById('g8-status').className = 'status-text ok';
+    document.getElementById('hud-clock').textContent = '00:00';
+    solvePuzzle('g8');
+    return;
+  }
+  renderBcStage();
+}
+function renderBcStage() {
+  bcLabel();
+  const area = document.getElementById('bc-area');
+  area.innerHTML = '';
+  if (bcStage === 0) {
+    // signal timing
+    area.innerHTML = '<div id="bc-signal-bar"><div id="bc-signal-zone"></div><div id="bc-signal-needle"></div></div>' +
+      '<div style="text-align:center"><button class="bc-btn" onclick="bcSignal()">📶 큐!</button></div>' +
+      '<div class="status-text" style="text-align:center">바늘이 붉은 구간에 들어온 순간 — 큐.</div>';
+    bcNeedleT0 = performance.now();
+    const h = { iv: setInterval(() => {
+      const nd = document.getElementById('bc-signal-needle');
+      if (!nd) return;
+      const t = (performance.now() - bcNeedleT0) / 1000;
+      const p = Math.abs(((t * 0.62) % 2) - 1); // 0..1 triangle
+      nd.style.left = 'calc(' + (p * 100) + '% - 1px)';
+    }, 16) };
+    regLoop('g8', h);
+  } else if (bcStage === 1) {
+    const phrases = [
+      { o: 1, t: '안녕하세요, 자정의 주파수입니다' },
+      { o: 2, t: '오늘은 조금 특별한 밤이에요' },
+      { o: 3, t: '첫 사연부터, 천천히 읽어볼게요' }
+    ].sort(() => Math.random() - 0.5);
+    bcSeq = [];
+    const wrap = document.createElement('div');
+    wrap.style.textAlign = 'center';
+    phrases.forEach(p => {
+      const b = document.createElement('button');
+      b.className = 'bc-btn'; b.textContent = p.t;
+      b.onclick = () => {
+        if (p.o === bcSeq.length + 1) { bcSeq.push(p.o); b.classList.add('done');
+          if (bcSeq.length === 3) bcNext();
+        } else { bcSeq = []; wrap.querySelectorAll('.bc-btn').forEach(x => x.classList.remove('done')); showNotif('멘트가 꼬였다. 처음 문장부터.', 'danger'); }
+      };
+      wrap.appendChild(b);
+    });
+    area.appendChild(wrap);
+    area.insertAdjacentHTML('beforeend', '<div class="status-text" style="text-align:center">인사 → 분위기 → 진행. 방송의 순서대로.</div>');
+  } else if (bcStage === 2) {
+    bcSeq = [];
+    const wrap = document.createElement('div');
+    wrap.className = 'bc-track-row';
+    LETTERS.map(L => L.n).sort(() => Math.random() - 0.5).forEach(n => {
+      const b = document.createElement('button');
+      b.className = 'bc-track'; b.textContent = '♪' + n;
+      b.onclick = () => {
+        if (n === bcSeq.length + 1) { bcSeq.push(n); b.classList.add('done');
+          if (bcSeq.length === 6) bcNext();
+        } else { bcSeq = []; wrap.querySelectorAll('.bc-track').forEach(x => x.classList.remove('done')); showNotif('사연 순서가 아니다. ♪ 하나부터.', 'danger'); }
+      };
+      wrap.appendChild(b);
+    });
+    area.appendChild(wrap);
+    area.insertAdjacentHTML('beforeend', '<div class="status-text" style="text-align:center">여섯 통의 사연을, 그날의 순서대로.</div>');
+  } else if (bcStage === 3) {
+    bcSeq = [];
+    const ORDER = [3, 7, 1, 9, 5];
+    const wrap = document.createElement('div');
+    wrap.className = 'bc-track-row';
+    [1, 3, 5, 7, 9].sort(() => Math.random() - 0.5).forEach(n => {
+      const b = document.createElement('button');
+      b.className = 'bc-track'; b.textContent = n;
+      b.onclick = () => {
+        if (n === ORDER[bcSeq.length]) { bcSeq.push(n); b.classList.add('done');
+          if (bcSeq.length === 5) bcNext();
+        } else { bcSeq = []; wrap.querySelectorAll('.bc-track').forEach(x => x.classList.remove('done')); showNotif('트랙 순서가 아니다. 완성한 큐시트를 떠올려라.', 'danger'); }
+      };
+      wrap.appendChild(b);
+    });
+    area.appendChild(wrap);
+    area.insertAdjacentHTML('beforeend', '<div class="status-text" style="text-align:center">완성된 큐시트의 순서대로, 트랙 번호를.</div>');
+  } else if (bcStage === 4) {
+    area.innerHTML = '<div style="text-align:center; margin-bottom:10px; color:var(--dim); font-size:0.88rem;">마지막 한 문장. 마이크에 대고 —</div>' +
+      '<div class="answer-row" style="justify-content:center">' +
+      '<input class="answer-input" id="bc-close-input" style="width:300px" placeholder="잘 지내요, ...">' +
+      '<button class="btn-primary" onclick="bcClosing()">🎙️ 송출</button></div>' +
+      '<div class="status-text" style="text-align:center">그들이 마지막으로 듣고 싶어 할, 짧고 담담한 인사.</div>';
+  }
+}
+function bcSignal() {
+  const t = (performance.now() - bcNeedleT0) / 1000;
+  const p = Math.abs(((t * 0.62) % 2) - 1);
+  if (p >= 0.62 && p <= 0.76) bcNext();
+  else showNotif('타이밍이 어긋났다. 바늘을 봐라.', 'danger');
+}
+function bcClosing() {
+  const v = norm(document.getElementById('bc-close-input').value);
+  if (v.includes('잘지내요')) bcNext();
+  else showNotif('…그 말이 아니다. 조금 더 담담하게. 안부처럼.', 'danger');
+}
+
+// ═════════════════════ ENDING ═════════════════════
+function showEnding(x) { showScreen('ending-' + x); }
+
+</script>
+</body>
+</html>
