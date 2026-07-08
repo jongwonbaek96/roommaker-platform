@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>자정의 주파수 — FM 91.9 목련방송</title>
-<!-- v1.1 feedback update -->
+<!-- v1.2 mobile responsive -->
 
 <style>
 :root {
@@ -18,7 +18,8 @@ html, body { height: 100%; }
 body {
   background: var(--bg); color: var(--text);
   font-family: 'Malgun Gothic','맑은 고딕',sans-serif;
-  height: 100vh; overflow: hidden; user-select: none;
+  height: 100vh; height: 100dvh; overflow: hidden; user-select: none;
+  -webkit-text-size-adjust: 100%;
 }
 body::after {
   content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 9999;
@@ -126,7 +127,7 @@ em { color: var(--gold); font-style: normal; }
 .answer-row { display: flex; gap: 8px; align-items: center; margin: 14px 0; flex-wrap: wrap; }
 .answer-input { background: #0d0807; border: 1px solid var(--border); color: var(--gold);
   padding: 10px 14px; border-radius: 6px; font-size: 1.05rem; font-family: monospace;
-  letter-spacing: 0.2em; width: 220px; }
+  letter-spacing: 0.2em; width: 220px; max-width: 100%; }
 .answer-input:focus { outline: none; border-color: var(--gold); }
 .status-text { min-height: 22px; font-size: 0.85rem; margin: 8px 0; color: var(--dim); }
 .status-text.ok { color: var(--green); }
@@ -158,12 +159,13 @@ table.label-table td { color: var(--text); }
 #fusebox-dark { position: absolute; inset: 0; z-index: 5; pointer-events: none;
   background: radial-gradient(circle 95px at var(--fx,50%) var(--fy,50%), transparent 0 60px, rgba(0,0,0,0.97) 100px); }
 .fuse-sw { position: absolute; width: 54px; height: 74px; background: var(--panel2);
+  transform: translateX(-50%);
   border: 1px solid var(--border); border-radius: 6px; cursor: pointer; z-index: 2;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
 .fuse-sw .lever { width: 14px; height: 30px; background: #3a2a20; border-radius: 4px; transition: all 0.2s; }
 .fuse-sw.on .lever { background: var(--green); box-shadow: 0 0 10px rgba(127,176,105,0.7); }
 .fuse-sw .lbl { font-size: 0.75rem; color: var(--dim); font-family: monospace; }
-#fusebox-diagram { position: absolute; left: 14px; top: 14px; width: 200px; background: #14100a;
+#fusebox-diagram { position: absolute; left: 14px; top: 14px; width: 200px; max-width: 42%; background: #14100a;
   border: 1px solid #33251d; padding: 10px 12px; font-size: 0.75rem; color: #b8a880;
   border-radius: 6px; z-index: 2; line-height: 1.7; }
 #fusebox-ghost { position: absolute; inset: 0; z-index: 6; background: rgba(0,0,0,0.85);
@@ -208,7 +210,7 @@ table.label-table td { color: var(--text); }
 /* ═══ GAME 5: IGNITION ═══ */
 #gauges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 12px; }
 .gauge { width: 108px; text-align: center; cursor: pointer; }
-.gauge canvas { background: #0d0807; border: 1px solid var(--border); border-radius: 8px; width: 108px; height: 88px; }
+.gauge canvas { background: #0d0807; border: 1px solid var(--border); border-radius: 8px; width: 100%; height: auto; }
 .gauge.lit canvas { border-color: #7a4a20; box-shadow: 0 0 14px rgba(255,140,50,0.35); }
 .gauge .glabel { font-size: 0.72rem; color: var(--dim); margin-top: 4px; }
 
@@ -266,10 +268,36 @@ table.label-table td { color: var(--text); }
 .choice-card .c-desc { font-size: 0.8rem; color: var(--dim); line-height: 1.7; }
 
 @media (max-width: 640px) {
-  .title-main { font-size: 2rem; }
-  #ms-grid { grid-template-columns: repeat(4, 76px); }
-  .ms-piece { width: 76px; height: 56px; }
-  .ms-piece .inner { width: 304px; height: 168px; font-size: 0.55rem; }
+  .title-main { font-size: 1.9rem; }
+  .title-sub { font-size: 0.8rem; letter-spacing: 0.15em; }
+  .ch-title { font-size: 1.7rem; }
+  .ch-story { font-size: 0.85rem; }
+  .prologue-box { padding: 26px 20px; font-size: 0.95rem; }
+  #game-body { padding: 14px 10px 60px; }
+  .obj-card { width: calc(50% - 6px); padding: 12px 8px; }
+  .modal-box { padding: 20px 14px; }
+  .modal-heading { font-size: 1.1rem; }
+  .modal-desc { font-size: 0.82rem; }
+  .doc-paper { font-size: 0.8rem; padding: 12px 12px; }
+  .answer-input { width: 150px; font-size: 0.95rem; }
+  table.label-table { font-size: 0.7rem; }
+  table.label-table th, table.label-table td { padding: 5px 4px; }
+  #fusebox-stage { height: 300px; }
+  #fusebox-diagram { font-size: 0.65rem; padding: 8px 8px; line-height: 1.5; }
+  .fuse-sw { width: 46px; height: 64px; }
+  .fuse-sw .lever { width: 12px; height: 24px; }
+  .reel-piece { width: 44px; height: 48px; }
+  .letter-env { width: calc(50% - 5px); padding: 8px; }
+  .letter-env .first-line { font-size: 0.7rem; }
+  .gauge { width: 82px; }
+  .gauge .glabel { font-size: 0.65rem; }
+  .bc-track { width: 46px; height: 46px; font-size: 1rem; }
+  .bc-btn { padding: 10px 12px; font-size: 0.82rem; }
+  .choice-card { width: 100%; max-width: 320px; }
+  .ending-title { font-size: 1.6rem; }
+  .ending-body { font-size: 0.87rem; }
+  #room-nav { padding: 8px 10px; gap: 4px; }
+  .room-btn { padding: 5px 8px; font-size: 0.7rem; }
 }
 </style>
 </head>
@@ -921,11 +949,11 @@ function init_g1(first) {
   const stage = document.getElementById('fusebox-stage');
   const dark = document.getElementById('fusebox-dark');
   const ROMAN = ['Ⅰ','Ⅱ','Ⅲ','Ⅳ','Ⅴ','Ⅵ'];
-  const pos = [[280,40],[360,150],[430,50],[500,160],[580,60],[520,250]];
+  const pos = [[55,14],[64,50],[73,18],[82,54],[91,22],[80,72]]; // percent of stage
   ROMAN.forEach((rm, i) => {
     const sw = document.createElement('div');
     sw.className = 'fuse-sw'; sw.id = 'fuse-' + (i + 1);
-    sw.style.left = pos[i][0] + 'px'; sw.style.top = pos[i][1] + 'px';
+    sw.style.left = pos[i][0] + '%'; sw.style.top = pos[i][1] + '%';
     sw.innerHTML = '<div class="lever"></div><div class="lbl">' + rm + '</div>';
     sw.onclick = () => fuseClick(i + 1);
     stage.appendChild(sw);
@@ -1074,6 +1102,9 @@ let msRot = [];
 function init_g3(first) {
   if (!first) return;
   const grid = document.getElementById('ms-grid');
+  const PW = Math.min(108, Math.floor((Math.min(window.innerWidth, 600) - 76) / 4));
+  const PH = Math.round(PW * 76 / 108);
+  grid.style.gridTemplateColumns = 'repeat(4, ' + PW + 'px)';
   msRot = [];
   for (let i = 0; i < 12; i++) {
     let r;
@@ -1081,12 +1112,15 @@ function init_g3(first) {
     msRot.push(r);
     const p = document.createElement('div');
     p.className = 'ms-piece'; p.id = 'ms-' + i;
+    p.style.width = PW + 'px'; p.style.height = PH + 'px';
     const inner = document.createElement('div');
     inner.className = 'inner';
     inner.textContent = MS_TEXT;
+    inner.style.width = (PW * 4) + 'px'; inner.style.height = (PH * 3) + 'px';
+    inner.style.fontSize = PW < 95 ? '0.55rem' : '0.72rem';
     const col = i % 4, row = Math.floor(i / 4);
-    inner.style.left = (-col * 108) + 'px';
-    inner.style.top = (-row * 76) + 'px';
+    inner.style.left = (-col * PW) + 'px';
+    inner.style.top = (-row * PH) + 'px';
     p.appendChild(inner);
     p.style.transform = 'rotate(' + r * 90 + 'deg)';
     p.onclick = () => msClick(i);

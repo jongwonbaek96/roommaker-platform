@@ -1,6 +1,71 @@
 {
-  "updatedAt": "2026-07-07",
+  "updatedAt": "2026-07-08",
   "games": [
+    {
+      "id": "colorless-white",
+      "title": "색깔없는세상 : 왱?",
+      "subtitle": "하양의 그림일기 — 에피소드 5/5",
+      "genre": "잔혹동화 방탈출",
+      "file": "games/colorless-white.html",
+      "status": "완성",
+      "puzzles": 30,
+      "accent": "#f0efe9",
+      "bg": "#101012",
+      "emoji": "🤍",
+      "createdAt": "2026-07-08"
+    },
+    {
+      "id": "colorless-green",
+      "title": "색깔없는세상 : APT APT",
+      "subtitle": "초록의 그림일기 — 에피소드 4/5",
+      "genre": "잔혹동화 방탈출",
+      "file": "games/colorless-green.html",
+      "status": "완성",
+      "puzzles": 30,
+      "accent": "#3ddc84",
+      "bg": "#06100a",
+      "emoji": "🍀",
+      "createdAt": "2026-07-08"
+    },
+    {
+      "id": "colorless-blue",
+      "title": "색깔없는세상 : 수능만점",
+      "subtitle": "파랑의 그림일기 — 에피소드 3/5",
+      "genre": "잔혹동화 방탈출",
+      "file": "games/colorless-blue.html",
+      "status": "완성",
+      "puzzles": 30,
+      "accent": "#6d8cff",
+      "bg": "#05070f",
+      "emoji": "📘",
+      "createdAt": "2026-07-08"
+    },
+    {
+      "id": "colorless-yellow",
+      "title": "색깔없는세상 : 나는 부자가 될 거에요!",
+      "subtitle": "노랑의 그림일기 — 에피소드 2/5",
+      "genre": "잔혹동화 방탈출",
+      "file": "games/colorless-yellow.html",
+      "status": "완성",
+      "puzzles": 30,
+      "accent": "#ffd23f",
+      "bg": "#0e0c04",
+      "emoji": "🪙",
+      "createdAt": "2026-07-08"
+    },
+    {
+      "id": "colorless-red",
+      "title": "색깔없는세상 : 난 오늘도 일을 나간다",
+      "subtitle": "빨강의 그림일기 — 에피소드 1/5",
+      "genre": "잔혹동화 방탈출",
+      "file": "games/colorless-red.html",
+      "status": "완성",
+      "puzzles": 30,
+      "accent": "#ff5d76",
+      "bg": "#100609",
+      "emoji": "🌹",
+      "createdAt": "2026-07-08"
+    },
     {
       "id": "midnight-frequency",
       "title": "자정의 주파수",
