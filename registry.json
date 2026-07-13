@@ -1,6 +1,32 @@
 {
-  "updatedAt": "2026-07-08",
+  "updatedAt": "2026-07-13",
   "games": [
+    {
+      "id": "sugar-melts",
+      "title": "설탕은 녹는다",
+      "subtitle": "헨젤과 그레텔 검증 보고서",
+      "genre": "동화 재해석 미스터리 스릴러",
+      "file": "games/sugar-melts.html",
+      "status": "완성",
+      "puzzles": 33,
+      "accent": "#E8B04B",
+      "bg": "#232220",
+      "emoji": "🍬",
+      "createdAt": "2026-07-13"
+    },
+    {
+      "id": "dragon-heart",
+      "title": "용의 심장",
+      "subtitle": "이그나로크의 둥지에서 살아나가라",
+      "genre": "판타지",
+      "file": "games/dragon-heart.html",
+      "status": "완성",
+      "puzzles": 32,
+      "accent": "#ff6b2b",
+      "bg": "#0c0604",
+      "emoji": "🐉",
+      "createdAt": "2026-07-10"
+    },
     {
       "id": "colorless-white",
       "title": "색깔없는세상 : 왱?",

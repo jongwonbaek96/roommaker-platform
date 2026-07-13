@@ -1,0 +1,1960 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>설탕은 녹는다 — 헨젤과 그레텔 검증 보고서</title>
+<style>
+:root{
+  --cream:#F6E7C9; --caramel:#C9803D; --ginger:#8A5A2B; --cinna:#A84A2A;
+  --honey:#E8B04B; --mint:#9FCFBE;
+  --ash:#4B4A46; --slate:#5B6B78; --bleach:#D8D2C2; --char:#232220; --ember:#B0533A;
+  --moon:#7FA3BF; --ice:#CBD8E0; --midnight:#1C2530;
+  --serif:'Nanum Myeongjo','Apple SD Gothic Neo','Noto Serif KR',Georgia,'Times New Roman',Batang,serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--serif);background:var(--char);color:var(--cream);font-size:15px;line-height:1.6}
+button{font-family:var(--serif);cursor:pointer;border:none;background:none;color:inherit}
+input{font-family:var(--serif)}
+.hidden{display:none!important}
+
+/* ===== 화면 공통 ===== */
+.screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;padding:20px;text-align:center}
+#scrTitle{background:linear-gradient(180deg,#1C2530 0%,#2c3a4a 55%,#4B4A46 100%);z-index:40}
+#titleBgImg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.55}
+#titleFall{position:absolute;inset:0;background:linear-gradient(180deg,#1C2530,#3a4a5c 60%,#8A5A2B 130%)}
+#titleFall .cottage{position:absolute;left:50%;bottom:18%;transform:translateX(-50%);width:180px;height:130px;background:#8A5A2B;border-radius:8px 8px 0 0}
+#titleFall .cottage:before{content:'';position:absolute;left:-20px;top:-56px;border-left:110px solid transparent;border-right:110px solid transparent;border-bottom:60px solid #F6E7C9}
+#titleFall .cottage .win{position:absolute;left:30px;top:40px;width:34px;height:40px;background:radial-gradient(circle,#E8B04B,#A84A2A);border-radius:4px;box-shadow:80px 0 0 #E8B04B}
+.titleInner{position:relative;z-index:2;max-width:560px}
+h1.gameTitle{font-size:clamp(34px,9vw,58px);letter-spacing:.18em;color:var(--cream);text-shadow:0 2px 18px rgba(0,0,0,.7);font-weight:700}
+.gameSub{color:var(--honey);letter-spacing:.3em;margin:10px 0 34px;font-size:13px;opacity:.9}
+.btnMain{display:block;width:240px;margin:10px auto;padding:13px 0;border:1px solid var(--honey);color:var(--cream);background:rgba(35,34,32,.55);letter-spacing:.2em;font-size:16px;border-radius:3px;transition:.2s}
+.btnMain:hover{background:var(--honey);color:var(--char)}
+.btnMain:disabled{opacity:.35;pointer-events:none}
+.titleNote{margin-top:26px;font-size:11px;opacity:.55;letter-spacing:.1em}
+
+/* ===== 프롤로그 ===== */
+#scrPrologue{background:radial-gradient(ellipse at 50% 30%,#3b3428,#232220 75%);z-index:39}
+.appointment{max-width:520px;background:linear-gradient(175deg,#f2e4c4,#e4d2ab);color:#3c2c17;padding:34px 26px;border-radius:2px;box-shadow:0 10px 50px rgba(0,0,0,.6);position:relative;text-align:left}
+.appointment:before{content:'王立 이야기 記錄局';position:absolute;top:12px;right:16px;font-size:10px;letter-spacing:.2em;color:#8A5A2B;opacity:.7}
+.appointment h2{text-align:center;letter-spacing:.4em;font-size:19px;margin-bottom:18px;color:#6b4a1f}
+.appointment p{font-size:14px;margin-bottom:12px;line-height:1.85}
+.sealWax{width:52px;height:52px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#c9603a,#8a2f1a);margin:14px auto 0;display:flex;align-items:center;justify-content:center;color:#f2e4c4;font-size:11px;letter-spacing:.1em;box-shadow:0 3px 8px rgba(0,0,0,.35)}
+#nameInput{display:block;width:100%;margin:8px 0 4px;padding:11px;border:none;border-bottom:2px solid #8A5A2B;background:rgba(255,255,255,.35);font-size:17px;text-align:center;letter-spacing:.15em;color:#3c2c17;outline:none}
+.signLabel{font-size:12px;color:#8A5A2B;text-align:center}
+
+/* ===== 게임 화면 레이아웃 ===== */
+#scrGame{position:fixed;inset:0;display:none;flex-direction:column;background:var(--char);z-index:5}
+#scrGame.on{display:flex}
+#hud{flex:0 0 auto;display:flex;align-items:center;gap:8px;padding:7px 10px;background:linear-gradient(180deg,#2e2317,#241c12);border-bottom:1px solid rgba(232,176,75,.25);z-index:20}
+#hudChapter{font-size:12px;color:var(--honey);letter-spacing:.08em;white-space:nowrap}
+#hudRoom{font-size:13px;color:var(--cream);flex:1;text-align:center;letter-spacing:.12em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hudCnt{font-size:11px;padding:3px 7px;border-radius:10px;border:1px solid rgba(246,231,201,.3);white-space:nowrap}
+.hudCnt.over{color:#e88a6a;border-color:#e88a6a}
+.hudBtn{font-size:15px;padding:4px 8px;border-radius:6px;border:1px solid rgba(246,231,201,.25);line-height:1}
+#gameBody{flex:1;display:flex;min-height:0}
+#stage{flex:1;position:relative;min-width:0;display:flex;flex-direction:column}
+#roomView{flex:1;position:relative;overflow:hidden;background:#111}
+#roomBg,#roomBgNight{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .8s}
+#roomFallback{position:absolute;inset:0}
+#roomTint{position:absolute;inset:0;pointer-events:none;transition:background .8s}
+#hotspots{position:absolute;inset:0}
+.hs{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;border:none;transform:translate(-50%,-50%);z-index:3}
+.hs .dot{width:38px;height:38px;border-radius:50%;background:rgba(232,176,75,.16);border:2px solid rgba(232,176,75,.85);display:flex;align-items:center;justify-content:center;font-size:17px;animation:hsPulse 2.4s infinite;backdrop-filter:blur(1px)}
+.hs.done .dot{border-color:rgba(159,207,190,.7);background:rgba(159,207,190,.10);animation:none;opacity:.65}
+.hs.night .dot{border-color:rgba(203,216,224,.85);background:rgba(127,163,191,.18)}
+.hs .lbl{margin-top:3px;font-size:10px;color:var(--cream);background:rgba(28,25,20,.72);padding:2px 7px;border-radius:8px;letter-spacing:.05em;white-space:nowrap}
+@keyframes hsPulse{0%,100%{box-shadow:0 0 0 0 rgba(232,176,75,.45)}55%{box-shadow:0 0 0 11px rgba(232,176,75,0)}}
+#roomDesc{position:absolute;left:0;right:0;bottom:0;padding:9px 14px;font-size:12px;color:rgba(246,231,201,.9);background:linear-gradient(0deg,rgba(20,17,12,.85),transparent);pointer-events:none;z-index:4;letter-spacing:.03em}
+
+/* 인벤토리 */
+#invbar{flex:0 0 auto;display:flex;gap:6px;align-items:center;padding:6px 8px;background:#20180f;border-top:1px solid rgba(232,176,75,.2);overflow-x:auto;min-height:52px}
+#invbar .invLabel{font-size:10px;color:var(--honey);opacity:.7;writing-mode:vertical-rl;letter-spacing:.2em;flex:0 0 auto}
+.invItem{flex:0 0 auto;width:44px;height:44px;border-radius:6px;border:1px solid rgba(246,231,201,.3);background:#2c2216;display:flex;align-items:center;justify-content:center;font-size:20px;position:relative}
+.invItem.sel{border-color:var(--honey);box-shadow:0 0 8px rgba(232,176,75,.6);background:#3a2c19}
+.invItem .nm{position:absolute;bottom:-2px;left:0;right:0;font-size:8px;color:var(--cream);background:rgba(0,0,0,.5);border-radius:0 0 5px 5px;overflow:hidden;white-space:nowrap}
+
+/* 내비게이션 (맵) */
+#nav{flex:0 0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:5px;padding:7px;background:#191410;border-top:1px solid rgba(232,176,75,.25)}
+.navBtn{padding:8px 2px;border-radius:6px;border:1px solid rgba(246,231,201,.22);font-size:11.5px;letter-spacing:.02em;color:var(--bleach);background:#241d14;transition:.15s;position:relative}
+.navBtn.cur{border-color:var(--honey);color:var(--honey);background:#33270f}
+.navBtn.lock{opacity:.28;pointer-events:none}
+.navBtn.newRoom:after{content:'●';position:absolute;top:2px;right:5px;font-size:7px;color:var(--cinna)}
+@media(min-width:860px){
+  #gameBody{flex-direction:row}
+  #nav{grid-template-columns:1fr;order:-1;width:150px;border-top:none;border-right:1px solid rgba(232,176,75,.25);align-content:start;padding-top:14px}
+  .navBtn{padding:11px 6px;font-size:13px}
+}
+
+/* ===== 모달 ===== */
+#modalWrap{position:fixed;inset:0;background:rgba(12,10,8,.78);z-index:60;display:none;align-items:center;justify-content:center;padding:12px}
+#modalWrap.on{display:flex}
+#modal{width:100%;max-width:640px;max-height:92vh;background:linear-gradient(178deg,#2e261a,#221b11);border:1px solid rgba(232,176,75,.45);border-radius:8px;display:flex;flex-direction:column;box-shadow:0 14px 60px rgba(0,0,0,.7)}
+#modal.night{background:linear-gradient(178deg,#222b36,#171e28);border-color:rgba(203,216,224,.45)}
+#modalHead{flex:0 0 auto;display:flex;align-items:center;gap:8px;padding:11px 14px;border-bottom:1px solid rgba(246,231,201,.15)}
+#modalTitle{flex:1;font-size:15px;color:var(--honey);letter-spacing:.06em}
+#modal.night #modalTitle{color:var(--ice)}
+.modalTag{font-size:10px;padding:2px 7px;border-radius:9px;border:1px solid rgba(246,231,201,.35);color:var(--bleach)}
+#modalBody{flex:1;overflow-y:auto;padding:16px 15px;font-size:14px}
+#modalFoot{flex:0 0 auto;display:flex;gap:8px;padding:10px 14px;border-top:1px solid rgba(246,231,201,.12);flex-wrap:wrap}
+.mbtn{padding:9px 15px;border-radius:5px;border:1px solid rgba(246,231,201,.4);color:var(--cream);font-size:13px;letter-spacing:.05em;background:rgba(255,255,255,.03)}
+.mbtn.gold{border-color:var(--honey);color:var(--honey)}
+.mbtn.gold:not(:disabled):hover{background:var(--honey);color:var(--char)}
+.mbtn:disabled{opacity:.35;pointer-events:none}
+.mbtn.warn{border-color:var(--cinna);color:#e8a48a}
+.hintBox{margin-top:12px;padding:10px 12px;background:rgba(232,176,75,.08);border-left:3px solid var(--honey);font-size:13px;border-radius:0 5px 5px 0}
+.ansBox{margin-top:12px;padding:12px;background:rgba(168,74,42,.13);border-left:3px solid var(--cinna);font-size:13px;border-radius:0 5px 5px 0}
+.slotDesc{color:var(--bleach);font-size:13.5px;margin-bottom:14px;line-height:1.75}
+.clue{background:rgba(246,231,201,.07);border:1px dashed rgba(246,231,201,.3);padding:9px 11px;border-radius:5px;font-size:13px;margin:9px 0;color:var(--cream)}
+
+/* 퍼즐 공용 부품 */
+.grid{display:grid;gap:5px;justify-content:center;margin:12px auto}
+.cell{border:1px solid rgba(246,231,201,.3);border-radius:4px;background:#1d1710;display:flex;align-items:center;justify-content:center;font-size:14px;min-height:40px;position:relative;color:var(--cream)}
+.cell.on{border-color:var(--honey);background:#3a2c14}
+.cell.ok{border-color:var(--mint);background:rgba(159,207,190,.12)}
+.cell.bad{border-color:var(--cinna)}
+.badge{position:absolute;top:-6px;left:-6px;width:20px;height:20px;border-radius:50%;background:var(--honey);color:var(--char);font-size:11px;display:flex;align-items:center;justify-content:center;font-weight:bold;z-index:2}
+.cardRow{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0}
+.pcard{border:1px solid rgba(246,231,201,.35);border-radius:6px;background:#241c11;padding:10px 8px;font-size:12px;text-align:center;min-width:88px;position:relative;color:var(--cream)}
+.pcard.sel{border-color:var(--honey);background:#39290f}
+.pcard.dim{opacity:.4}
+.dialWrap{display:flex;gap:14px;justify-content:center;margin:14px 0}
+.dial{display:flex;flex-direction:column;align-items:center;gap:6px}
+.dial .val{width:52px;height:52px;border:2px solid var(--honey);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--cream);background:#1d1710}
+.dial button{font-size:16px;padding:3px 14px;border:1px solid rgba(246,231,201,.35);border-radius:4px;color:var(--cream)}
+.numpadIn{display:block;width:150px;margin:10px auto;padding:10px;font-size:22px;text-align:center;background:#17110b;border:1px solid var(--honey);border-radius:6px;color:var(--cream);outline:none}
+.gauge{width:100%;height:16px;background:#17110b;border:1px solid rgba(246,231,201,.3);border-radius:8px;overflow:hidden;margin:8px 0}
+.gauge .fill{height:100%;background:linear-gradient(90deg,var(--caramel),var(--honey));width:0%;transition:width .1s linear}
+.bigBtn{display:block;margin:12px auto;padding:14px 34px;border:2px solid var(--honey);border-radius:8px;color:var(--honey);font-size:16px;letter-spacing:.1em;background:rgba(232,176,75,.06)}
+.bigBtn:active{background:var(--honey);color:var(--char)}
+.progRow{text-align:center;font-size:12px;color:var(--bleach);margin:6px 0}
+.holeBtn{width:46px;height:46px;border-radius:50%;border:2px solid var(--bleach);background:#17110b;font-size:11px;color:var(--bleach)}
+.holeBtn.closed{background:var(--bleach);color:var(--char)}
+.simonBtn{width:52px;height:52px;border-radius:8px;border:2px solid rgba(246,231,201,.4);background:#1d1710;font-size:15px;color:var(--cream)}
+.simonBtn.lit{background:var(--honey);color:var(--char);border-color:var(--honey)}
+.split2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+@media(max-width:520px){.split2{grid-template-columns:1fr}}
+.docCard{background:#efe2c2;color:#3c2c17;border-radius:4px;padding:12px;font-size:12.5px;line-height:1.8;box-shadow:0 3px 12px rgba(0,0,0,.35)}
+.docCard h4{font-size:12px;color:#8A5A2B;margin-bottom:6px;letter-spacing:.1em}
+.wordTap{display:inline-block;padding:0 2px;border-bottom:1px dotted transparent;cursor:pointer;border-radius:2px}
+.wordTap.sel{background:#E8B04B;color:#232220}
+.wordTap.okw{background:#9FCFBE;color:#232220}
+
+/* ===== 토스트/자막 ===== */
+#toastWrap{position:fixed;top:52px;left:50%;transform:translateX(-50%);z-index:80;display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none;width:92%;max-width:460px}
+.toast{background:rgba(30,24,16,.94);border:1px solid rgba(232,176,75,.55);color:var(--cream);padding:9px 16px;border-radius:20px;font-size:13px;letter-spacing:.04em;animation:toastIn .3s;box-shadow:0 4px 18px rgba(0,0,0,.5);text-align:center}
+.toast.item{border-color:var(--mint)}
+.toast.trig{border-color:var(--moon);background:rgba(28,37,48,.95)}
+@keyframes toastIn{from{opacity:0;transform:translateY(-9px)}to{opacity:1;transform:none}}
+
+/* ===== 대화 ===== */
+#dialogBox{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:100%;max-width:720px;z-index:70;background:linear-gradient(180deg,rgba(37,29,18,.97),rgba(25,20,13,.99));border:1px solid rgba(232,176,75,.5);border-bottom:none;border-radius:12px 12px 0 0;padding:14px 18px 20px;display:none;cursor:pointer}
+#dialogBox.on{display:block}
+#dlgSpeaker{font-size:12px;color:var(--honey);letter-spacing:.15em;margin-bottom:6px}
+#dlgText{font-size:14.5px;line-height:1.9;min-height:58px;white-space:pre-wrap}
+#dlgNext{position:absolute;right:16px;bottom:8px;font-size:11px;color:rgba(246,231,201,.55);animation:hsPulse 1.6s infinite;border-radius:50%}
+
+/* ===== 챕터 카드 ===== */
+#chapterCard{position:fixed;inset:0;z-index:90;background:#171310;display:none;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:20px}
+#chapterCard.on{display:flex;animation:chFade 0.8s}
+@keyframes chFade{from{opacity:0}to{opacity:1}}
+#chNum{font-size:13px;letter-spacing:.5em;color:var(--honey);margin-bottom:16px}
+#chTitle{font-size:clamp(24px,6vw,38px);letter-spacing:.2em;color:var(--cream)}
+#chDeco{width:120px;height:1px;background:linear-gradient(90deg,transparent,var(--honey),transparent);margin:26px auto}
+#chTap{font-size:11px;color:rgba(246,231,201,.5);letter-spacing:.2em}
+
+/* ===== 그날 밤 모드 ===== */
+body.night #hud{background:linear-gradient(180deg,#1a222c,#141b24);border-color:rgba(127,163,191,.4)}
+body.night #invbar,body.night #nav{background:#141a22;border-color:rgba(127,163,191,.3)}
+body.night .navBtn{background:#1a222c;color:var(--ice)}
+body.night .navBtn.cur{border-color:var(--ice);color:var(--ice);background:#243244}
+body.night #hudChapter{color:var(--ice)}
+.nightTint{background:rgba(127,163,191,.34)!important}
+.nightFilter{filter:saturate(.38) brightness(.75) hue-rotate(-8deg)}
+
+/* ===== 엔딩 ===== */
+#scrEnding{background:#10151c;z-index:45;display:none;overflow-y:auto;justify-content:flex-start;padding-top:8vh}
+#scrEnding.on{display:flex}
+.endArt{width:min(90vw,540px);height:min(46vw,280px);border-radius:6px;margin:0 auto 26px;position:relative;overflow:hidden;box-shadow:0 10px 50px rgba(0,0,0,.7)}
+.endTitle{font-size:clamp(22px,5.5vw,32px);letter-spacing:.25em;color:var(--cream);margin-bottom:8px}
+.endQuote{font-size:14px;color:var(--honey);margin:14px auto 22px;font-style:italic;letter-spacing:.05em}
+.endBody{max-width:540px;margin:0 auto;font-size:13.5px;line-height:2;color:var(--bleach);text-align:left;white-space:pre-wrap;padding:0 8px}
+.endStats{max-width:420px;margin:26px auto;border:1px solid rgba(246,231,201,.3);border-radius:8px;padding:16px;font-size:13px}
+.endStats .escGrade{font-size:17px;letter-spacing:.15em;margin-bottom:10px}
+.escGrade.official{color:var(--mint)}
+.escGrade.unofficial{color:#e0a184}
+.endCredit{margin:30px 0 60px;font-size:11.5px;color:rgba(246,231,201,.5);letter-spacing:.1em}
+
+/* CSS 폴백 방 배경 (§8) */
+.fb{position:absolute;inset:0;overflow:hidden}
+.fb-parlor{background:linear-gradient(160deg,#F6E7C9,#C9803D)}
+.fb-parlor .arch{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:190px;height:150px;background:#8A5A2B;border-radius:95px 95px 0 0}
+.fb-parlor .fire{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);width:110px;height:85px;border-radius:55px 55px 0 0;background:radial-gradient(circle at 50% 90%,#E8B04B,#A84A2A 75%);animation:firePulse 3s infinite}
+@keyframes firePulse{0%,100%{opacity:.85}50%{opacity:1;filter:brightness(1.2)}}
+.fb-kitchen{background:linear-gradient(180deg,#8A5A2B,#A84A2A 85%)}
+.fb-kitchen .oven{position:absolute;left:50%;top:50%;transform:translate(-50%,-40%);width:200px;height:190px;background:#232220;border-radius:10px}
+.fb-kitchen .oven:after{content:'';position:absolute;left:50%;bottom:16px;transform:translateX(-50%);width:110px;height:88px;border-radius:55px 55px 0 0;background:#171310;box-shadow:0 12px 22px -6px #E8B04B}
+.fb-pantry{background:linear-gradient(200deg,#D8D2C2,#8A5A2B)}
+.fb-pantry .shelf{position:absolute;left:6%;right:6%;height:7px;background:#4B4A46;box-shadow:0 -26px 0 -3px rgba(75,74,70,.65),0 -52px 0 -5px rgba(75,74,70,.4)}
+.fb-pantry .shelf.s1{top:38%}.fb-pantry .shelf.s2{top:62%}
+.fb-pantry .jar{position:absolute;width:34px;height:44px;background:#4B4A46;border-radius:10px 10px 6px 6px;opacity:.8}
+.fb-green{background:linear-gradient(170deg,#9FCFBE 0%,#F6E7C9 60%)}
+.fb-green .pane{position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.35) 1px,transparent 1px),linear-gradient(rgba(255,255,255,.35) 1px,transparent 1px);background-size:14.2% 25%}
+.fb-green .rose{position:absolute;width:26px;height:26px;border-radius:50%;background:#F6E7C9;border:2px solid #9FCFBE}
+.fb-kids{background:linear-gradient(150deg,#F6E7C9 40%,#5B6B78 140%)}
+.fb-kids .slat{position:absolute;right:12%;top:38%;width:10px;height:170px;background:#8A5A2B;box-shadow:-20px 0 #8A5A2B,-40px 0 #8A5A2B,-60px 0 #8A5A2B,-80px 0 #8A5A2B,-100px 0 #8A5A2B}
+.fb-kids .mark{position:absolute;left:8%;top:30%;width:26px;height:2px;background:#8A5A2B;box-shadow:0 30px #8A5A2B,0 60px #8A5A2B,0 90px #8A5A2B,0 120px #8A5A2B}
+.fb-cellar{background:linear-gradient(180deg,#232220,#4B4A46 70%)}
+.fb-cellar .beam{position:absolute;left:-10%;top:-20%;width:34%;height:150%;background:linear-gradient(115deg,rgba(91,107,120,.4),transparent 70%);transform:rotate(18deg)}
+.fb-cellar .well{position:absolute;left:16%;bottom:8%;width:120px;height:90px;background:#1C2530;border-radius:8px 8px 0 0}
+.fb-cellar .kiln{position:absolute;right:10%;bottom:6%;width:0;height:0;border-left:70px solid transparent;border-right:70px solid transparent;border-bottom:110px solid #1C2530}
+.fb-attic{background:linear-gradient(165deg,#D8D2C2,#8A5A2B 120%)}
+.fb-attic .beamA{position:absolute;left:-6%;top:-8%;width:70%;height:14px;background:#8A5A2B;transform:rotate(24deg)}
+.fb-attic .beamB{position:absolute;right:-6%;top:-8%;width:70%;height:14px;background:#8A5A2B;transform:rotate(-24deg)}
+.fb-attic .book{position:absolute;bottom:12%;width:20px;height:90px}
+.fb-back{background:linear-gradient(180deg,#5B6B78,#D8D2C2 90%)}
+.fb-back .bed{position:absolute;left:12%;bottom:10%;width:200px;height:60px;background:#4B4A46;border-radius:4px}
+.fb-back .winB{position:absolute;right:14%;top:22%;width:70px;height:90px;background:#7FA3BF;border-radius:4px;animation:dawnGlow 8s infinite}
+@keyframes dawnGlow{0%,100%{opacity:.5}50%{opacity:.85}}
+.particle{position:absolute;border-radius:50%;pointer-events:none}
+
+/* 스크롤바 */
+::-webkit-scrollbar{width:7px;height:7px}::-webkit-scrollbar-thumb{background:rgba(232,176,75,.35);border-radius:4px}::-webkit-scrollbar-track{background:transparent}
+</style>
+</head>
+<body>
+
+<!-- 타이틀 -->
+<div class="screen" id="scrTitle">
+  <div id="titleFall"><div class="cottage"><div class="win"></div></div></div>
+  <img id="titleBgImg" alt="" src="">
+  <div class="titleInner">
+    <h1 class="gameTitle">설탕은 녹는다</h1>
+    <div class="gameSub">— 헨젤과 그레텔 검증 보고서 —</div>
+    <button class="btnMain" id="btnContinue">이어하기</button>
+    <button class="btnMain" id="btnNew">처음부터</button>
+    <div class="titleNote">퍼즐 33 · 방 8개 · 세 개의 결말<br>소리를 켜면 더 깊이 잠길 수 있습니다</div>
+  </div>
+</div>
+
+<!-- 프롤로그 -->
+<div class="screen hidden" id="scrPrologue">
+  <div class="appointment">
+    <h2>임 명 장</h2>
+    <p>「검증관 귀하. 『확정 동화집』 제7판 개정에 앞서, 수록 후보 제1번 〈헨젤과 그레텔〉의 현장 검증을 명한다. 해당 이야기의 무대인 '과자집'은 65년째 원형 보존 중이며, 관리인이 귀하를 맞이할 것이다.</p>
+    <p>전시물과 이야기의 일치 여부를 확인하고, 인증서에 서명하라. <b>검증관의 서명은 이야기를 영원히 확정한다.</b> — 기록국장」</p>
+    <input id="nameInput" maxlength="12" placeholder="검증관의 이름을 적으시오" autocomplete="off">
+    <div class="signLabel">위 임무를 수령함</div>
+    <div class="sealWax">記錄局</div>
+    <button class="btnMain" id="btnBegin" style="margin-top:20px;border-color:#8A5A2B;color:#3c2c17">과자집으로 향한다</button>
+  </div>
+</div>
+
+<!-- 게임 -->
+<div id="scrGame">
+  <div id="hud">
+    <span id="hudChapter">Ch.1</span>
+    <span id="hudRoom">응접실</span>
+    <span class="hudCnt" id="cntHint" title="힌트 사용 슬롯">🕯 0/5</span>
+    <span class="hudCnt" id="cntAns" title="정답 확인 슬롯">📜 0/5</span>
+    <button class="hudBtn" id="btnNotebook" title="검증관 수첩">📔</button>
+    <button class="hudBtn" id="btnMute" title="소리">🔊</button>
+    <button class="hudBtn" id="btnMenu" title="메뉴">≡</button>
+  </div>
+  <div id="gameBody">
+    <div id="nav"></div>
+    <div id="stage">
+      <div id="roomView">
+        <div id="roomFallback"></div>
+        <img id="roomBg" alt="" src="">
+        <div id="roomTint"></div>
+        <div id="hotspots"></div>
+        <div id="roomDesc"></div>
+      </div>
+      <div id="invbar"><span class="invLabel">소지품</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- 엔딩 -->
+<div class="screen" id="scrEnding">
+  <div style="max-width:640px;width:100%">
+    <div class="endArt" id="endArt"></div>
+    <div class="endTitle" id="endTitle"></div>
+    <div class="endQuote" id="endQuote"></div>
+    <div class="endBody" id="endBody"></div>
+    <div class="endStats" id="endStats"></div>
+    <button class="btnMain" id="btnEndTitle">타이틀로</button>
+    <div class="endCredit" id="endCredit">당신이 놓지 않은 두 개의 자리가 아직 응접실에 있다.<br><br>설탕은 녹는다 — 룸메이커 AI 제작 · 2026</div>
+  </div>
+</div>
+
+<!-- 모달 -->
+<div id="modalWrap">
+  <div id="modal">
+    <div id="modalHead">
+      <span class="modalTag" id="modalTag">미션</span>
+      <span id="modalTitle"></span>
+      <button class="hudBtn" id="modalClose">✕</button>
+    </div>
+    <div id="modalBody"></div>
+    <div id="modalFoot">
+      <button class="mbtn" id="btnHint">힌트</button>
+      <button class="mbtn warn" id="btnAnswer">정답 보기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 대화 -->
+<div id="dialogBox"><div id="dlgSpeaker"></div><div id="dlgText"></div><div id="dlgNext">▼</div></div>
+
+<!-- 챕터 카드 -->
+<div id="chapterCard"><div id="chNum"></div><div id="chTitle"></div><div id="chDeco"></div><div id="chTap">화면을 눌러 계속</div></div>
+
+<div id="toastWrap"></div>
+
+<script>
+"use strict";
+/* ================= ENGINE ================= */
+const $=id=>document.getElementById(id);
+const el=(t,c,html)=>{const e=document.createElement(t);if(c)e.className=c;if(html!=null)e.innerHTML=html;return e;};
+const SAVE_KEY='sugarMelts_v1';
+let G=null;
+const SLOTS={};
+function defSlot(s){SLOTS[s.id]=s;}
+function baseState(){return{sig:'',ch:1,room:'p1',solved:{},inv:[],sel:null,flags:{},hintS:{},ansS:{},notes:[],night:false,attic:false,cellar:false,back:false,s02:[],seen:{},start:Date.now(),ended:0};}
+function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(G));}catch(e){}}
+function hasSave(){try{return !!localStorage.getItem(SAVE_KEY);}catch(e){return false;}}
+function loadSave(){try{const g=JSON.parse(localStorage.getItem(SAVE_KEY));if(g&&g.solved){G=g;return true;}}catch(e){}return false;}
+function wipeSave(){try{localStorage.removeItem(SAVE_KEY);}catch(e){}}
+const done=id=>!!(G&&G.solved[id]);
+const flag=k=>!!(G&&G.flags[k]);
+function setFlag(k,v){G.flags[k]=(v===undefined?1:v);save();}
+function hasItem(id){return G.inv.indexOf(id)>=0;}
+function gainItem(id,silent){if(!hasItem(id)){G.inv.push(id);if(!silent){toast('획득 — '+ITEMS[id].n,'item');sfx('item');}renderInv();save();}}
+function loseItem(id){G.inv=G.inv.filter(x=>x!==id);if(G.sel===id)G.sel=null;renderInv();save();}
+function note(title,text,kind){if(G.notes.some(n=>n.t===title))return;G.notes.push({t:title,x:text,k:kind||'단서'});toast('수첩 기록 — '+title,'trig');save();}
+function hasNote(title){return G.notes.some(n=>n.t===title);}
+
+/* ---- 토스트 ---- */
+function toast(msg,cls){const w=$('toastWrap');const t=el('div','toast'+(cls?' '+cls:''),msg);w.appendChild(t);setTimeout(()=>{t.style.transition='opacity .5s';t.style.opacity='0';setTimeout(()=>t.remove(),520);},2800);}
+
+/* ---- 대화 ---- */
+let dlgQ=[],dlgCb=null,dlgTimer=null,dlgFull='';
+function say(lines,cb){dlgQ=lines.slice();dlgCb=cb||null;$('dialogBox').classList.add('on');nextDlg();}
+function nextDlg(){if(dlgTimer){clearInterval(dlgTimer);dlgTimer=null;$('dlgText').textContent=dlgFull;return;}
+ if(!dlgQ.length){$('dialogBox').classList.remove('on');const c=dlgCb;dlgCb=null;if(c)c();return;}
+ const L=dlgQ.shift();$('dlgSpeaker').textContent=L.s||'';dlgFull=L.t;const tx=$('dlgText');tx.textContent='';let i=0;
+ dlgTimer=setInterval(()=>{i++;tx.textContent=dlgFull.slice(0,i);if(i>=dlgFull.length){clearInterval(dlgTimer);dlgTimer=null;}},16);}
+
+/* ---- 챕터 카드 ---- */
+let chCardCb=null;
+function chapterCard(num,title,cb){$('chNum').textContent='제 '+num+' 장';$('chTitle').textContent=title;chCardCb=cb||null;$('chapterCard').classList.add('on');}
+function closeChapterCard(){$('chapterCard').classList.remove('on');const c=chCardCb;chCardCb=null;if(c)c();}
+
+/* ---- 화면 전환 ---- */
+function showScreen(id){$('scrTitle').classList.toggle('hidden',id!=='scrTitle');
+ $('scrPrologue').classList.toggle('hidden',id!=='scrPrologue');
+ $('scrEnding').classList.toggle('hidden',id!=='scrEnding');
+ $('scrEnding').classList.toggle('on',id==='scrEnding');
+ $('scrGame').classList.toggle('on',id==='scrGame');}
+
+/* ---- HUD ---- */
+function hintCount(){return Object.keys(G.hintS).filter(k=>G.hintS[k]>0).length;}
+function ansCount(){return Object.keys(G.ansS).length;}
+function updateHud(){$('hudChapter').textContent='Ch.'+G.ch;
+ const hc=hintCount(),ac=ansCount();
+ const ch=$('cntHint'),ca=$('cntAns');
+ ch.textContent='🕯 '+hc+'/5';ca.textContent='📜 '+ac+'/5';
+ ch.classList.toggle('over',hc>5);ca.classList.toggle('over',ac>5);}
+
+/* ---- 방/내비 ---- */
+function roomOpen(id){switch(id){case 'p1':return true;case 'p2':return G.ch>=2;case 'p3':return G.ch>=3;case 'p4':return G.ch>=4;case 'p5':return G.ch>=5;case 'p7':return !!G.attic;case 'p6':return !!G.cellar;case 'p8':return !!G.back;}return false;}
+function renderNav(){const nav=$('nav');nav.innerHTML='';ROOM_ORDER.forEach(id=>{const r=ROOMS[id];const open=roomOpen(id);
+ const b=el('button','navBtn'+(G.room===id?' cur':'')+(open?'':' lock')+(open&&!G.seen['room_'+id]?' newRoom':''),r.n);
+ b.onclick=()=>goRoom(id);nav.appendChild(b);});}
+function goRoom(id,silent){if(!roomOpen(id))return;const first=!G.seen['room_'+id];G.room=id;G.seen['room_'+id]=1;
+ if(!silent)sfx('door');renderRoom();renderNav();updateHud();save();
+ if(first&&ROOMS[id].intro&&!G.night)say(ROOMS[id].intro,()=>roomEnterHook(id,first));else roomEnterHook(id,first);}
+function renderRoom(){const r=ROOMS[G.room];$('hudRoom').textContent=r.n+(G.night?' · 그날 밤':'');
+ const img=$('roomBg');const url=(G.night&&r.nimg)?r.nimg:r.img;
+ img.classList.toggle('nightFilter',G.night&&!r.nimg);
+ img.style.opacity='0';img.onerror=()=>{img.style.opacity='0';};img.onload=()=>{img.style.opacity=(G.night&&!r.nimg)?'0.85':'1';};
+ if(url)img.src=url;else img.removeAttribute('src');
+ $('roomFallback').innerHTML=r.fb||'';
+ $('roomTint').className=G.night?'nightTint':'';$('roomTint').id='roomTint';
+ $('roomDesc').textContent=(G.night&&r.nd)?r.nd:r.d;
+ renderHotspots();}
+function renderHotspots(){const w=$('hotspots');w.innerHTML='';hotspotsFor(G.room).forEach(hs=>{
+ const b=el('button','hs'+(hs.done?' done':'')+(G.night?' night':''));
+ b.style.left=hs.x+'%';b.style.top=hs.y+'%';
+ b.innerHTML='<span class="dot">'+(hs.ic||'✦')+'</span><span class="lbl">'+hs.l+'</span>';
+ b.onclick=()=>{if(hs.needSel&&G.sel!==hs.needSel){toast(hs.needMsg||'알맞은 소지품을 선택한 채 사용해야 한다.');return;}hs.act();};
+ w.appendChild(b);});}
+
+/* ---- 인벤토리 ---- */
+function renderInv(){const bar=$('invbar');bar.innerHTML='<span class="invLabel">소지품</span>';
+ G.inv.forEach(id=>{const it=ITEMS[id];if(!it)return;
+ const d=el('button','invItem'+(G.sel===id?' sel':''),'<span>'+it.ic+'</span><span class="nm">'+it.n+'</span>');
+ d.title=it.n;d.onclick=()=>{G.sel=(G.sel===id)?null:id;renderInv();if(G.sel&&it.d)toast(it.d);};
+ bar.appendChild(d);});}
+
+/* ---- 모달/슬롯 ---- */
+let curSlot=null;
+function openSlot(id){const s=SLOTS[id];if(!s)return;curSlot=s;
+ $('modal').className=G.night?'night':'';
+ $('modalTag').textContent=s.type+(done(id)?' · 완료':'');
+ $('modalTitle').textContent=id+' · '+s.t;
+ const body=$('modalBody');body.innerHTML='';
+ if(s.desc)body.appendChild(el('div','slotDesc',s.desc));
+ const box=el('div');box.id='slotBox';body.appendChild(box);
+ const hz=el('div');hz.id='helpZone';body.appendChild(hz);
+ s.build(box);
+ const bh=$('btnHint'),ba=$('btnAnswer');
+ bh.classList.remove('hidden');ba.classList.remove('hidden');
+ bh.disabled=!!s.noHint;ba.disabled=!!s.noAns;
+ bh.textContent='힌트'+((G.hintS[id]||0)>0?' ('+(G.hintS[id])+'/'+s.hints.length+')':'');
+ renderHelp(s,hz);
+ bh.onclick=()=>{const step=G.hintS[id]||0;
+  if(step>=s.hints.length){toast('더 깊은 힌트는 없다. 수첩을 보라.');return;}
+  G.hintS[id]=step+1;bh.textContent='힌트 ('+(step+1)+'/'+s.hints.length+')';
+  renderHelp(s,hz);updateHud();save();hz.lastChild&&hz.lastChild.scrollIntoView({block:'nearest'});};
+ ba.onclick=()=>{if(!G.ansS[id]){G.ansS[id]=1;updateHud();save();}renderHelp(s,hz,true);};
+ $('modalWrap').classList.add('on');}
+function renderHelp(s,hz,forceAns){hz.innerHTML='';const n=G.hintS[s.id]||0;
+ for(let i=0;i<n;i++)hz.appendChild(el('div','hintBox','힌트 '+(i+1)+' — '+s.hints[i]));
+ if(G.ansS[s.id]||forceAns){if(!G.ansS[s.id])G.ansS[s.id]=1;hz.appendChild(el('div','ansBox','정답 — '+s.ans));}}
+function closeModal(){$('modalWrap').classList.remove('on');curSlot=null;}
+function solveSlot(id,opt){opt=opt||{};if(G.solved[id])return;G.solved[id]=1;sfx('ok');
+ const s=SLOTS[id];save();
+ const fin=()=>{if(s.after)s.after();chapterCheck();renderAll();save();};
+ if(opt.stay){fin();}else{setTimeout(()=>{closeModal();fin();},opt.delay||800);}}
+function renderAll(){renderNav();renderRoom();renderInv();updateHud();}
+
+/* ---- 챕터 진행 ---- */
+const CH_REQ={2:['S01','S02','S03'],3:['S04','S05','S06','S07'],4:['S08','S09','S10'],5:['S11','S12','S13'],6:['S15','S16','S17','S18'],8:['S14','S19','S20','S21','S22','S23','S24','S25','S26'],10:['S30','S31','S32']};
+function chapterCheck(){let ch=G.ch;
+ if(ch===1&&CH_REQ[2].every(done))ch=2;
+ if(ch===2&&CH_REQ[3].every(done))ch=3;
+ if(ch===3&&CH_REQ[4].every(done))ch=4;
+ if(ch===4&&CH_REQ[5].every(done))ch=5;
+ if(ch===5&&CH_REQ[6].every(done))ch=6;
+ if(ch===7&&CH_REQ[8].every(done))ch=8;
+ if(ch===9&&CH_REQ[10].every(done))ch=10;
+ if(ch!==G.ch)enterChapter(ch);}
+function enterChapter(ch){G.ch=ch;save();bgmPhase();
+ chapterCard(ch,CH_TITLES[ch],()=>{const d=CH_INTRO[ch];renderAll();if(d)say(d);});}
+function openCellar(){if(G.cellar)return;G.cellar=true;save();
+ toast('저장고 뒤 무너진 계단이 열렸다 — 우물 지하','trig');sfx('trig');enterChapter(7);}
+function nightOn(){G.night=true;document.body.classList.add('night');save();bgmPhase();renderAll();}
+
+/* ---- 수첩 ---- */
+function openNotebook(){curSlot=null;
+ $('modal').className=G.night?'night':'';
+ $('modalTag').textContent='수첩';$('modalTitle').textContent='검증관 수첩';
+ const body=$('modalBody');body.innerHTML='';
+ $('btnHint').classList.add('hidden');$('btnAnswer').classList.add('hidden');
+ if(!G.notes.length)body.appendChild(el('div','slotDesc','아직 기록이 없다. 단서와 불일치는 이곳에 자동으로 쌓인다.'));
+ const kinds=['불일치','필적','기록','물증','단서'];
+ kinds.forEach(k=>{const list=G.notes.filter(n=>n.k===k);if(!list.length)return;
+  body.appendChild(el('h4','', '<span style="color:var(--honey);letter-spacing:.15em;font-size:12px">— '+k+' —</span>'));
+  list.forEach(n=>body.appendChild(el('div','clue','<b>'+n.t+'</b><br>'+n.x)));});
+ $('modalWrap').classList.add('on');}
+
+/* ---- 길게 누르기 헬퍼 ---- */
+function pressHold(btn,ms,onDone,onProg){let t=null,st=0,fired=false;
+ const start=e=>{e.preventDefault();if(fired)return;st=Date.now();
+  t=setInterval(()=>{const p=(Date.now()-st)/ms;if(onProg)onProg(Math.min(1,p));
+   if(p>=1){clearInterval(t);t=null;fired=true;onDone();setTimeout(()=>{fired=false;},300);}},50);};
+ const end=()=>{if(t){clearInterval(t);t=null;if(onProg)onProg(0);}};
+ btn.addEventListener('pointerdown',start);btn.addEventListener('pointerup',end);btn.addEventListener('pointercancel',end);btn.addEventListener('pointerleave',end);}
+/* 누른 길이를 재는 헬퍼 (놓을 때 콜백에 ms 전달) */
+function pressMeasure(btn,cb,onProg){let st=0,t=null;
+ const start=e=>{e.preventDefault();st=Date.now();if(onProg)t=setInterval(()=>onProg(Date.now()-st),50);};
+ const end=e=>{if(!st)return;const d=Date.now()-st;st=0;if(t){clearInterval(t);t=null;}cb(d);};
+ btn.addEventListener('pointerdown',start);btn.addEventListener('pointerup',end);btn.addEventListener('pointercancel',()=>{st=0;if(t){clearInterval(t);t=null;}});}
+
+/* ---- 엔딩 ---- */
+function runEnding(key){G.ended=key;save();stopBgm();
+ const E=ENDINGS[key];
+ $('endArt').innerHTML=E.art;
+ $('endTitle').textContent=E.t;
+ $('endQuote').textContent=E.q;
+ $('endBody').textContent=E.b;
+ const hc=hintCount(),ac=ansCount();
+ const official=hc<=5&&ac<=5;
+ const mins=Math.max(1,Math.round((Date.now()-(G.start||Date.now()))/60000));
+ $('endStats').innerHTML='<div class="escGrade '+(official?'official':'unofficial')+'">'+(official?'✦ 정식 탈출 — 기록국 공인':'✧ 기록 없는 탈출')+'</div>'
+ +'<div>퍼즐 33 / 33 · 엔딩 '+E.no+'</div>'
+ +'<div>힌트 사용 슬롯 '+hc+'/5 · 정답 확인 슬롯 '+ac+'/5</div>'
+ +'<div>검증관 '+(G.sig||'무명')+' · 체류 '+mins+'분</div>'
+ +(official?'':'<div style="margin-top:8px;opacity:.7;font-size:12px">힌트·정답 확인이 5개 슬롯을 넘어 정식 기록으로는 남지 않는다. 이야기는 끝났다 — 기록만이 남지 않았을 뿐.</div>');
+ showScreen('scrEnding');bgmEnding();}
+
+/* ================= DATA ================= */
+const CDN='https://d2ol7oe51mr4n9.cloudfront.net/user_3CDdInAZ3lzdABhg4fMhB4IMF2V/';
+const IMG={p1:CDN+'d0f9cb68-0a92-41ab-9d4e-591b8d0ec93f.png',p2:CDN+'94977589-eda6-4e89-8f06-7af2f5cdeffb.png',
+ p3:CDN+'ce4d7573-9b3a-4b78-a7ce-42aebafa4419.png',p4:CDN+'7e8e9276-645d-42e0-b04b-08d9276c49e7.png',
+ p5:CDN+'8daeb511-e4ed-4d67-a618-2cce216aa5b6.png',p6:CDN+'708a3d09-814d-47b0-a34f-bd1dce7b3180.png',
+ p7:CDN+'6ab9b3aa-9465-4a14-a0a1-cfd1a6389033.png',p8:CDN+'0ff6a376-d7b4-4ec8-a58b-6c6ac39d5150.png',
+ n1:CDN+'d6facb8c-429c-44b6-98aa-929c0662a69f.png',n5:CDN+'b5063704-b1a6-485c-9f54-678ee3fbd23a.png',
+ n6:CDN+'e56f0983-e958-4822-9328-3c3ff6cf1e51.png',title:CDN+'3f4c4db4-d6c5-4744-bb6e-cdecc085578d.png'};
+
+const ROOM_ORDER=['p1','p2','p3','p4','p5','p7','p6','p8'];
+const ROOMS={
+p1:{n:'응접실',img:IMG.p1,nimg:IMG.n1,
+ fb:'<div class="fb fb-parlor"><div class="arch"></div><div class="fire"></div></div>',
+ d:'벽난로의 온기, 계피 냄새. 지나치게 완벽하게 아늑한 방. 남쪽 벽의 설탕 코팅이 유난히 두껍다.',
+ nd:'잔상 — 부서진 문, 벽을 찍는 도끼. 65년 전 그 밤의 응접실.',
+ intro:[{s:'관리인 할미',t:'"어서 오시게, 검증관 양반. 눈길에 고생했지? 다들 나를 \'할미\'라고 불러. 65년을 이 집만 지켰으니, 궁금한 건 뭐든 물어봐. …아, 신발의 눈은 털고. 설탕 바닥은 물기를 싫어하거든."'}]},
+p2:{n:'과자 부엌',img:IMG.p2,
+ fb:'<div class="fb fb-kitchen"><div class="oven"></div></div>',
+ d:'생강과 그을음 냄새가 섞인다. 검은 무쇠 오븐만 부자연스럽게 새것이다.',
+ nd:'잔상 — 빵 굽던 낮. 밀가루 묻은 손이 반죽을 두드린다.',
+ intro:[{s:'할미',t:'"여기가 그 유명한 부엌이야. 안내판 읽어보고, 시연 체험도 해 보고. 불 다루는 건 조심하고."'}]},
+p3:{n:'식료품 저장고',img:IMG.p3,
+ fb:'<div class="fb fb-pantry"><div class="shelf s1"></div><div class="shelf s2"></div></div>',
+ d:'서늘하다. 항아리 수십 개, 밀가루 먼지, 그리고 대저울 하나.',
+ nd:'잔상 — 밤마다 식량을 받아 가는 마을의 손들.',
+ intro:[{s:'할미',t:'"저장고는 어둡지? 마녀가 장부를 썼다는 게 우습지? 하지만 괴물도 살림은 하는 법이야."'}]},
+p4:{n:'설탕 온실',img:IMG.p4,
+ fb:'<div class="fb fb-green"><div class="pane"></div></div>',
+ d:'설탕 장미, 새소리, 유리 너머 겨울 숲. 정원 끝에 해시계와 조약돌 오솔길.',
+ nd:'잔상 — 모이 길을 따라 걸어오는 두 아이. 겨울.',
+ intro:[{s:'할미',t:'"온실은 이 집의 자랑이야. 설탕 장미는 65년 내내 한 번도 시든 적이 없지. 정원사 영감 덕이야."'}]},
+p5:{n:'아이들의 방',img:IMG.p5,nimg:IMG.n5,
+ fb:'<div class="fb fb-kids"><div class="slat"></div><div class="mark"></div></div>',
+ d:'장난감의 다정함과 나무 우리의 위화감이 공존한다. 문틀에 키·몸무게 눈금.',
+ nd:'잔상 — 우리 틈새로 방을 내다보는 소년의 눈.',
+ intro:[{s:'할미',t:'"여기가 \'헨젤의 우리\' 전시실. …장난감은 그대로 두었어. 아이들 물건은 함부로 치우는 게 아니거든."'}]},
+p6:{n:'우물 지하',img:IMG.p6,nimg:IMG.n6,
+ fb:'<div class="fb fb-cellar"><div class="beam"></div><div class="well"></div><div class="kiln"></div></div>',
+ d:'냉기와 물소리. 말라붙은 우물, 그리고 무너진 벽돌 가마 — 부엌 오븐과는 비교가 안 되게 크다.',
+ nd:'잔상 — 가마 앞, 걸쇠에 얹힌 작은 손.',
+ intro:[{s:'할미',t:'(지하 계단 위에서, 내려오지 않은 채) "거긴 춥지? …나는 안 내려가. 예순다섯 해 동안 한 번도 안 내려갔어. 늙으면 무릎이 계단을 싫어하거든."'}]},
+p7:{n:'다락 서고',img:IMG.p7,
+ fb:'<div class="fb fb-attic"><div class="beamA"></div><div class="beamB"></div></div>',
+ d:'종이 냄새, 성에 낀 채광창, 사선의 빛. 『확정 동화집』 1~6판이 모두 보존되어 있다.',
+ nd:'잔상 — 아이가 성에에 글씨를 긁는 밤.',
+ intro:[{s:'할미',t:'"다락은 먼지가 많아. 판본들은 소중히 다뤄 줘. 이야기의 역사가 전부 저기 있으니까."'}]},
+p8:{n:'뒷방',img:IMG.p8,
+ fb:'<div class="fb fb-back"><div class="bed"></div><div class="winB"></div></div>',
+ d:'소박하다. 설탕이 단 한 겹도 없는 유일한 방. 침대, 설탕 솔과 양동이, 유품 상자.',
+ nd:'잔상 — 이튿날 새벽, 소년의 첫 설탕 칠.'}};
+
+const CH_TITLES={1:'방명록',2:'마녀의 오븐',3:'숫자가 맞지 않는다',4:'하얀 새',5:'안쪽의 걸쇠',6:'일곱 개의 판본',7:'재의 층',8:'열두 개의 전시물',9:'뒷방, 그리고 그날 밤',10:'검증관의 서명'};
+const CH_INTRO={
+2:[{s:'할미',t:'"부엌이 열렸어. 이야기 손님들이 제일 좋아하는 방이지. 오븐 시연도 해 보라고 — 전시 체험 프로그램이라는 명목이야."'}],
+3:[{s:'할미',t:'"저장고 열쇠는 원래 잘 안 내주는데, 검증관이니까 특별히. 살림의 속은 거기 다 있어."'}],
+4:[{s:'할미',t:'"온실로 가 봐. 하얀 새 이야기의 무대니까. …새 모이는 하루 두 줌. 거르면 안 돼."'}],
+5:[{s:'할미',t:'"아이들의 방을 열어 두었어. …천천히 봐. 서두를 것 없는 방이야."'}],
+6:[{s:'할미',t:'"사다리 열쇠를 찾았구나. 다락엔 판본이 전부 있어. 이야기가 어떻게 자라 왔는지 — 검증관이라면 봐 둬야지."'}],
+7:[{s:'할미',t:'(계단 위에서) "…내려가 볼 텐가. 나는 여기 있으마. 등불 조심하고."'}],
+8:[{s:'할미',t:'"체크리스트가 거의 다 찼네. 전시물 열두 점 — 설명과 물증이 맞는지, 그게 검증관의 마지막 일이야."'}],
+9:[],
+10:[{s:'그레텔',t:'"기록국의 규칙은 알고 있어. 검증관의 서명은 이야기를 영원히 확정한다. …어느 쪽으로든."'}]};
+
+const ITEMS={
+checklist:{n:'인증 체크리스트',ic:'📋',d:'전시물 12점과 이야기의 일치를 확인하시오.'},
+pouch:{n:'조약돌 주머니',ic:'👝',d:'하얀 조약돌 — 그리고 바느질 골무 하나. 주머니의 솔기가 어린아이 솜씨가 아니다.'},
+tape:{n:'접이식 줄자',ic:'📏',d:'개수대 서랍에서 나온 줄자.'},
+crank:{n:'녹슨 크랭크 손잡이',ic:'🔧',d:'덤웨이터 안에서 나온 손잡이. 어딘가의 도르래에 맞을 크기다.'},
+ledgerHalf:{n:'출납 장부 반쪽',ic:'📒',d:'기근의 해 출납 기록. 반쪽뿐이다.'},
+seedJar:{n:'씨앗 단지',ic:'🫙',d:'라벨: "새 모이 — 하루 두 줌, 거르지 말 것." 필체가 장부와 같다.'},
+roseBook:{n:'설탕 장미 도감',ic:'📗',d:'속표지 헌사: "새들과 나누어 먹을 것."'},
+ladderKey:{n:'다락 사다리 열쇠',ic:'🗝',d:'응접실 사다리 자물쇠에 맞을 것이다.'},
+boneFlute:{n:'뼈 피리',ic:'🦴',d:'구멍이 셋. 불면 새소리가 난다.'},
+glasses:{n:'낡은 안경',ic:'👓',d:'도수가 지독하게 높다. 이 안경의 주인은 거의 실명 상태였다.'},
+relicCase:{n:'안경집',ic:'🕶',d:'유품. 낡은 안경이 살던 집.'},
+relicScore:{n:'뼈 피리 악보',ic:'🎼',d:'유품. 새를 부르는 세 음.'},
+relicHalf:{n:'타다 만 장부 반쪽',ic:'📄',d:'유품. 마지막 장에 식량을 받아 간 마을 사람들의 이름.'},
+letter:{n:'그레텔의 편지',ic:'✉️',d:'오늘 날짜의 편지.'},
+mergedLedger:{n:'합쳐진 장부',ic:'📕',d:'두 반쪽이 하나로. 온전한 진실은 두 사람의 몫을 합쳐야 성립한다.'},
+cert:{n:'인증서',ic:'📜',d:'"상기인은 이 이야기가 진실임을 확인함." 서명란이 비어 있다.'}};
+
+const LETTER='검증관님께.\n\n관리인은 65년 전 이 집에서 겨울을 난 여자아이입니다. 정원사는 그 애의 오빠입니다. 오빠는 그날 밤 우리 안에 숨어 전부 보았고, 그날부터 말을 잃었습니다.\n\n마을 사람들은 아그네스를 그녀의 가마에 밀어 넣었습니다. 그리고 문은 — 문은 제가 닫았습니다. 방앗간 주인이 제 손을 잡아 걸쇠에 얹고 말했습니다. \'네가 닫으면 이건 네 이야기가 된다.\' 어른들은 문을 밀지 않았습니다. 문은 아이가 닫게 했습니다. 그래야 이것이 학살이 아니라 동화가 되니까요.\n\n저는 평생 그 동화를 팔아 살았습니다. 판이 바뀔 때마다 아그네스를 조금씩 더 괴물로 만들었습니다. 그래야 문을 닫은 아이가 조금씩 더 영웅이 되니까요.\n\n오빠는 매일 새벽 설탕을 새로 입힙니다. 저는 그것이 은폐인 줄 알았는데, 오래 보니 알겠더군요. 그건 무덤을 닦는 일이었습니다.\n\n저는 곧 죽습니다. 이야기를 어떻게 할지, 저는 정할 자격이 없습니다. 그래서 자격 있는 사람을 불렀습니다.\n\n— 그레텔';
+
+const ENDINGS={
+E1:{no:'1/3 「재의 기록」',t:'재의 기록',q:'"동화는 끝났다. 이야기가 시작되었다."',
+ art:'<div style="position:absolute;inset:0;background:linear-gradient(180deg,#4B4A46,#232220)"></div><div style="position:absolute;left:50%;bottom:14%;transform:translateX(-50%);width:150px;height:100px;background:#1C2530;border-radius:6px 6px 0 0"></div><div style="position:absolute;left:20%;bottom:10%;width:120px;height:8px;background:#9FCFBE;opacity:.6;border-radius:4px"></div><div style="position:absolute;left:18%;bottom:13%;font-size:26px">🕊</div><div style="position:absolute;right:20%;top:18%;font-size:20px;opacity:.8">🌱</div>',
+ b:'검증관은 인증서를 찢고, 합쳐진 장부와 발굴 기록을 기록국에 제출한다.\n\n제7판의 〈헨젤과 그레텔〉 자리에는 동화 대신 조사 보고서가 실린다. 과자집의 설탕은 걷히고, 집은 아그네스 기념관이 된다.\n\n그레텔은 죽기 전 마지막 증언대에 선다 — "문을 닫은 손은 제 손이었습니다. 그러나 그 손을 얹은 손들의 이름을, 이제 말하겠습니다." 마을 후손들의 성씨가 낭독되는 동안, 방명록의 같은 성씨들이 한 장씩 넘어간다.\n\n설탕이 걷힌 잿빛 벽. 그러나 헨젤은 이제 벽 대신 화단에 설탕을 뿌린다 — 새들이 내려앉는다.'},
+E2:{no:'2/3 「설탕의 맹세」',t:'설탕의 맹세',q:'"설탕은 아름답다. 마르기 전에는 아무것도 묻지 않는다."',
+ art:'<div style="position:absolute;inset:0;background:linear-gradient(180deg,#F6E7C9,#E8B04B)"></div><div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:220px;height:130px;background:#efe2c2;border-radius:3px;box-shadow:0 6px 30px rgba(0,0,0,.3)"></div><div style="position:absolute;left:50%;top:62%;transform:translateX(-50%);color:#8a2f1a;font-size:15px;letter-spacing:.2em;font-style:italic" id="e2sig"></div><div style="position:absolute;inset:0;background:linear-gradient(0deg,rgba(255,255,255,.75),transparent 60%)"></div>',
+ b:'검증관은 인증서에 서명한다. 제7판은 그대로 간행된다.\n\n아이들은 영원히 영웅이고, 아그네스는 영원히 마녀다. 그레텔은 고요히 고맙다고 말하고, 헨젤의 새벽 일과는 계속된다. 세상에서 가장 아름다운 동화 사적지는 오늘도 관광객을 맞는다.\n\n방명록이 한 장 넘어간다. 65년 치 서명의 맨 끝 — 당신이 첫날 적은 그 서명이 있다. 그 아래 인쇄된 한 줄:\n\n"상기인은 이 이야기가 진실임을 확인함."\n\n화면이 설탕처럼 하얗게 덮인다.'},
+E3:{no:'3/3 「한 사람의 진실」',t:'한 사람의 진실',q:'"어떤 진실은 광장이 아니라 귓가에서 완성된다."',
+ art:'<div style="position:absolute;inset:0;background:linear-gradient(180deg,#1C2530,#3a4a5c)"></div><div style="position:absolute;left:14%;top:20%;width:80px;height:110px;background:#7FA3BF;opacity:.5;border-radius:4px"></div><div style="position:absolute;left:17%;top:26%;font-size:22px">🐦</div><div style="position:absolute;right:22%;bottom:16%;font-size:30px;filter:grayscale(.4)">🧍</div><div style="position:absolute;left:40%;bottom:20%;font-size:20px">🦴</div><div style="position:absolute;right:12%;top:14%;font-size:16px;opacity:.7">❄️</div>',
+ b:'검증관은 인증서도 장부도 내려놓고, 뼈 피리로 악보의 세 음을 분다.\n\n새들이 모이고 — 정원사가 창밖에 멈춰 선다. 검증관은 세상이 아니라 단 한 사람에게 진실을 건넨다. 재구성된 그날 밤의 기록, 그리고 그레텔의 편지를.\n\n걸쇠에 손을 얹게 한 것이 누구였는지를, 우리 틈새로 전부 보았던 사람은 처음부터 알고 있었다. 그가 65년 만에 입을 연다. 첫마디는 아그네스도, 마을도 아니다.\n\n"…그레텔. 문은, 네 잘못이 아니야."\n\n이듬해 봄, 재층 위에서 싹이 튼다. 기록국 서류철에는 미제출 보고서 한 부 — 표지에 "수신인: 단 한 명".'}};
+
+/* S28 전시물 12점 정본 목록 */
+const EXHIBITS=[
+{id:'e1',n:'① 사탕 문장(紋章)',sign:'"기록국이 인증한 이 집의 문장."',fake:false},
+{id:'e2',n:'② 동화 삽화 6점',sign:'"이야기의 여섯 장면."',fake:false},
+{id:'e3',n:'③ 전시용 오븐',sign:'"그레텔이 마녀를 밀어 넣은 오븐."',fake:true,ev:'log1'},
+{id:'e4',n:'④ 조약돌 주머니',sign:'"헨젤이 밤에 주워 모은 조약돌."',fake:true,ev:'cardPouch'},
+{id:'e5',n:'⑤ 대저울',sign:'"저장고의 대저울."',fake:false},
+{id:'e6',n:'⑥ 출납 장부',sign:'"마녀가 아이들을 살찌우려 비축한 기록."',fake:true,ev:'log2'},
+{id:'e7',n:'⑦ 새장·모이통',sign:'"하얀 새의 새장과 모이통."',fake:false},
+{id:'e8',n:'⑧ 해시계',sign:'"정원의 해시계."',fake:false},
+{id:'e9',n:'⑨ 나무 우리',sign:'"마녀가 헨젤을 가둔 우리."',fake:true,ev:'log4'},
+{id:'e10',n:'⑩ 문틀 눈금',sign:'"마녀가 헨젤을 살찌운 기록."',fake:true,ev:'log3'},
+{id:'e11',n:'⑪ 오르골',sign:'"아이들의 방의 오르골."',fake:false},
+{id:'e12',n:'⑫ 뼈 피리',sign:'"헨젤이 마녀를 속인 손가락 뼈."',fake:true,ev:'cardBone'}];
+const EV_CARDS={log1:'불일치 #1 — 오븐 치수 모순·그을음 위치',log2:'불일치 #2 — 출고가 입고의 3배',log3:'불일치 #3 — 두 아이의 회복 곡선',log4:'불일치 #4 — 안쪽에서만 잠기는 걸쇠',log5:'불일치 #5 — 계절 모순 (한겨울의 화재)',cardBone:'관찰 — 뼈 피리: 구멍 셋, 불면 새소리',cardPouch:'관찰 — 조약돌 주머니: 정교한 바느질과 골무',cardAgnes:'인물 — 아그네스 (장부·라벨·교정·헌사의 한 사람)',cardWall:'물증 — 남벽: 도끼 자국 9개, 문 높이의 그을음',card65:'물증 — 설탕 층위 65겹 = 방명록 65년'};
+
+/* ---- 핫스팟 ---- */
+function hotspotsFor(room){const H=[];const add=(x,y,l,ic,act,o)=>{H.push(Object.assign({x:x,y:y,l:l,ic:ic,act:act},o||{}));};
+if(room==='p1'){
+ if(!G.night){
+  add(24,66,'방명록과 봉인','📖',()=>openSlot('S01'),{done:done('S01')});
+  add(50,30,'동화 삽화 여섯 점','🖼',()=>openSlot('S02'),{done:done('S02')});
+  if(done('S02'))add(74,58,'벽난로 옆 진열장','🗄',()=>openSlot('S03'),{done:done('S03')});
+  add(58,72,'벽난로 문장','🕯',()=>say([{s:'',t:'벽난로 위 사탕 문장 — 새 부리는 위를, 오븐 문은 아래를, 굴뚝은 왼쪽 위를 향한다. 65년간 한 번도 바뀐 적 없는 문장이다.'}]));
+  if(flag('T2'))add(12,38,'창가 모이대','🐦',()=>{sfx('trig');say([{s:'',t:'하얀 새가 모이대에 앉아 새장 모형의 창살을 부리로 쫀다 — 2, 5, 3, 7, 1, 6, 4. 같은 노래를 반복한다.'}]);});
+  if(G.ch>=5&&!G.attic)add(88,26,'다락 사다리 자물쇠','🪜',()=>{
+   if(hasItem('ladderKey')){loseItem('ladderKey');G.attic=true;save();sfx('trig');toast('다락 서고가 열렸다','trig');renderAll();chapterCheck();if(G.ch<6&&CH_REQ[6].every(done))enterChapter(6);}
+   else toast('자물쇠가 잠겨 있다. 열쇠가 필요하다.');});
+  if(G.ch>=7)add(38,80,'남쪽 벽 (설탕이 두껍다)','🧱',()=>openSlot('S26'),{done:done('S26')});
+  if(done('S27')&&!done('S28'))add(50,52,'인증 체크리스트 — 최종 판정','📋',()=>openSlot('S28'));
+ }else{
+  if(done('S30')&&!done('S31'))add(50,42,'그날 밤 타임라인 제출','🗂',()=>openSlot('S31'));
+  if(G.ch>=10&&!G.ended)add(50,62,'최종 선택 — 세 개의 자리','⚖️',()=>openSlot('S33'));
+  if(!done('S31'))add(24,70,'잔상 — 부서진 문','👥',()=>say([{s:'잔상',t:'문이 부서지고, 도끼가 벽을 찍는다. 등불을 든 손들이 방으로 쏟아져 들어온다. 소리는 없다. 65년 전의 밤이다.'}]));
+ }
+}
+if(room==='p2'){
+ add(30,60,'레시피 복원대','🧾',()=>openSlot('S04'),{done:done('S04')});
+ if(done('S04'))add(55,48,'전시용 오븐','🔥',()=>openSlot('S05'),{done:done('S05')});
+ add(55,26,'오븐 안내판','🪧',()=>openSlot('S06'),{done:done('S06')});
+ add(82,55,'덤웨이터','🛗',()=>openSlot('S07'),{done:done('S07')});
+ if(done('S06'))add(14,74,'바닥 틈새의 그을음','🌫',()=>say([{s:'',t:'그을음이 오븐 안쪽이 아니라 바닥 틈새에서 올라온 것처럼 아래쪽에 몰려 있다. 진짜 불은 — 이 방보다 아래에서 났다는 듯이.'}]));
+}
+if(room==='p3'){
+ add(30,55,'대저울','⚖️',()=>openSlot('S08'),{done:done('S08')});
+ if(done('S08'))add(52,40,'출납 장부 반쪽','📒',()=>openSlot('S09'),{done:done('S09')});
+ add(72,50,'항아리 선반','🏺',()=>openSlot('S10'),{done:done('S10')});
+ if(flag('T4')&&!flag('gotCrank'))add(88,66,'덤웨이터 문','🛗',()=>{setFlag('gotCrank');gainItem('crank');say([{s:'',t:'승강기 안 — 녹슨 크랭크 손잡이가 실려 내려와 있다. 음식을 내리던 길이 도구를 나른다.'}]);renderRoom();});
+ if(flag('T3')&&!G.cellar)add(14,78,'뒤편 무너진 계단','🕳',()=>{say([{s:'',t:'오르골이 울린 뒤부터 벽돌이 헐거워져 있다. 몇 개를 밀어내자 — 아래로 내려가는 계단이 나타난다. 냉기가 올라온다.'}],()=>openCellar());});
+ if(G.night&&!done('S31'))add(50,74,'잔상 — 식량을 받아 가는 손들','👥',()=>say([{s:'잔상',t:'밤. 뒷문이 조금 열리고, 자루가 하나씩 넘어간다. 받아 가는 손들은 얼굴이 없다 — 장부에는 이름이 있다.'}]));
+}
+if(room==='p4'){
+ add(28,58,'모이통','🌾',()=>openSlot('S11'),{done:done('S11'),needSel:done('S11')?null:'seedJar',needMsg:'모이통이 비어 있다. 씨앗이 될 만한 것을 소지품에서 선택해 사용하자.'});
+ if(flag('T2'))add(52,40,'새장 자물쇠','🐦',()=>openSlot('S12'),{done:done('S12')});
+ if(done('S12'))add(72,62,'설탕 장미 화단','🌹',()=>openSlot('S13'),{done:done('S13')});
+ add(86,74,'해시계','☀️',()=>openSlot('S14'),{done:done('S14')});
+ if(G.night&&!done('S31'))add(14,40,'잔상 — 겨울의 두 아이','👥',()=>say([{s:'잔상',t:'모이 길을 따라, 뼈만 남은 두 아이가 걸어온다. 새들이 앞서 난다. 온실 문이 안에서 열린다.'}]));
+}
+if(room==='p5'){
+ add(28,55,'오르골','🎵',()=>openSlot('S15'),{done:done('S15')});
+ add(12,42,'문틀 눈금','📐',()=>openSlot('S16'),{done:done('S16')});
+ add(60,48,'나무 우리 걸쇠','🔒',()=>openSlot('S17'),{done:done('S17')});
+ add(82,66,'장난감 상자','🧸',()=>openSlot('S18'),{done:done('S18')});
+ if(done('S28'))add(50,20,'뒷방 문 — 듣는 자물쇠','🚪',()=>openSlot('S29'),{done:done('S29')});
+ if(G.night&&!done('S31'))add(60,70,'잔상 — 우리 안의 눈','👥',()=>say([{s:'잔상',t:'우리 안, 어둠 속에서 틈새로 내다보는 소년의 눈. 걸쇠는 안쪽에서 걸려 있다. 그는 전부 본다. 그리고 다시는 말하지 않는다.'}]));
+}
+if(room==='p7'){
+ add(30,52,'판본 서가 (1~6판)','📚',()=>openSlot('S19'),{done:done('S19')});
+ add(62,30,'채광창 크랭크','⚙️',()=>openSlot('S20'),{done:done('S20')});
+ add(78,24,'성에 낀 채광창','❄️',()=>openSlot('S21'),{done:done('S21')});
+ add(48,70,'마을 연대기 책상','🗞',()=>openSlot('S22'),{done:done('S22')});
+ if(done('S26')&&!done('S27'))add(16,64,'낡은 안경 — 미세 글씨 판독','👓',()=>openSlot('S27'));
+ if(G.night&&!done('S31'))add(88,50,'잔상 — 성에에 긁는 글씨','👥',()=>say([{s:'잔상',t:'까치발을 든 아이가 손톱으로 유리를 긁는다. 한 글자, 한 글자. "새들에게 모이를 주세요."'}]));
+}
+if(room==='p6'){
+ add(26,50,'우물 도르래','🪣',()=>openSlot('S23'),{done:done('S23'),needSel:done('S23')?null:(hasItem('crank')?'crank':null),needMsg:'도르래에 손잡이가 없다. 소지품에서 손잡이를 선택해 사용하자.'});
+ add(56,66,'재층 발굴 구역','🖌',()=>openSlot('S24'),{done:done('S24')});
+ if(done('S24'))add(74,58,'층위 단면 확대경','🔍',()=>openSlot('S25'),{done:done('S25')});
+ if(G.night){
+  if(done('S31')&&!done('S32'))add(84,44,'무너진 가마 앞','🕯',()=>openSlot('S32'));
+  else if(!done('S31'))add(84,44,'잔상 — 가마 앞의 작은 손','👥',()=>say([{s:'잔상',t:'가마 문. 걸쇠. 그 위에 얹힌 작은 손 — 그리고 그 손을 누르는 어른의 손. 아직은 볼 수 없다. 순서를 먼저 맞춰야 한다.'}]));
+ }else add(84,44,'무너진 벽돌 가마','🧱',()=>say([{s:'',t:'빵집에서 쓰는 대형 화덕이다. 부엌의 전시용 오븐과는 비교가 안 되게 크다. 아궁이 언저리가 검게 그을려 있다.'}]));
+}
+if(room==='p8'){
+ if(G.night){
+  if(!done('S30'))add(40,60,'유품 상자','🎁',()=>openSlot('S30'));
+  add(70,40,'설탕 솔과 양동이','🪣',()=>say([{s:'',t:'솔은 닳아서 짧다. 65년 치 새벽이 이 솔에 들어 있다. 은폐인 줄 알았던 것은 — 무덤을 닦는 일이었다.'}]));
+  add(20,36,'창밖 새 모이대','🐦',()=>say([{s:'',t:'창밖, 손수 만든 모이대. 눈이 소복하다. 오늘 아침에도 모이가 채워져 있다.'}]));
+ }
+}
+return H;}
+
+/* ================= SLOTS A (S01~S09) ================= */
+function mkBtn(txt,cls){return el('button',cls||'mbtn',txt);}
+function mkNum(box,ph,cb){const i=el('input','numpadIn');i.type='tel';i.placeholder=ph||'';
+ const b=mkBtn('확인','bigBtn');b.onclick=()=>cb((i.value||'').trim());
+ box.appendChild(i);box.appendChild(b);return i;}
+function solvedMark(box,msg){box.innerHTML='';box.appendChild(el('div','ansBox',msg||'이미 해결한 문제다.'));}
+
+/* S01 방명록 + 봉인 회전 */
+defSlot({id:'S01',t:'방명록과 사탕 봉인',type:'미션',
+desc:'할미가 방명록을 내민다. "서명부터 하는 게 규칙이야. 이 집에 들어온 사람은 모두 여기 이름을 남겼지. 예순다섯 해 동안, 한 페이지도 빠짐없이." — 기록국 초대장의 사탕 봉인은 동심원 세 겹. 세 문양을 벽난로 위 문장과 같은 자세로 정렬하면 봉인이 갈라진다.',
+hints:['이 봉인, 어디서 본 그림 아닌가? 이 방 안에 똑같은 문장이 있다.','벽난로 위 문장을 확대해서 세 문양의 방향을 그대로 따라 하라.','바깥 링은 새 부리가 위, 중간 링은 오븐 문이 아래, 안쪽 링은 굴뚝이 왼쪽 위.'],
+ans:'새↑·오븐↓·굴뚝↖. 이 집의 문장은 65년간 한 번도 바뀐 적이 없다 — 그래서 열쇠가 된다.',
+build(box){if(done('S01'))return solvedMark(box,'봉인은 이미 갈라졌고, 방명록에는 당신의 서명이 남았다.');
+ const rot=[90,45,135];const target=[0,180,315];const ICON=['🕊','🚪','🏠'];const NAME=['바깥 — 하얀 새','중간 — 오븐','안쪽 — 과자집'];
+ const wrap=el('div','', '<div class="progRow">링을 탭하면 45°씩 돈다</div>');box.appendChild(wrap);
+ const row=el('div','cardRow');wrap.appendChild(row);
+ const views=[];
+ for(let i=0;i<3;i++){const c=el('button','pcard');
+  c.innerHTML='<div style="font-size:30px;transition:transform .2s" id="s01r'+i+'">'+ICON[i]+'</div><div style="margin-top:4px">'+NAME[i]+'</div>';
+  c.onclick=()=>{rot[i]=(rot[i]+45)%360;views[i].style.transform='rotate('+rot[i]+'deg)';sfx('tap');};
+  row.appendChild(c);views.push(c.firstChild);}
+ views.forEach((v,i)=>v.style.transform='rotate('+rot[i]+'deg)');
+ const ref=mkBtn('벽난로 문장 참조 보기');ref.onclick=()=>say([{s:'',t:'벽난로 위 문장 — 새 부리는 위(0°), 오븐 문은 아래(180°), 굴뚝은 왼쪽 위(315°)를 향한다.'}]);
+ box.appendChild(ref);
+ box.appendChild(el('div','signLabel','<br>방명록 서명'));
+ const inp=el('input','numpadIn');inp.style.fontSize='16px';inp.maxLength=12;inp.value=G.sig||'';inp.placeholder='검증관의 이름';box.appendChild(inp);
+ const ok=mkBtn('봉인을 확인한다','bigBtn');box.appendChild(ok);
+ ok.onclick=()=>{const nm=(inp.value||'').trim();
+  if(!nm){toast('방명록에 서명부터. 규칙이다.');return;}
+  G.sig=nm;save();
+  if(rot[0]===target[0]&&rot[1]===target[1]&&rot[2]===target[2]){
+   gainItem('checklist');
+   say([{s:'',t:'봉인이 설탕 결정처럼 갈라진다. 안에서 인증 체크리스트 — "전시물 12점과 이야기의 일치를 확인하시오."'},{s:'할미',t:'"그림이 참 곱지? 여섯 번째 그림이 내가 제일 좋아하는 그림이야. 아이들이 집으로 돌아가는 그림. …이야기는 돌아가는 데서 끝나야 해. 안 그러면 아무도 잠들 수 없거든."'}]);
+   solveSlot('S01');
+  }else{sfx('bad');toast('문양의 자세가 문장과 다르다.');}};}});
+
+/* S02 삽화 6점 배열 */
+const S02_SCENES=[{k:1,n:'조약돌 줍는 헨젤',ic:'🌙'},{k:2,n:'빵부스러기 먹는 새',ic:'🐦'},{k:3,n:'과자집 발견',ic:'🏠'},{k:4,n:'우리 속 헨젤',ic:'🔒'},{k:5,n:'오븐 앞 그레텔',ic:'🔥'},{k:6,n:'보석 안고 귀향',ic:'💎'}];
+function orderPuzzle(box,scenes,disp,onOk,night){
+ const pick=[];
+ const grid=el('div','cardRow');box.appendChild(grid);
+ const cards=disp.map(idx=>{const sc=scenes[idx];
+  const c=el('button','pcard'+(night?' sel':''),'<div style="font-size:26px">'+sc.ic+'</div><div style="margin-top:4px;font-size:11.5px">'+sc.n+'</div>');
+  if(night)c.classList.remove('sel');
+  c.onclick=()=>{const at=pick.indexOf(sc.k);
+   if(at>=0){pick.splice(at,1);}else pick.push(sc.k);
+   cards.forEach((cd,i2)=>{const k=scenes[disp[i2]].k;const p=pick.indexOf(k);
+    const old=cd.querySelector('.badge');if(old)old.remove();
+    if(p>=0)cd.appendChild(el('span','badge',String(p+1)));});
+   sfx('tap');};
+  grid.appendChild(c);return c;});
+ const okB=mkBtn('확정','bigBtn');box.appendChild(okB);
+ okB.onclick=()=>{if(pick.length!==scenes.length){toast(scenes.length+'장 모두 순서를 매겨야 한다.');return;}
+  let wrong=0;pick.forEach((k,i)=>{if(k!==i+1)wrong++;});
+  if(wrong===0)onOk(pick.slice());
+  else{sfx('bad');toast(wrong+'장이 제자리가 아니다.');}};}
+defSlot({id:'S02',t:'동화 삽화 여섯 점',type:'퀴즈',
+desc:'벽의 삽화 여섯 점 — 모두가 아는 그 동화의 순서대로 번호를 매겨라. 탭한 순서대로 번호가 붙고, 다시 탭하면 취소된다.',
+hints:['다들 아는 그 동화의 순서 그대로다. 기억을 믿어라.','시작은 집을 떠나기 전 밤(조약돌), 끝은 할미가 제일 좋아한다는 "돌아가는 그림".','조약돌 → 새 → 과자집 → 우리 → 오븐 → 귀향.'],
+ans:'조약돌→새→과자집→우리→오븐→귀향. 모두가 아는 순서 — 지금은. (이 배열 기준선이 훗날 다시 쓰인다)',
+build(box){if(done('S02'))return solvedMark(box,'삽화는 동화의 순서대로 걸려 있다. 조약돌→새→과자집→우리→오븐→귀향.');
+ orderPuzzle(box,S02_SCENES,[2,0,4,1,5,3],pick=>{
+  G.s02=pick;save();
+  say([{s:'',t:'여섯 장이 이야기의 순서로 이어진다. 조약돌, 새, 과자집, 우리, 오븐, 귀향 — 모두가 아는 순서다. 지금은.'}]);
+  solveSlot('S02');});}});
+
+/* S03 진열장 다이얼 */
+defSlot({id:'S03',t:'벽난로 옆 진열장 다이얼',type:'미션',
+desc:'진열장에 숫자 다이얼 세 개(1~6). 삽화 액자 하나의 뒷면에 각인이 있다 — <b>"새를 따라가라. 새가 앉은 그림의 번호를."</b>',
+hints:['진열장은 숫자를 원한다. 이 방에서 번호가 붙은 것은 삽화뿐이다.','액자 하나의 뒷면에 글귀가 있다. 전부 뒤집어 보라.','하얀 새가 등장하는 삽화는 두 번째, 세 번째, 여섯 번째다.'],
+ans:'2-3-6. 새가 있는 그림의 번호 — 이 집에서는 언제나 새를 따라가면 길이 열린다.',
+build(box){if(done('S03'))return solvedMark(box,'진열장은 열려 있다. 안에 있던 조약돌 주머니는 이미 회수했다.');
+ if(!this._w)this._w=0;const self=this;
+ const flip=mkBtn('삽화 뒷면 살펴보기');flip.onclick=()=>say([{s:'',t:'액자들을 하나씩 뒤집는다. 세 번째 액자 뒷면의 각인 — "새를 따라가라. 새가 앉은 그림의 번호를." 새가 그려진 그림을 다시 본다: 빵부스러기 장면, 과자집 지붕 위, 귀향 장면의 어깨 위.'}]);
+ box.appendChild(flip);
+ const vals=[1,1,1];const wrap=el('div','dialWrap');box.appendChild(wrap);
+ const vs=[];
+ for(let i=0;i<3;i++){const d=el('div','dial');
+  const up=el('button','','▲');const v=el('div','val','1');const dn=el('button','','▼');
+  up.onclick=()=>{if(self._lock&&i===0)return;vals[i]=vals[i]%6+1;v.textContent=vals[i];sfx('tap');};
+  dn.onclick=()=>{if(self._lock&&i===0)return;vals[i]=(vals[i]+4)%6+1;v.textContent=vals[i];sfx('tap');};
+  d.appendChild(up);d.appendChild(v);d.appendChild(dn);wrap.appendChild(d);vs.push(v);}
+ if(self._lock){vals[0]=2;vs[0].textContent='2';vs[0].style.borderColor='var(--mint)';}
+ const ok=mkBtn('다이얼 확정','bigBtn');box.appendChild(ok);
+ ok.onclick=()=>{if(vals[0]===2&&vals[1]===3&&vals[2]===6){
+   gainItem('pouch');setFlag('ev_cardPouch');
+   note('관찰 — 조약돌 주머니','하얀 조약돌과 함께 바느질 골무 하나. 주머니는 어린아이 솜씨가 아니라 정교하게 바느질되어 있다.','물증');
+   say([{s:'',t:'진열장이 열린다. 하얀 조약돌 주머니 — 안내판: "헨젤이 밤에 주워 모은 조약돌." 확대해 보니 주머니 안에 여자용 바느질 골무가 하나 들어 있다. …그냥, 그런가 보다 하고 지나간다.'}]);
+   solveSlot('S03');
+  }else{sfx('bad');self._w++;toast('다이얼이 헛돈다.');
+   if(self._w>=3&&!self._lock){self._lock=true;vals[0]=2;vs[0].textContent='2';vs[0].style.borderColor='var(--mint)';toast('첫째 다이얼이 2에서 걸리는 느낌이 든다.','trig');}}};}});
+
+/* S04 레시피 조각 복원 */
+const S04_PIECES=['진저브레드','—왕립 배합—','기록국 승인','밀가루 셋','꿀 여섯','생강 아홉','계피 한 줌','버터 반 덩이','소금 한 자밤','반죽은 하룻밤','재우고','굽는다'];
+defSlot({id:'S04',t:'찢어진 레시피 카드',type:'미션',
+desc:'개수대·선반·밀가루 통에서 모은 12조각. 두 조각을 차례로 탭하면 자리가 바뀐다. 글줄이 단서다 — 제목 줄, 배합 줄, 마무리 줄.',
+hints:['모서리 조각(테두리 선이 있는 것) 4개부터 자리를 잡아라.','배합비 숫자는 위에서 아래로 커진다. 밀가루 3 → 꿀 6 → 생강 9.','남은 두 조각이 헷갈리면 — 생강 뿌리 일러스트의 잔뿌리가 오른쪽 아래로 흐른다.'],
+ans:'배합비 카드 완성. 뒷면의 점화 메모가 진짜 보상이다: "장작 셋, 마른 것부터. 풀무 세 번, 쉬고, 두 번."',
+build(box){if(done('S04'))return solvedMark(box,'복원 완료. 뒷면 메모: "장작은 마른 것부터 셋. 풀무는 세 번, 쉬고, 두 번."');
+ const perm=[7,3,0,10,5,1,8,2,11,4,9,6];/* perm[i]=현재 i칸에 있는 조각 */
+ let sel=-1;
+ const grid=el('div','grid');grid.style.gridTemplateColumns='repeat(3,90px)';box.appendChild(grid);
+ function draw(){grid.innerHTML='';perm.forEach((p,i)=>{
+  const c=el('button','cell'+(sel===i?' on':'')+(p===i?' ok':''),'<span style="font-size:11.5px;padding:2px">'+S04_PIECES[p]+'</span>');
+  c.style.minHeight='46px';
+  c.onclick=()=>{if(sel<0){sel=i;}else if(sel===i){sel=-1;}else{const t=perm[sel];perm[sel]=perm[i];perm[i]=t;sel=-1;sfx('tap');}
+   draw();
+   if(perm.every((v,ix)=>v===ix)){
+    say([{s:'',t:'카드가 하나로 붙는다. 뒷면이 저절로 넘어간다 — "장작은 마른 것부터 셋. 풀무는 세 번, 쉬고, 두 번."'}]);
+    note('점화 메모','장작은 마른 것부터 셋. 풀무는 세 번, 쉬고, 두 번.','기록');
+    solveSlot('S04');}};
+  grid.appendChild(c);});}
+ draw();}});
+
+/* S05 오븐 점화 */
+defSlot({id:'S05',t:'오븐 점화 시연',type:'미션',
+desc:'① 장작 여섯 개 중 마른 것 셋을, 가는 것부터 순서대로 아궁이에 넣어라. ② 불씨 게이지 — 바늘이 초록 구간일 때만 풀무를. 점화 메모의 박자대로: 세 번, 쉬고, 두 번.',
+hints:['젖은 장작은 표면이 검다. 불은 가는 것부터 먹는다.','레시피 카드 뒷면 메모가 풀무의 박자다.','초록 구간에서만 탭. 탭-탭-탭, 쉬고, 탭-탭.'],
+ans:'마른 장작 세 개를 가는 순서로, 풀무는 3·쉼·2. 불이 오르자 — 위층 어딘가에서 물방울 떨어지는 소리가 들린다.',
+build(box){if(done('S05'))return solvedMark(box,'오븐에는 불이 올라 있다. 다락 쪽에서 이따금 물방울 소리.');
+ const LOGS=[{n:'마른 잔가지',d:1,ok:true},{n:'젖은 통장작',d:3,ok:false},{n:'마른 중간 장작',d:2,ok:true},{n:'젖은 잔가지',d:1,ok:false},{n:'마른 통장작',d:3,ok:true},{n:'젖은 중간 장작',d:2,ok:false}];
+ let placed=[];let stage=1;let fails=0;
+ const st1=el('div');box.appendChild(st1);
+ const prog=el('div','progRow','아궁이: (비어 있음)');st1.appendChild(prog);
+ const tray=el('div','cardRow');st1.appendChild(tray);
+ LOGS.forEach((L,i)=>{const b=el('button','pcard'+(L.ok?'':' '),(L.ok?'🪵':'🪵')+'<br><span style="font-size:11px;'+(L.ok?'':'color:#777')+'">'+L.n+'</span>');
+  b.onclick=()=>{if(stage!==1)return;
+   if(!L.ok){sfx('bad');toast('표면이 검고 축축하다 — 불이 붙지 않겠다.');placed=[];prog.textContent='아궁이: (비어 있음)';tray.querySelectorAll('.pcard').forEach(c=>c.classList.remove('dim'));return;}
+   const need=placed.length+1;
+   if(L.d!==need){sfx('bad');toast('순서가 아니다. 불은 가는 것부터 먹는다.');placed=[];prog.textContent='아궁이: (비어 있음)';tray.querySelectorAll('.pcard').forEach(c=>c.classList.remove('dim'));return;}
+   placed.push(L.d);b.classList.add('dim');sfx('tap');
+   prog.textContent='아궁이: '+placed.length+'/3';
+   if(placed.length===3){stage=2;st1.classList.add('hidden');st2.classList.remove('hidden');startNeedle();}};
+  tray.appendChild(b);});
+ /* 2단계 풀무 */
+ const st2=el('div','hidden');box.appendChild(st2);
+ st2.appendChild(el('div','progRow','풀무 — 초록 구간에서 탭! 박자: 3연타 · 한 박 쉼 · 2연타'));
+ const g=el('div','gauge');const fill=el('div','fill');g.appendChild(fill);st2.appendChild(g);
+ const zone=el('div','progRow','');st2.appendChild(zone);
+ const bellow=mkBtn('풀무 🔥','bigBtn');st2.appendChild(bellow);
+ const hitRow=el('div','progRow','');st2.appendChild(hitRow);
+ let pos=0,dir=1,timer=null,hits=0,restUntil=0;
+ let half=fails>=3?18:12;
+ function startNeedle(){timer=setInterval(()=>{pos+=dir*3.2;if(pos>=100){pos=100;dir=-1;}if(pos<=0){pos=0;dir=1;}
+  fill.style.width=pos+'%';
+  const inG=Math.abs(pos-50)<=half;
+  fill.style.background=inG?'linear-gradient(90deg,#9FCFBE,#E8B04B)':'linear-gradient(90deg,var(--caramel),var(--honey))';
+  zone.textContent=inG?'· 지금이다 ·':' ';},40);}
+ bellow.onclick=()=>{if(stage!==2)return;const now=Date.now();
+  if(hits===3&&now<restUntil){sfx('bad');toast('아직 — 한 박 쉬어라.');hits=0;hitRow.textContent='';return;}
+  const inG=Math.abs(pos-50)<=half;
+  if(!inG){sfx('bad');fails++;hits=0;hitRow.textContent='';toast('불씨가 사그라든다. 처음부터.');
+   if(fails>=3){half=18;toast('바람 구멍을 넓혔다 — 초록 구간이 커졌다.','trig');}return;}
+  hits++;sfx('tap');hitRow.textContent='풀무 '+'●'.repeat(hits)+'○'.repeat(5-hits);
+  if(hits===3)restUntil=now+900;
+  if(hits>=5){clearInterval(timer);
+   setFlag('T1');sfx('trig');
+   say([{s:'',t:'불이 오른다. 게이지 100% — 그리고 위층 어딘가에서, 똑. 똑. 물방울 떨어지는 소리.'},{s:'할미',t:'"치수가 안 맞는다고 했지? 아이고, 이건 복제품이야. 진짜는 오래전에 못 쓰게 됐지. …자, 불 구경은 이만하면 됐지? 위층이 좀 따뜻해졌겠네."'}]);
+   toast('크로스룸 — 다락 채광창의 성에가 녹기 시작한다','trig');
+   solveSlot('S05');}};}});
+
+/* S06 안내판 치수 검산 */
+defSlot({id:'S06',t:'안내판 치수 검산',type:'퀴즈',
+desc:'안내판: <b>"아궁이 폭 3자(尺) — 어른이 걸어 들어갈 만큼 넓다."</b> <span style="opacity:.7">(각주: 1자 = 10치)</span><br>줄자로 실측하라 — 안내판의 수치와 실측의 차이는 몇 치인가?',
+hints:['안내판을 믿지 말고 네 손의 줄자를 믿어라.','3자를 치로 바꿔라. 각주에 환산이 적혀 있다.','30치 − 18치.'],
+ans:'12치. 안내판의 오븐은 실물보다 한 뼘 반이나 넓다. 어른이 "걸어 들어갈" 수 있는 건 안내판 속 오븐뿐이다.',
+build(box){if(done('S06'))return solvedMark(box,'실측 1자 8치. 안내판과 12치 차이 — 불일치 로그 #1.');
+ let l=false,r=false,w=0;
+ const m=el('div','progRow','개수대 서랍에서 접이식 줄자를 꺼냈다. 아궁이 좌우 끝을 차례로 탭하라.');box.appendChild(m);
+ const row=el('div','cardRow');box.appendChild(row);
+ const res=el('div','clue','실측: —');
+ const bl=mkBtn('아궁이 왼쪽 끝');const br=mkBtn('아궁이 오른쪽 끝');
+ bl.onclick=()=>{l=true;bl.classList.add('gold');sfx('tap');if(r)res.textContent='실측: 1자 8치 (18치)';};
+ br.onclick=()=>{r=true;br.classList.add('gold');sfx('tap');if(l)res.textContent='실측: 1자 8치 (18치)';};
+ row.appendChild(bl);row.appendChild(br);box.appendChild(res);
+ mkNum(box,'차이 (치)',v=>{
+  if(!(l&&r)){toast('먼저 양 끝을 실측하라.');return;}
+  if(v==='12'){setFlag('ev_log1');
+   note('불일치 #1','오븐 치수 모순 — 안내판 30치 vs 실측 18치. 그리고 그을음이 오븐 안이 아니라 바닥 틈새 아래쪽에 몰려 있다.','불일치');
+   say([{s:'',t:'12치. 안내판의 오븐은 실물보다 한 뼘 반 넓다. …그리고 아까부터 눈에 걸리던 것 — 그을음이 오븐 안쪽이 아니라 바닥 틈새에서 올라온 것처럼 아래쪽에 몰려 있다.'}]);
+   solveSlot('S06');}
+  else{sfx('bad');w++;toast('검산이 틀렸다.');
+   if(w>=2)toast('각주 — 1자는 10치. 안내판은 3자.','trig');}});}});
+
+/* S07 덤웨이터 도르래 */
+defSlot({id:'S07',t:'덤웨이터 도르래 개통',type:'미션',
+desc:'후크 여섯 개 중 네 개를 순서대로 탭해 로프 경로를 지정하라 — 로프가 스스로와 교차하면 실패다. 그리고 균형추 하나. 승강기 접시의 정원(定員): <b>"빵 두 덩이"</b> · 저울 각주: <b>"빵 한 덩이 = 표준 주머니 반. 표준은 가운데 크기."</b>',
+hints:['로프는 스스로와 만나면 안 된다. 선을 머릿속으로 먼저 그려 보라.','위쪽 두 후크는 반드시 연속으로 지나야 한다. 추가 고민이면 접시의 정원과 저울 각주를 읽어라.','추는 "빵 두 덩이 = 표준 한 주머니". "한 주머니(표준)" 각인이 있는 가운데 것이다.'],
+ans:'교차 없는 외길(아래→위 두 후크 연속→반대편 아래) + 中 추. 음식을 내리던 길이 이제 도구를 나른다.',
+build(box){if(done('S07'))return solvedMark(box,'덤웨이터 개통 — 저장고 쪽 문에서 실려 온 것을 받을 수 있다.');
+ const HK=[{x:18,y:16},{x:82,y:16},{x:12,y:52},{x:88,y:52},{x:32,y:84},{x:68,y:84}];
+ let path=[];
+ const board=el('div');board.style.cssText='position:relative;width:min(100%,300px);height:210px;margin:10px auto;border:1px dashed rgba(246,231,201,.3);border-radius:8px';
+ box.appendChild(board);
+ const svg='<svg id="s07svg" width="100%" height="100%" style="position:absolute;inset:0;pointer-events:none"></svg>';
+ board.innerHTML=svg;
+ const info=el('div','progRow','경로: (없음)');
+ HK.forEach((h,i)=>{const b=el('button','holeBtn',String(i+1));
+  b.style.cssText='position:absolute;left:'+h.x+'%;top:'+h.y+'%;transform:translate(-50%,-50%)';
+  b.onclick=()=>{if(path.includes(i)){return;}if(path.length>=4)return;
+   path.push(i);b.classList.add('closed');sfx('tap');
+   info.textContent='경로: '+path.map(p=>p+1).join(' → ');
+   drawRope();};
+  board.appendChild(b);});
+ box.appendChild(info);
+ function drawRope(){const s=document.getElementById('s07svg');let d='';
+  for(let i=0;i<path.length-1;i++){const a=HK[path[i]],b2=HK[path[i+1]];
+   d+='<line x1="'+a.x+'%" y1="'+a.y+'%" x2="'+b2.x+'%" y2="'+b2.y+'%" stroke="#E8B04B" stroke-width="2.5"/>';}
+  s.innerHTML=d;}
+ const reset=mkBtn('로프 다시 걸기');reset.onclick=()=>{path=[];info.textContent='경로: (없음)';drawRope();board.querySelectorAll('.holeBtn').forEach(b=>b.classList.remove('closed'));};
+ box.appendChild(reset);
+ box.appendChild(el('div','progRow','균형추 선택 — 마대 각인을 살펴보라'));
+ const wr=el('div','cardRow');box.appendChild(wr);
+ let weight=null;
+ [['小','작은 주머니'],['中','한 주머니(표준) 각인'],['大','큰 주머니']].forEach((w2,i)=>{
+  const b=el('button','pcard','⚖️<br>'+w2[0]+'<br><span style="font-size:10px;opacity:.7">'+w2[1]+'</span>');
+  b.onclick=()=>{weight=i;wr.querySelectorAll('.pcard').forEach(c=>c.classList.remove('sel'));b.classList.add('sel');sfx('tap');};
+  wr.appendChild(b);});
+ const ok=mkBtn('승강기 가동','bigBtn');box.appendChild(ok);
+ ok.onclick=()=>{const key=path.join(',');
+  const good=(key==='2,0,1,3'||key==='3,1,0,2'||key==='4,0,1,5'||key==='5,1,0,4');
+  if(!good){sfx('bad');toast('로프가 서로 엉킨다. 다시.');return;}
+  if(weight!==1){sfx('bad');toast('승강기가 쿵 내려앉는다 — 추가 맞지 않다.');return;}
+  setFlag('T4');sfx('trig');
+  toast('크로스룸 — 부엌↔저장고 전달 통로 개통','trig');
+  say([{s:'',t:'도르래가 부드럽게 돈다. 벽 너머 저장고 쪽에서 덜컹, 문이 열리는 소리. 승강기 안에 뭔가 실려 있는 모양이다 — 저장고 쪽 문에서 꺼낼 수 있겠다.'}]);
+  solveSlot('S07');};}});
+
+/* S08 대저울 */
+defSlot({id:'S08',t:'대저울 균형',type:'미션',
+desc:'선반의 봉인 상자(무게 11)가 저울 왼쪽 접시에 놓여 있다. 각인: <b>"들어온 만큼만 열린다."</b> 분동은 1·3·9 — 탭할 때마다 왼쪽 → 오른쪽 → 회수 순으로 옮겨진다. 양쪽 어디든 올릴 수 있다.',
+hints:['분동 세 개를 다 써야 한다. 한쪽에만 올려서는 답이 없다.','분동은 상자 편을 들 수도 있다.','상자 옆에 1을, 맞은편에 9와 3을.'],
+ans:'9+3 = 11+1. 모자란 쪽에 하나를 보태야 맞는 저울 — 이 집의 살림이 늘 그랬듯이.',
+build(box){if(done('S08'))return solvedMark(box,'저울은 평형. 선반 뒤 공간에서 출납 장부 반쪽을 얻었다.');
+ const st=[0,0,0];const wv=[1,3,9];/* 0=트레이 1=왼쪽 2=오른쪽 */
+ const beam=el('div','progRow');beam.style.fontSize='15px';box.appendChild(beam);
+ const pans=el('div','split2');box.appendChild(pans);
+ const L=el('div','clue');const R=el('div','clue');pans.appendChild(L);pans.appendChild(R);
+ const tray=el('div','cardRow');box.appendChild(tray);
+ const bs=wv.map((w2,i)=>{const b=el('button','pcard','🪨<br>분동 '+w2);
+  b.onclick=()=>{st[i]=(st[i]+1)%3;sfx('tap');draw();};tray.appendChild(b);return b;});
+ function sums(){let l=11,r=0;st.forEach((s,i)=>{if(s===1)l+=wv[i];if(s===2)r+=wv[i];});return[l,r];}
+ function draw(){const[l,r]=sums();
+  L.innerHTML='<b>왼쪽 접시</b><br>봉인 상자(11)'+st.map((s,i)=>s===1?' + 분동'+wv[i]:'').join('')+'<br>합 '+l;
+  R.innerHTML='<b>오른쪽 접시</b><br>'+(st.some(s=>s===2)?st.map((s,i)=>s===2?'분동'+wv[i]+' ':'').join(''):'(비어 있음)')+'<br>합 '+r;
+  bs.forEach((b,i)=>{b.classList.toggle('sel',st[i]>0);b.style.opacity=st[i]===2?'0.75':'1';});
+  beam.textContent=l>r?'⚖️ 왼쪽으로 기운다 ('+l+' : '+r+')':(l<r?'⚖️ 오른쪽으로 기운다 ('+l+' : '+r+')':'⚖️ 평형!');
+  if(l===r&&l>0&&st.every(s=>s>0)){
+   gainItem('ledgerHalf');
+   say([{s:'',t:'평형. 선반 뒤 벽판이 스르륵 밀려 열린다 — 출납 장부 반쪽. 기근이 든 해의 기록이다.'}]);
+   solveSlot('S08');}}
+ draw();}});
+
+/* S09 장부 해독 */
+defSlot({id:'S09',t:'장부 기호 해독',type:'퀴즈',
+desc:'장부의 기호 — 화살촉이 문 쪽이면 출고(◂), 안쪽이면 입고(▸). 점(⦁)과 막대(―)가 수량이다.<br><br><b>소금</b> ▸⦁ / ◂⦁ <i style="opacity:.7">낙서: "한 자루 들고 한 자루 나감"</i><br><b>보리</b> ▸―⦁ <i style="opacity:.7">낙서: "여섯 자루 들임"</i><br><b>밀가루 (기근 3년째 겨울)</b> 입고 ▸⦁⦁⦁⦁ · 출고 ◂――⦁⦁<br><br>이 겨울, 나간 밀가루는 들어온 밀가루의 몇 배인가?',
+hints:['첫 두 줄 — 소금과 보리 행 옆의 낙서가 이 장부의 사전이다.','막대 하나는 점 다섯 개 값이다. 보리 행의 "여섯 자루"로 검산해 보라.','들어온 밀가루 4자루, 나간 밀가루 12자루.'],
+ans:'3배. 아이들을 잡아먹으려 쌓아둔 창고가 아니라 — 계속 무언가를 내보내던 창고다.',
+build(box){if(done('S09'))return solvedMark(box,'출고 12자루, 입고 4자루 — 3배. 불일치 로그 #2.');
+ let w=0;
+ mkNum(box,'몇 배?',v=>{
+  if(v==='3'){setFlag('ev_log2');
+   note('불일치 #2','기근의 겨울 — 나간 식량이 들어온 식량의 3배. 이 집은 계속 무언가를 내보내고 있었다.','불일치');
+   note('필적 카드 — 출납 장부','단정한 어른의 손. ㅅ의 삐침에 버릇이 있다.','필적');
+   say([{s:'',t:'입고 4자루, 출고 12자루 — 3배. 비축이 아니라 배급의 장부다.'},{s:'할미',t:'"…그 장부 반쪽은 어디 갔냐고? 글쎄. 종이는 불에 약하니까."'}]);
+   solveSlot('S09');}
+  else{sfx('bad');w++;toast('계산이 맞지 않는다.');if(w>=2)toast('소금 행: ⦁는 1자루. 보리 행: ―⦁이 여섯 자루 — 그러니 ―는 5.','trig');}});}});
+
+/* ================= SLOTS B (S10~S18) ================= */
+/* S10 항아리 타진 */
+defSlot({id:'S10',t:'항아리 타진(打診)',type:'미션',
+desc:'항아리 열두 개. 두드리면 소리와 파형이 보인다 — 열한 개는 둔탁하고, 단 하나만 미세하게 맑다. 맑은 것을 고른 뒤 개봉하라.',
+hints:['가득 찬 것은 소리를 삼키고, 빈 것은 소리를 되돌려준다.','파형 꼬리가 가장 긴 항아리를 찾아라.','오르골이 울린 뒤라면 — 방금 저 혼자 운 항아리가 있다. 아니라면 2열 3행을 다시 두드려 보라.'],
+ans:'왼쪽에서 2열, 3행의 항아리. 속이 비어 있다 — 안에 씨앗 단지. 라벨: "새 모이 — 하루 두 줌, 거르지 말 것."',
+build(box){if(done('S10'))return solvedMark(box,'빈 항아리는 개봉했다. 씨앗 단지는 회수됨.');
+ const TARGET=9;let sel=-1,wrong=0;const boost=flag('T3');
+ if(boost)box.appendChild(el('div','clue','오르골이 울린 뒤 — 항아리 하나가 아직도 가늘게 떨고 있다.'));
+ const grid=el('div','grid');grid.style.gridTemplateColumns='repeat(4,64px)';box.appendChild(grid);
+ const wave=el('div','gauge');const wf=el('div','fill');wave.appendChild(wf);box.appendChild(wave);
+ const lbl=el('div','progRow','항아리를 탭해 두드려 보라');box.appendChild(lbl);
+ const cells=[];
+ for(let i=0;i<12;i++){const c=el('button','cell','🏺');c.style.minHeight='52px';
+  if(boost&&i===TARGET){c.style.animation='hsPulse 1.8s infinite';c.style.borderColor='var(--moon)';}
+  c.onclick=()=>{sel=i;cells.forEach(cc=>cc.classList.remove('on'));c.classList.add('on');
+   const clear=(i===TARGET);sfxKnock(clear);
+   const len=clear?(wrong>=3||boost?95:70):(wrong>=3||boost?25:45);
+   wf.style.width='0%';setTimeout(()=>{wf.style.transition='width '+(clear?1.2:0.4)+'s ease-out';wf.style.width=len+'%';},30);
+   lbl.textContent=clear?'…잔음이 길게 남는다.':'둔탁하다. 가득 찬 소리.';};
+  grid.appendChild(c);cells.push(c);}
+ const open=mkBtn('선택한 항아리 개봉 (길게 누르기)','bigBtn');box.appendChild(open);
+ pressHold(open,700,()=>{if(sel<0){toast('먼저 항아리를 골라 두드려 보라.');return;}
+  if(sel===TARGET){gainItem('seedJar');
+   note('필적 카드 — 씨앗 라벨','"새 모이 — 하루 두 줌, 거르지 말 것." 장부와 같은 손, 같은 ㅅ 삐침.','필적');
+   say([{s:'',t:'빈 항아리 속 — 씨앗 단지. 라벨: "새 모이 — 하루 두 줌, 거르지 말 것." 필체가 장부와 같다.'}]);
+   solveSlot('S10');}
+  else{sfx('bad');wrong++;toast('밀가루 먼지만 폴싹 — 가득 찬 항아리다.');
+   if(wrong===3)toast('귀가 트였다 — 파형 차이가 또렷해진다.','trig');}});}});
+
+/* S11 모이 배치 */
+defSlot({id:'S11',t:'모이 배치 — 새 비행 경로',type:'미션',
+desc:'정원 조감 지도. 씨앗 단지를 모이통(◎)에 붓고, 모이 일곱 줌을 격자에 놓아라. 새는 직전 모이에서 <b>두 칸 이내</b>의 모이로만 난다. 출발은 모이통, 도착은 숲길 출구(⛩, 마을 방향). 장미 화단(🌹)에는 놓을 수 없다.',
+hints:['새는 겁이 많다. 너무 먼 모이까지는 날지 않는다.','두 칸 이내. 화단은 피해서 징검다리를 놓아라.','모이통에서 오른쪽 위 대각선 방향으로 두 칸씩 — 출구까지 일곱 걸음이면 닿는다.'],
+ans:'모이 일곱 줌의 징검다리 — 각 걸음이 두 칸 이내면 어떤 길이든 좋다. 경로의 끝은 숲 바깥, 마을 쪽이다.',
+build(box){if(done('S11'))return solvedMark(box,'새는 끝까지 날았다. 경로의 끝은 마을 쪽이다.');
+ const R2=5,C=7,START=[2,0],EXIT=[0,6];
+ const ROSE=[[3,2],[3,3],[4,2],[4,3]];
+ const feeds=[];
+ const cnt=el('div','progRow','남은 모이: 7줌');box.appendChild(cnt);
+ const grid=el('div','grid');grid.style.gridTemplateColumns='repeat(7,38px)';box.appendChild(grid);
+ const cells={};
+ for(let r=0;r<R2;r++)for(let c=0;c<C;c++){
+  const key=r+','+c;const isS=(r===START[0]&&c===START[1]),isE=(r===EXIT[0]&&c===EXIT[1]);
+  const isR=ROSE.some(p=>p[0]===r&&p[1]===c);
+  const cell=el('button','cell',isS?'◎':(isE?'⛩':(isR?'🌹':'')));cell.style.minHeight='36px';
+  if(!isS&&!isE&&!isR)cell.onclick=()=>{const at=feeds.findIndex(f=>f[0]===r&&f[1]===c);
+   if(at>=0){feeds.splice(at,1);cell.textContent='';cell.classList.remove('on');}
+   else{if(feeds.length>=7){toast('모이가 다 떨어졌다. 회수해서 옮겨라.');return;}
+    feeds.push([r,c]);cell.textContent='🌾';cell.classList.add('on');}
+   sfx('tap');cnt.textContent='남은 모이: '+(7-feeds.length)+'줌';};
+  grid.appendChild(cell);cells[key]=cell;}
+ const call=mkBtn('새 부르기 🐦','bigBtn');box.appendChild(call);
+ function near(a,b){return Math.max(Math.abs(a[0]-b[0]),Math.abs(a[1]-b[1]))<=2;}
+ function chain(){if(feeds.length!==7)return null;
+  const used=new Array(7).fill(false);const path=[];
+  function dfs(cur){if(path.length===7)return near(cur,EXIT);
+   for(let i=0;i<7;i++){if(used[i])continue;if(!near(cur,feeds[i]))continue;
+    used[i]=true;path.push(i);if(dfs(feeds[i]))return true;used[i]=false;path.pop();}
+   return false;}
+  return dfs(START)?path:null;}
+ call.onclick=()=>{if(feeds.length!==7){toast('모이 일곱 줌을 모두 놓아야 새가 움직인다.');return;}
+  const p=chain();
+  if(p){loseItem('seedJar');setFlag('T2');sfx('trig');
+   toast('크로스룸 — 응접실 창가 모이대에 하얀 새가 내려앉았다','trig');
+   say([{s:'',t:'하얀 새가 모이를 하나씩 물고 난다 — 끝까지. 그리고 카메라가 새를 따라가다 멈춘 곳: 경로의 연장선은 숲 바깥, 마을 쪽으로 이어져 있다.'},{s:'할미',t:'"정원사 영감은 신경 쓰지 마. 말을 못 해. 태어날 때부터가 아니라… 어느 날부터. 착한 사람이야. 이 집의 설탕이 늘 새것처럼 반짝이는 건 다 저 양반 덕이지."'}]);
+   solveSlot('S11');}
+  else{sfx('bad');toast('새가 중간에 멈추고 갸웃한다 — 어딘가 걸음이 너무 멀다.');}};}});
+
+/* S12 새장 자물쇠 (사이먼) */
+const S12_SEQ=[2,5,3,7,1,6,4];
+defSlot({id:'S12',t:'새장 자물쇠 — 쪼기 순서',type:'미션',
+desc:'응접실 모이대의 새가 창살 쪼는 순서를 시연한다. 새장의 창살 여덟 개 — 라운드마다 길어지는 순서를 그대로 재현하라 (3타 → 5타 → 7타).',
+hints:['새는 같은 노래를 반복한다. 몇 번이고 다시 보여 달라고 하라.','앞 라운드의 순서 뒤에 새 음이 붙는 식이다. 앞부분은 이미 아는 것.','2-5-3-7까지는 확정이다. 나머지 세 개만 다시 보라.'],
+ans:'2-5-3-7-1-6-4. 새가 가르쳐 준 순서 — 이 일곱 음의 높이는 나중에 다른 악기에서 다시 쓰인다.',
+build(box){if(done('S12'))return solvedMark(box,'새장 바닥판은 열렸다. 순서 2-5-3-7-1-6-4는 수첩에.');
+ let round=0,input=[],busy=false,fails=0,slow=false;
+ const LEN=[3,5,7];
+ const st=el('div','progRow','라운드 1 — 3타');box.appendChild(st);
+ const grid=el('div','grid');grid.style.gridTemplateColumns='repeat(4,56px)';box.appendChild(grid);
+ const btns=[];
+ for(let i=1;i<=8;i++){const b=el('button','simonBtn',String(i));
+  b.onclick=()=>{if(busy)return;input.push(i);lit(b);sfxNote(i);
+   const seq=S12_SEQ.slice(0,LEN[round]);
+   const at=input.length-1;
+   if(input[at]!==seq[at]){sfx('bad');fails++;input=[];st.textContent='삐끗 — 라운드 '+(round+1)+' 처음부터';
+    if(fails>=3&&!slow){slow=true;toast('시연을 반 박자 느리게 볼 수 있게 되었다.','trig');}return;}
+   if(input.length===seq.length){input=[];round++;
+    if(round>=3){
+     note('쪼기 순서','새의 일곱 걸음 — 2·5·3·7·1·6·4. 이 높이가 언젠가 다른 악기에서 다시 쓰인다.','기록');
+     gainItem('roseBook');
+     say([{s:'',t:'일곱 타 — 새장 바닥판이 툭 열린다. 바닥에서 얇은 책 한 권: 설탕 장미 도감. 속표지 헌사 — "새들과 나누어 먹을 것."'}]);
+     solveSlot('S12');return;}
+    st.textContent='라운드 '+(round+1)+' — '+LEN[round]+'타';toast('라운드 성공!');sfx('ok');}};
+  grid.appendChild(b);btns.push(b);}
+ function lit(b){b.classList.add('lit');setTimeout(()=>b.classList.remove('lit'),260);}
+ const replay=mkBtn('다시 보기 (응접실 시연 원격 재생) 🐦');box.appendChild(replay);
+ replay.onclick=()=>{if(busy)return;busy=true;input=[];
+  const seq=S12_SEQ.slice(0,LEN[round]);const gap=slow?900:520;
+  seq.forEach((n,i)=>setTimeout(()=>{lit(btns[n-1]);sfxNote(n);if(i===seq.length-1)setTimeout(()=>busy=false,300);},400+i*gap));};}});
+
+/* S13 계절 수열 */
+defSlot({id:'S13',t:'설탕 장미 화단 — 계절 수열',type:'퀴즈',
+desc:'화단 다섯 열의 팻말 — 봄 3송이 / 여름 5송이 / 가을 8송이 / 초겨울 13송이 / <b>한겨울 ?송이</b>.<br>도감의 구절: <i>"설탕 장미는 지난 두 계절에 핀 수를 합한 만큼 심는다 — 그래야 겨울에 뿌리가 서로를 덥힌다."</i>',
+hints:['화단 팻말의 숫자에는 규칙이 있다. 도감이 그 규칙을 알고 있다.','"지난 두 계절의 합" — 앞의 두 수를 더해 보라.','8 + 13.'],
+ans:'21. 3, 5, 8, 13, 21 — 겨울일수록 빽빽이 심는 규칙. 추운 계절에 서로를 덥히는 법을 이 화단은 알고 있다.',
+build(box){if(done('S13'))return solvedMark(box,'21송이. 벤치 서랍에서 다락 사다리 열쇠를 얻었다.');
+ if(!hasItem('roseBook')){box.appendChild(el('div','clue','빈 팻말에 숫자를 적으려면 규칙이 필요하다 — 이 화단의 도감이 어딘가 있을 것이다. (새장을 먼저)'));return;}
+ let w=0;
+ mkNum(box,'한겨울 ?송이',v=>{
+  if(v==='21'){gainItem('ladderKey');
+   say([{s:'',t:'빈 팻말에 21을 적자, 벤치 아래 서랍이 딸깍 열린다 — 다락 사다리 열쇠. 응접실의 사다리 자물쇠가 떠오른다.'}]);
+   solveSlot('S13');}
+  else{sfx('bad');w++;toast('팻말이 숫자를 받아들이지 않는다.');
+   if(w>=2)say([{s:'도감',t:'"설탕 장미는 지난 두 계절에 핀 수를 합한 만큼 심는다." — 가을 8, 초겨울 13. 그 다음은.'}]);}});}});
+
+/* S14 해시계 (2단계) */
+defSlot({id:'S14',t:'해시계 그림자 정렬',type:'미션',
+desc:'정원 끝의 해시계. 문자반에는 네 문양 — 새 · 빵 · 오븐 · 별.',
+hints:['그림자가 없다면, 빛을 먼저 구해야 한다. 이 집 가장 높은 곳에서.','몇 시로 맞출지는 모이 라벨과 도감 각주가 알고 있다.','그림자를 새 문양에 맞춰라.'],
+ans:'아침 모이 시간 — 그림자를 새 문양에. 위에서 든 빛이 시간을 가리키고, 시간은 새를 가리킨다.',
+build(box){if(done('S14'))return solvedMark(box,'그림자는 새 문양에 멎어 있다. 화단 아래에서 조약돌 주머니를 다시 보았다.');
+ if(!flag('T5')){
+  box.appendChild(el('div','clue','해시계는 겨울 숲 그늘에 잠겨 그림자가 없다. 문자반의 네 눈금 — 새·빵·오븐·별 — 만 수첩에 옮겨 적었다.'));
+  note('해시계 문자반','눈금 네 문양: 새 · 빵 · 오븐 · 별. 그림자가 생기면 맞출 수 있을 것이다.','기록');
+  box.appendChild(el('div','progRow','빛이 없다. 이 집 가장 높은 곳이 열려야 한다.'));return;}
+ const SYM=['🐦 새','🍞 빵','🔥 오븐','⭐ 별'];let pos=2;
+ box.appendChild(el('div','clue','다락 채광창에서 내려온 반사광 기둥이 해시계에 떨어져 있다. 문자반을 돌려 그림자를 눈금에 맞춰라.<br><i>씨앗 라벨: "하루 두 줌" · 도감 각주: "아침 첫 모이 시간, 그림자는 새에게 간다."</i>'));
+ const dial=el('div','progRow');dial.style.fontSize='22px';box.appendChild(dial);
+ function draw(){dial.textContent='그림자 ▼ — '+SYM[pos];}
+ draw();
+ const rot=mkBtn('문자반 돌리기 ↻','bigBtn');box.appendChild(rot);
+ rot.onclick=()=>{pos=(pos+1)%4;sfx('tap');draw();};
+ const fix=mkBtn('정렬 확정');box.appendChild(fix);
+ fix.onclick=()=>{if(pos===0){
+   say([{s:'',t:'그림자가 새 문양에 멎는다. 화단 아래 흙이 부풀어 오르고 — 조약돌 주머니가 다시 드러난다. 골무가 굴러 나온다. 정교한 바느질. 어린아이의 솜씨가 아니다.'},
+    {s:'',t:'…화단 너머. 허리 굽은 노인이 서 있다. 침묵의 정원사. 눈이 마주치자, 고개만 숙이고 온실 뒤로 사라진다.'}]);
+   solveSlot('S14');}
+  else{toast('그림자는 그 문양을 지나쳐 간다. 아무 일도 없다.');}};}});
+
+/* S15 오르골 */
+defSlot({id:'S15',t:'오르골 조립과 연주',type:'미션',
+desc:'오르골 내부 슬롯 다섯 — 태엽·실린더·빗살판·기어 大·기어 小. 방에서 모은 부품은 일곱 개. 상한 것을 골라내고, 태엽은 "충분히"만 감아라 (과하면 스프링이 튕긴다).',
+hints:['부품이 슬롯보다 많다. 상한 것을 골라내라.','빗살판은 이가 고르고, 기어는 녹이 없어야 한다.','태엽은 "끝까지"가 아니라 "충분히"만. 게이지 4분의 3쯤에서 놓아라.'],
+ans:'정품 다섯 부품 + 태엽 70~90%. 세 음이 반복되는 자장가가 살아난다.',
+build(box){if(done('S15'))return solvedMark(box,'오르골은 노래하고 있다 — 라, 도, 미.');
+ const PARTS=[{n:'태엽',s:0,ok:true},{n:'실린더',s:1,ok:true},{n:'빗살판',s:2,ok:true},{n:'이 빠진 빗살판',s:2,ok:false},{n:'기어 大',s:3,ok:true},{n:'녹슨 기어',s:3,ok:false},{n:'기어 小',s:4,ok:true}];
+ const SLOTN=['태엽','실린더','빗살판','기어 大','기어 小'];
+ const slots=[null,null,null,null,null];let selP=-1,fails=0;
+ const srow=el('div','cardRow');box.appendChild(srow);
+ const prow=el('div','cardRow');box.appendChild(prow);
+ const sEls=SLOTN.map((n,i)=>{const s=el('button','cell','<span style="font-size:11px;opacity:.6">'+n+'</span>');
+  s.style.cssText='min-width:76px;min-height:52px';
+  s.onclick=()=>{if(selP<0){if(slots[i]!==null){slots[i]=null;draw();sfx('tap');}return;}
+   const p=PARTS[selP];
+   if(p.s!==i){sfx('bad');toast('모양이 맞지 않는다.');selP=-1;draw();return;}
+   slots[i]=selP;selP=-1;sfx('tap');draw();};
+  srow.appendChild(s);return s;});
+ const pEls=PARTS.map((p,i)=>{const b=el('button','pcard','⚙️<br><span style="font-size:11px">'+p.n+'</span>');
+  b.onclick=()=>{if(slots.includes(i))return;selP=(selP===i?-1:i);draw();sfx('tap');};
+  prow.appendChild(b);return b;});
+ function draw(){sEls.forEach((s,i)=>{s.innerHTML=slots[i]===null?'<span style="font-size:11px;opacity:.6">'+SLOTN[i]+'</span>':'⚙️<br><span style="font-size:10px">'+PARTS[slots[i]].n+'</span>';s.classList.toggle('on',slots[i]!==null);});
+  pEls.forEach((b,i)=>{b.classList.toggle('dim',slots.includes(i));b.classList.toggle('sel',selP===i);});}
+ draw();
+ box.appendChild(el('div','progRow','태엽 감기 — 길게 눌렀다가 적당한 곳에서 놓아라'));
+ const g=el('div','gauge');const fill=el('div','fill');g.appendChild(fill);box.appendChild(g);
+ const zone=el('div','progRow','');box.appendChild(zone);
+ const wind=mkBtn('태엽 감기 (길게)','bigBtn');box.appendChild(wind);
+ let gv=0,gt=null;
+ wind.addEventListener('pointerdown',e=>{e.preventDefault();
+  if(slots.some(s=>s===null)){toast('부품이 모자라다.');return;}
+  gv=0;gt=setInterval(()=>{gv=Math.min(100,gv+2.2);fill.style.width=gv+'%';},50);});
+ const release=()=>{if(!gt)return;clearInterval(gt);gt=null;
+  const bad=slots.some(ix=>!PARTS[ix].ok);
+  if(bad){sfx('bad');const bi=slots.findIndex(ix=>!PARTS[ix].ok);
+   toast('연주가 삑사리로 끊긴다 — '+PARTS[slots[bi]].n+'이(가) 튕겨 나왔다.');
+   slots[bi]=null;draw();return;}
+  if(gv>=70&&gv<=90){
+   setFlag('T3');sfx('trig');
+   note('오르골 멜로디','세 음이 반복되는 자장가 — 박자는 길게·짧게·길게.','기록');
+   toast('크로스룸 — 아래층 항아리 하나가 따라 울고, 더 깊은 곳에서 벽돌 갈리는 소리','trig');
+   say([{s:'',t:'오르골이 살아난다 — 세 음이 반복되는 자장가. 그 순간 아래층 어디선가 항아리 하나가 따라 울고, 더 깊은 곳에서 벽돌 갈리는 소리가 났다.'}]);
+   playOrgel();
+   solveSlot('S15');}
+  else if(gv>90){sfx('bad');fails++;toast('스프링이 튕겼다! 처음부터.');fill.style.width='0%';
+   if(fails>=3&&!zone.textContent)zone.textContent='적정 구간: 70~90%';}
+  else{sfx('bad');fails++;toast('태엽이 모자라 멜로디가 서다 만다.');fill.style.width='0%';
+   if(fails>=3&&!zone.textContent)zone.textContent='적정 구간: 70~90%';}};
+ wind.addEventListener('pointerup',release);wind.addEventListener('pointerleave',release);}});
+
+/* S16 키·몸무게 그래프 */
+const S16_H=[1,1,2,3,3,4,4,4],S16_G=[1,2,2,3,4,4,5,5];
+defSlot({id:'S16',t:'문틀 눈금 — 기록 그래프',type:'퀴즈',
+desc:'문틀의 주 단위 기록 8주분, 두 아이(H/G). 표의 값을 그래프판에 옮겨라 — 주차 열에서 눈금 높이를 탭. 안내판은 말한다: <i>"마녀가 헨젤을 살찌운 기록."</i><br><br><b>H</b>: 1 1 2 3 3 4 4 4 · <b>G</b>: 1 2 2 3 4 4 5 5 <span style="opacity:.6">(눈금 1~5)</span>',
+hints:['안내판 말고 숫자만 보라. 숫자는 수식어가 없다.','첫 주의 값이 얼마나 낮은지부터 보라. 어디서 출발한 곡선인가?','이것은 부풀리는 곡선이 아니라 돌아오는 곡선이다. 그리고 기록된 아이는 한 명이 아니다.'],
+ans:'회복 곡선. 아사 직전에서 천천히 돌아오는 두 아이 — 여자아이의 몸무게도 매주 늘고 있다.',
+build(box){if(done('S16'))return solvedMark(box,'그래프는 회복 곡선을 그린다. 불일치 로그 #3.');
+ let cur='H';const plot={H:new Array(8).fill(0),G:new Array(8).fill(0)};
+ const tabs=el('div','cardRow');box.appendChild(tabs);
+ const tH=el('button','pcard sel','H (헨젤)');const tG=el('button','pcard','G (그레텔)');
+ tH.onclick=()=>{cur='H';tH.classList.add('sel');tG.classList.remove('sel');draw();};
+ tG.onclick=()=>{cur='G';tG.classList.add('sel');tH.classList.remove('sel');draw();};
+ tabs.appendChild(tH);tabs.appendChild(tG);
+ const grid=el('div','grid');grid.style.gridTemplateColumns='repeat(8,36px)';box.appendChild(grid);
+ function draw(){grid.innerHTML='';
+  for(let v=5;v>=1;v--)for(let wk=0;wk<8;wk++){
+   const c=el('button','cell'+(plot[cur][wk]===v?' on':''),plot[cur][wk]===v?(cur==='H'?'●':'◆'):'');
+   c.style.minHeight='34px';
+   c.onclick=()=>{plot[cur][wk]=v;sfx('tap');draw();};
+   grid.appendChild(c);}
+  grid.appendChild(el('div','progRow',''));}
+ draw();
+ box.appendChild(el('div','progRow','아래 행이 1주차→8주차, 위로 갈수록 큰 값'));
+ const ok=mkBtn('플롯 완료','bigBtn');box.appendChild(ok);
+ const qz=el('div','hidden');box.appendChild(qz);
+ ok.onclick=()=>{const okH=plot.H.every((v,i)=>v===S16_H[i]);const okG=plot.G.every((v,i)=>v===S16_G[i]);
+  if(!okH||!okG){sfx('bad');
+   const badW=[];for(let i=0;i<8;i++){if(plot.H[i]!==S16_H[i]||plot.G[i]!==S16_G[i])badW.push(i+1);}
+   toast((badW.length)+'개 주차의 점이 어긋난다: '+badW.join('·')+'주차');return;}
+  sfx('ok');ok.classList.add('hidden');qz.classList.remove('hidden');
+  qz.appendChild(el('div','clue','안내판 문구가 그래프 위에 반투명하게 겹쳐 보인다 — "마녀가 헨젤을 살찌운 기록." …곡선과 문구가 서로를 밀어낸다.<br><br><b>이 곡선이 말하는 것은?</b>'));
+  const opts=[['① 매주 급격히 불어나는 증량 — 살찌우기',false],['② 바닥에서 천천히 회복해 또래 평균에 안착하는 곡선',true],['③ 기록 조작으로 값이 들쭉날쭉함',false]];
+  opts.forEach(o=>{const b=mkBtn(o[0]);b.style.display='block';b.style.margin='6px auto';
+   b.onclick=()=>{if(o[1]){setFlag('ev_log3');
+    note('불일치 #3','키·몸무게 기록은 아사 직전에서 돌아오는 회복 곡선 — 그리고 기록된 아이는 둘이다. 그레텔의 몸무게도 매주 늘고 있다.','불일치');
+    say([{s:'',t:'회복 곡선. 잡아먹을 아이만 살찌운다는 이야기와 달리, 여자아이의 몸무게도 매주 늘고 있다.'},{s:'할미',t:'(해명이 이번에는 조금 늦게 나온다) "…아이들 크는 건 다 기록해 두는 법이야. 어느 집이든."'}]);
+    solveSlot('S16');}
+   else{sfx('bad');toast('곡선을 다시 보라 — 1주차 값이 어디서 출발하는가.');}};
+   qz.appendChild(b);});};}});
+
+/* S17 걸쇠 분해 */
+defSlot({id:'S17',t:'우리 걸쇠 분해',type:'미션',
+desc:'걸쇠 부품 여섯 — 올바른 순서로만 빠진다. 잘못 건드리면 무엇이 막고 있는지 역학이 알려 준다. 단서는 마모 흔적(자주 만진 순서)과 녹 위치.',
+hints:['가장 손때 묻은 부품이 가장 바깥 부품이다.','스프링은 핀보다 먼저다. 눌린 것을 먼저 풀어라.','덮개판, 스프링, 핀 둘(위부터), 빗장, 받침쇠.'],
+ans:'덮개판→판스프링→고정핀(위)→고정핀(아래)→빗장→받침쇠. 그리고 — 이 걸쇠는 안쪽에서만 걸 수 있다.',
+build(box){if(done('S17'))return solvedMark(box,'분해 완료. 걸쇠 손잡이와 잠금 혀는 우리 안쪽에만 있다. 불일치 로그 #4.');
+ const ORDER=['덮개판','판스프링','고정핀(위)','고정핀(아래)','빗장','받침쇠'];
+ const BLOCK={'판스프링':'덮개판이 덮고 있다','고정핀(위)':'스프링이 눌려 있어 핀이 빠지지 않는다','고정핀(아래)':'위쪽 핀이 먼저다','빗장':'핀 두 개가 아직 물려 있다','받침쇠':'빗장이 얹혀 있다'};
+ let step=0,miss=0;
+ const st=el('div','progRow','분해 0/6');box.appendChild(st);
+ const row=el('div','cardRow');box.appendChild(row);
+ const disp=[3,0,5,1,4,2];/* 화면 배치 순서 */
+ disp.forEach(oi=>{const name=ORDER[oi];
+  const b=el('button','pcard','🔩<br><span style="font-size:11px">'+name+'</span>');
+  b.onclick=()=>{if(b.classList.contains('dim'))return;
+   if(ORDER[step]===name){b.classList.add('dim');step++;sfx('tap');st.textContent='분해 '+step+'/6';
+    if(step===6){setFlag('ev_log4');
+     note('불일치 #4','우리 걸쇠는 안쪽에서만 잠긴다. 가두는 우리가 아니라 — 숨는 상자다.','불일치');
+     note('스냅샷 — 우리 내부 시점','분해 후 자동 전환된 내부 뷰. 틈새로 방을 내다보는 구도.','물증');
+     say([{s:'',t:'마지막 받침쇠가 빠지자 내부 구조가 드러난다 — 걸쇠 손잡이와 잠금 혀가 우리 안쪽에만 있다. 가두는 우리에 왜 안쪽 걸쇠가 필요했을까.'},{s:'',t:'(할미는 이번엔 아무 말도 하지 않는다.)'}]);
+     solveSlot('S17');}}
+   else{sfx('bad');miss++;
+    toast(BLOCK[name]?('움직이지 않는다 — '+BLOCK[name]+'.'):'지금 그 부품이 아니다.');
+    if(miss>=8)st.textContent='분해 '+step+'/6 · 마모 흔적: 다음은 「'+ORDER[step]+'」 근처가 반들반들하다';}};
+  row.appendChild(b);});}});
+
+/* S18 장난감 수납 */
+defSlot({id:'S18',t:'장난감 상자 수납',type:'미션',
+desc:'장난감 일곱 개를 상자 안 제자리에 전부 수납하라. 장난감을 고르고, 필요하면 돌려서, 자리를 탭. 큰 것부터.',
+hints:['큰 것부터. 목마가 들어갈 자리는 사실 한 곳뿐이다.','목마는 왼쪽 벽에 붙이고, 블록 셋은 계단처럼 쌓아라.','남는 두 칸이 오른쪽 아래 구석에 오도록 — 나팔은 세로로.'],
+ans:'목마(좌벽)·블록 3(계단)·인형·팽이·나팔(세로). 상자 바닥 이중판 아래 — 구멍이 셋 뚫린 흰 뼈.',
+build(box){if(done('S18'))return solvedMark(box,'상자는 정리되었다. 이중판 아래에서 뼈 피리를 찾았다.');
+ const TOYS=[{n:'목마',ic:'🐴',zone:0,rot:false},{n:'헝겊 인형',ic:'🧸',zone:1,rot:false},{n:'팽이',ic:'🪀',zone:2,rot:false},{n:'블록 A',ic:'🟥',zone:3,rot:false},{n:'블록 B',ic:'🟧',zone:4,rot:false},{n:'블록 C',ic:'🟨',zone:5,rot:false},{n:'나팔',ic:'🎺',zone:6,rot:true}];
+ const ZN=['좌벽 큰 칸','윗줄 넓은 칸','가운데 작은 칸','계단 칸 1','계단 칸 2','계단 칸 3','세로 긴 칸','구석 여백','구석 여백'];
+ let sel=-1,rotOn=false;const placed=new Array(7).fill(-1);
+ const tray=el('div','cardRow');box.appendChild(tray);
+ const tEls=TOYS.map((t,i)=>{const b=el('button','pcard',t.ic+'<br><span style="font-size:10.5px">'+t.n+'</span>');
+  b.onclick=()=>{if(placed[i]>=0)return;sel=(sel===i?-1:i);draw();sfx('tap');};
+  tray.appendChild(b);return b;});
+ const rotB=mkBtn('회전 ↻ (가로)');box.appendChild(rotB);
+ rotB.onclick=()=>{rotOn=!rotOn;rotB.textContent='회전 ↻ ('+(rotOn?'세로':'가로')+')';sfx('tap');};
+ const grid=el('div','grid');grid.style.gridTemplateColumns='repeat(3,96px)';box.appendChild(grid);
+ const zEls=ZN.map((n,zi)=>{const z=el('button','cell','<span style="font-size:10.5px;opacity:.6">'+n+'</span>');
+  z.style.minHeight='52px';
+  z.onclick=()=>{if(sel<0){const at=placed.indexOf(zi);if(at>=0){placed[at]=-1;draw();sfx('tap');}return;}
+   if(zi>=7){sfx('bad');toast('여백은 여백으로 남아야 한다.');return;}
+   if(placed.includes(zi)){sfx('bad');toast('이미 차 있다.');return;}
+   const t=TOYS[sel];
+   if(t.zone!==zi){sfx('bad');z.classList.add('bad');setTimeout(()=>z.classList.remove('bad'),450);toast('겹치거나 남는다 — 맞지 않는 자리.');return;}
+   if(t.rot&&!rotOn){sfx('bad');toast('가로로는 들어가지 않는다.');return;}
+   placed[sel]=zi;sel=-1;sfx('tap');draw();
+   if(placed.every(p=>p>=0)){
+    gainItem('boneFlute');setFlag('ev_cardBone');
+    note('관찰 — 뼈 피리','구멍이 셋 뚫린 흰 뼈. 안내판은 "헨젤이 마녀를 속인 손가락 뼈"라 하지만 — 불면 새소리가 난다.','물증');
+    say([{s:'',t:'다 정리된 상자 바닥에서 이중판이 들린다. 그 아래 — 구멍이 셋 뚫린 흰 뼈. 불면 새소리가 난다.'},{s:'할미',t:'"그 피리 소리, 새들이 참 좋아했지. …아니, 좋아해. 지금도."'}]);
+    solveSlot('S18');}};
+  grid.appendChild(z);return z;});
+ function draw(){tEls.forEach((b,i)=>{b.classList.toggle('sel',sel===i);b.classList.toggle('dim',placed[i]>=0);});
+  zEls.forEach((z,zi)=>{const at=placed.indexOf(zi);
+   z.innerHTML=at>=0?TOYS[at].ic+'<br><span style="font-size:10px">'+TOYS[at].n+'</span>':'<span style="font-size:10.5px;opacity:.6">'+ZN[zi]+'</span>';
+   z.classList.toggle('ok',at>=0);});}
+ draw();}});
+
+/* ================= SLOTS C (S19~S26) ================= */
+/* S19 판본 대조 */
+defSlot({id:'S19',t:'판본 대조 — 변형 단어 추적',type:'퀴즈',
+desc:'『확정 동화집』 1판과 6판을 나란히 놓았다.<br><b>과제 A</b> — 6판에서, 판을 거듭하며 바뀐 단어 다섯 곳을 탭하라.<br><b>과제 B</b> — 1판에만 있고 이후 모든 판에서 삭제된 문장을 1판에서 탭하라.',
+hints:['같은 장면을 판마다 읽어 보라. 사건은 그대로인데 형용사가 자란다.','사람을 가리키는 말과, 웃음을 묘사하는 말이 판마다 바뀌었다.','삭제된 문장은 아이들이 그 집에 "얼마나" 있었는지에 대한 것이다. 1판의 겨울 대목을 보라.'],
+ans:'마녀는·살찌우려·군침을·흘리며·잡아먹을 — 다섯 단어가 판을 거듭하며 자랐다. 그리고 지워진 문장: "아이들은 그 집에서 겨울을 났다."',
+build(box){if(done('S19'))return solvedMark(box,'"아이들은 그 집에서 겨울을 났다." — 하룻밤의 납치극이 아니라 한 계절의 동거였다.');
+ const W6=[['마녀는',1],['어두운',0],['숲의',0],['집에서',0],['잡아먹을',1],['아이들을',0],['살찌우려',1],['빵을',0],['주며',0],['군침을',1],['흘리며',1],['웃었다.',0]];
+ const selA=new Set();let aDone=false,misses=0;
+ box.appendChild(el('div','docCard','<h4>제1판 (원문)</h4>여자는 숲의 집에서 아이들에게 빵을 주며 웃었다.'));
+ const doc6=el('div','docCard');doc6.style.marginTop='10px';doc6.innerHTML='<h4>제6판 (현행) — 바뀐 단어 5곳을 탭</h4>';
+ box.appendChild(doc6);
+ W6.forEach((w,i)=>{const sp=el('span','wordTap',w[0]+' ');
+  sp.onclick=()=>{if(aDone)return;
+   if(selA.has(i)){selA.delete(i);sp.classList.remove('sel');}
+   else{selA.add(i);sp.classList.add('sel');}sfx('tap');};
+  doc6.appendChild(sp);});
+ const prog=el('div','progRow','과제 진행 0/6');box.appendChild(prog);
+ const okA=mkBtn('과제 A 제출','bigBtn');box.appendChild(okA);
+ const partB=el('div','hidden');box.appendChild(partB);
+ okA.onclick=()=>{const right=W6.every((w,i)=>(w[1]===1)===selA.has(i));
+  if(right){aDone=true;sfx('ok');prog.textContent='과제 진행 5/6';okA.classList.add('hidden');showB();}
+  else{sfx('bad');misses++;toast('오탭이 섞여 있거나 빠진 곳이 있다.');
+   if(misses>=5)doc6.style.boxShadow='0 0 0 2px rgba(232,176,75,.4)';}};
+ function showB(){partB.classList.remove('hidden');
+  const dc=el('div','docCard','<h4>제1판 — 삭제된 문장을 탭</h4>');partB.appendChild(dc);
+  const SENT=[['새들이 빵부스러기를 먹어 길이 사라졌다.',0],['아이들은 그 집에서 겨울을 났다.',1],['아이들은 보석을 안고 집으로 돌아갔다.',0]];
+  SENT.forEach(s=>{const sp=el('div','wordTap',s[0]);sp.style.display='block';sp.style.margin='4px 0';
+   sp.onclick=()=>{if(s[1]){sp.classList.add('okw');sfx('ok');
+    note('리빌 재료 — 삭제된 문장','1판에만 있던 문장: "아이들은 그 집에서 겨울을 났다." 판을 거듭할수록 이야기는 괴담이 되었다.','기록');
+    gainItem('glasses');
+    say([{s:'',t:'같은 사건이, 판을 거듭하며 점점 괴담이 되어 왔다. 그리고 지워진 한 문장 — "아이들은 그 집에서 겨울을 났다."'},{s:'',t:'판본 보관함 바닥에서 낡은 안경이 나왔다. 도수가 지독하게 높다.'}]);
+    solveSlot('S19');}
+   else{sfx('bad');toast('그 문장은 6판에도 살아 있다.');}};
+   dc.appendChild(sp);});}}});
+
+/* S20 채광창 크랭크 */
+defSlot({id:'S20',t:'채광창 크랭크 — 기어 트레인',type:'미션',
+desc:'크랭크와 채광창 랙 사이 기어 슬롯 네 개. 예비 기어 여섯 개(大 3 · 小 3) 중 넷을 배치하라. 맞물린 기어는 서로 반대로 돈다 — 크랭크(시계방향)가 랙을 <b>위로</b> 밀어야 한다. 랙에 닿는 마지막 칸이 관건이다.',
+hints:['이 하나를 사이에 둘 때마다 도는 방향이 뒤집힌다.','랙을 올리려면 마지막 기어가 어느 쪽으로 돌아야 하는지부터 정하고 거꾸로 세라.','네 칸을 모두 채우고, 랙에 닿는 마지막 칸에는 큰 기어를.'],
+ans:'기어 넷 = 방향 반전 네 번 → 마지막 기어는 반시계. 랙 접점에는 큰 기어. 65년 묵은 성에창이 열린다.',
+build(box){if(done('S20'))return solvedMark(box,'채광창은 열려 있다. 겨울 햇빛이 정원 해시계로 떨어진다.');
+ const slots=[null,null,null,null];let sel=-1;
+ const tray=el('div','cardRow');box.appendChild(tray);
+ const GE=[0,0,0,1,1,1];/* 0=小 1=大 */
+ const gEls=GE.map((g,i)=>{const b=el('button','pcard',(g?'⚙️<br>大':'⚙<br>小'));
+  b.onclick=()=>{if(slots.includes(i))return;sel=(sel===i?-1:i);draw();sfx('tap');};
+  tray.appendChild(b);return b;});
+ const srow=el('div','cardRow');box.appendChild(srow);
+ const sEls=[0,1,2,3].map(si=>{const s=el('button','cell','<span style="opacity:.5;font-size:11px">슬롯'+(si+1)+(si===3?'·랙':'')+'</span>');
+  s.style.cssText='min-width:70px;min-height:54px';
+  s.onclick=()=>{if(sel<0){if(slots[si]!==null){slots[si]=null;draw();sfx('tap');}return;}
+   slots[si]=sel;sel=-1;draw();sfx('tap');};
+  srow.appendChild(s);return s;});
+ function draw(){gEls.forEach((b,i)=>{b.classList.toggle('sel',sel===i);b.classList.toggle('dim',slots.includes(i));});
+  sEls.forEach((s,si)=>{const gi=slots[si];
+   s.innerHTML=gi===null?'<span style="opacity:.5;font-size:11px">슬롯'+(si+1)+(si===3?'·랙':'')+'</span>'
+    :(GE[gi]?'⚙️':'⚙')+'<br><span style="font-size:10px">'+(si%2===0?'↺':'↻')+'</span>';
+   s.classList.toggle('on',gi!==null);});}
+ draw();
+ const crank=mkBtn('크랭크 돌리기 (길게)','bigBtn');box.appendChild(crank);
+ pressHold(crank,1200,()=>{
+  if(slots.some(s=>s===null)){sfx('bad');toast('기어가 헛돈다 — 트레인이 끊겨 있다.');return;}
+  if(!GE[slots[3]]){sfx('bad');toast('랙이 부르르 떨다 내려간다 — 접점의 기어가 랙 이에 닿지 않는다.');return;}
+  setFlag('T5');sfx('trig');
+  toast('크로스룸 — 정원 해시계에 그림자가 생겼다','trig');
+  say([{s:'',t:'크랭크가 돌고, 65년 묵은 성에창이 열린다. 겨울 햇빛이 유리에 반사되어 — 정원의 해시계 위로 떨어진다.'}]);
+  solveSlot('S20');},p=>{crank.style.opacity=String(1-p*0.3);});}});
+
+/* S21 성에 글씨 */
+defSlot({id:'S21',t:'성에 글씨 판독 + 필체 대조',type:'미션',
+desc:'성에 격자 열두 칸 — 칸을 <b>길게 눌러</b> 입김으로 녹여라. 글씨가 다 드러나면, 수첩의 필적 카드와 대조한다.',
+hints:['성에가 너무 두껍다면 — 이 집 어딘가의 온기가 필요하다. (부엌 쪽이 따뜻해 보인다)','필체는 획의 버릇을 보라. ㅅ의 삐침이 두 카드에서 똑같다.','어른의 단정한 손 둘, 서툰 아이의 손 하나.'],
+ans:'"새들에게 모이를 주세요." — 어린아이의 필체. 장부와 라벨을 쓴 어른의 손과는 다르다.',
+build(box){if(done('S21'))return solvedMark(box,'"새들에게 모이를 주세요." 어린아이의 필체 — 필적 카드에 추가됨.');
+ if(!flag('T1')){box.appendChild(el('div','clue','성에가 너무 두껍다. 입김 정도로는 어림도 없다 — 이 집 어딘가의 온기가 필요하다.'));return;}
+ const TXT=['새','들','에','게','','모','이','를','','주','세','요'];
+ let left=12;
+ box.appendChild(el('div','progRow','오븐의 열기로 성에가 반쯤 물러졌다. 남은 칸을 길게 눌러 녹여라.'));
+ const grid=el('div','grid');grid.style.gridTemplateColumns='repeat(4,56px)';box.appendChild(grid);
+ const after=el('div','hidden');box.appendChild(after);
+ TXT.forEach((ch,i)=>{const c=el('button','cell','❄️');c.style.minHeight='48px';
+  pressHold(c,1200,()=>{if(c.dataset.ok)return;c.dataset.ok='1';
+   c.textContent=ch||'·';c.classList.add('ok');sfx('tap');left--;
+   if(left===0){sfx('ok');
+    say([{s:'',t:'긁어 쓴 글씨 전체가 드러난다 — "새들에게 모이를 주세요." 어린아이의 필체다. 무해하다. 아직은.'}]);
+    showMatch();}},
+   p=>{c.style.background=p>0?'rgba(127,163,191,'+(0.15+p*0.3)+')':'';});
+  grid.appendChild(c);});
+ function showMatch(){after.classList.remove('hidden');
+  after.appendChild(el('div','clue','<b>필체 대조</b> — 세 카드 중 "같은 손"으로 쓰인 두 장을 차례로 탭하라.'));
+  const CARDS=[['출납 장부','단정한 어른의 손, ㅅ 삐침',0],['씨앗 라벨','단정한 어른의 손, ㅅ 삐침',0],['성에 글씨','서툰 획, 힘이 고르지 않다',1]];
+  const row=el('div','cardRow');after.appendChild(row);
+  let pick=[];let w=0;
+  CARDS.forEach((cd,i)=>{const b=el('button','pcard','🗒<br><b>'+cd[0]+'</b><br><span style="font-size:10px;opacity:.7">'+cd[1]+'</span>');
+   b.onclick=()=>{if(pick.includes(i)){pick=pick.filter(x=>x!==i);b.classList.remove('sel');return;}
+    pick.push(i);b.classList.add('sel');sfx('tap');
+    if(pick.length===2){
+     if(pick.includes(0)&&pick.includes(1)){
+      note('필적 카드 — 성에 글씨','"새들에게 모이를 주세요." 서툰 어린아이의 손. 장부·라벨의 어른 손과 별개.','필적');
+      say([{s:'',t:'장부와 라벨 — 같은 손. 성에 글씨 — 다른 손. 누가, 언제, 왜 유리를 긁어 이 부탁을 남겼을까.'}]);
+      solveSlot('S21');}
+     else{sfx('bad');w++;pick=[];row.querySelectorAll('.pcard').forEach(c=>c.classList.remove('sel'));
+      toast('카드가 도리도리 흔들린다.');
+      if(w>=2)toast('ㅅ의 삐침을 보라 — 두 카드에서 똑같다.','trig');}}};
+   row.appendChild(b);});}}});
+
+/* S22 연대기 날짜 역산 */
+defSlot({id:'S22',t:'연대기 날짜 역산 — 계절 모순',type:'퀴즈',
+desc:'문서 셋을 대조하라.<br>① 동화 연표(6판 부록): <i>"사건은 기근 3년째 여름."</i><br>② 마을 연대기: <i>"재의 해(기근 3년째), 숲의 화재 — 성 마르틴 축일 무렵."</i><br>③ 연대기 첫 장 절기표: <i>"성 마르틴 축일 = 첫눈 무렵(초겨울)."</i><br>④ 방명록 개관 기록: <i>"화재 이듬해 봄, 사적지 개관."</i><br><br>(a) 숲의 화재가 난 <b>실제 계절</b>은? (b) 근거 문서 두 개를 지정하라.',
+hints:['동화와 마을 기록, 같은 해를 말하는데 계절이 다르다. 어느 쪽에 물증이 있나?','"성 마르틴 축일"이 언제인지 연대기 첫 장이 알려 준다.','첫눈 무렵 = 초겨울. 동화의 "여름"이 거짓이다.'],
+ans:'겨울 — 근거는 마을 연대기 + 절기표. 굶주림이 가장 깊던 계절에 불이 났다. 동화만이 홀로 여름이라 말한다.',
+build(box){if(done('S22'))return solvedMark(box,'화재는 한겨울. 불일치 로그 #5.');
+ let season=null;const evPick=new Set();
+ box.appendChild(el('div','progRow','(a) 계절'));
+ const sr=el('div','cardRow');box.appendChild(sr);
+ ['봄','여름','가을','겨울'].forEach((s,i)=>{const b=el('button','pcard',s);
+  b.onclick=()=>{season=i;sr.querySelectorAll('.pcard').forEach(c=>c.classList.remove('sel'));b.classList.add('sel');sfx('tap');};
+  sr.appendChild(b);});
+ box.appendChild(el('div','progRow','(b) 근거 문서 2개'));
+ const er=el('div','cardRow');box.appendChild(er);
+ const DOCS=[['동화 연표',0],['마을 연대기',1],['절기표(연대기 첫 장)',1],['방명록 개관 기록',0]];
+ DOCS.forEach((d,i)=>{const b=el('button','pcard','📄<br>'+d[0]);
+  b.onclick=()=>{if(evPick.has(i)){evPick.delete(i);b.classList.remove('sel');}
+   else{if(evPick.size>=2){toast('근거 슬롯은 두 칸뿐이다.');return;}evPick.add(i);b.classList.add('sel');}sfx('tap');};
+  er.appendChild(b);});
+ const ok=mkBtn('제출','bigBtn');box.appendChild(ok);
+ ok.onclick=()=>{if(season!==3){sfx('bad');toast('절기표를 다시 보라 — 성 마르틴 축일은 첫눈 무렵이다.');return;}
+  if(!(evPick.has(1)&&evPick.has(2))){sfx('bad');toast('그 문서에는 계절의 물증이 없다.');return;}
+  setFlag('ev_log5');
+  note('불일치 #5','숲의 화재는 한겨울 — 굶주림이 가장 깊던 계절. 동화만이 홀로 "여름"이라 말한다.','불일치');
+  say([{s:'',t:'화재는 한겨울에 났다. 계절을 옮겨야 했던 이유가 있었을 것이다.'}]);
+  solveSlot('S22');};}});
+
+/* S23 우물 도르래 */
+defSlot({id:'S23',t:'우물 도르래 수리 + 물 긷기',type:'미션',
+desc:'① 크랭크 손잡이를 장착했다. ② 끊어진 로프 — 매듭을 골라라. 우물 벽의 낙서: <i>"두 번 감고 아래로 빼면 물이 무거워도 풀리지 않는다."</i> ③ 물 긷기 — 도는 바늘이 표시에 겹치는 순간 크랭크를 탭 (16박 중 12박 이상).',
+hints:['손잡이가 없다면 — 음식이 다니던 길로 도구도 다닌다.','매듭은 우물 벽의 낙서가 가르쳐 준다.','바늘이 마커에 겹치는 순간만 탭. 빠르게 돌리려 하지 마라.'],
+ans:'두레박 매듭(두 번 감고 아래로) + 리듬 16박. 넘친 물이 배수 홈을 타고 — 응접실 남쪽 벽으로 스며든다.',
+build(box){if(done('S23'))return solvedMark(box,'물은 길어 올렸다. 남벽의 설탕이 물러지는 중이다.');
+ if(!hasItem('crank')){box.appendChild(el('div','clue','도르래에 손잡이가 없다. 음식이 다니던 길로 도구도 다닌다 — 덤웨이터를 살펴보라.'));return;}
+ let knot=false;
+ const kr=el('div','cardRow');box.appendChild(kr);
+ const KN=[['외벌 매듭','한 번 감기',0],['옭매듭','당길수록 조임',0],['두레박 매듭','두 번 감고 아래로',1]];
+ KN.forEach(k=>{const b=el('button','pcard','🪢<br><b>'+k[0]+'</b><br><span style="font-size:10px;opacity:.7">'+k[1]+'</span>');
+  b.onclick=()=>{if(k[2]){knot=true;kr.querySelectorAll('.pcard').forEach(c=>c.classList.add('dim'));b.classList.remove('dim');b.classList.add('sel');sfx('ok');toast('매듭이 단단히 앉았다.');rhythm.classList.remove('hidden');}
+   else{sfx('bad');toast('두레박이 툭 떨어졌다 — 매듭이 풀렸다.');}};
+  kr.appendChild(b);});
+ const rhythm=el('div','hidden');box.appendChild(rhythm);
+ rhythm.appendChild(el('div','progRow','물 긷기 — ● 순간에 탭'));
+ const dial=el('div','progRow');dial.style.cssText='font-size:26px;letter-spacing:6px';rhythm.appendChild(dial);
+ const st=el('div','progRow','박 0/16 · 성공 0');rhythm.appendChild(st);
+ const tap=mkBtn('크랭크 ⟳','bigBtn');rhythm.appendChild(tap);
+ let ang=0,beats=0,hits=0,timer=null,tapped=false,running=false;
+ const startB=mkBtn('감기 시작');rhythm.appendChild(startB);
+ startB.onclick=()=>{if(running)return;running=true;beats=0;hits=0;ang=0;
+  timer=setInterval(()=>{ang+=7.5;
+   const ph=ang%360;
+   dial.textContent=(ph>325||ph<35)?'〔●〕':'〔 ○ 〕';
+   if(ph>=352){ /* 박 종료 */
+    ang=0; beats++; if(!tapped){/* 놓침 */}
+    tapped=false;
+    st.textContent='박 '+beats+'/16 · 성공 '+hits;
+    if(beats>=16){clearInterval(timer);running=false;
+     if(hits>=12){
+      setFlag('T6');G.flags.T6time=Date.now();loseItem('crank');save();sfx('trig');
+      toast('크로스룸 — 응접실 남벽의 설탕이 물러지기 시작한다','trig');
+      say([{s:'',t:'물이 올라온다. 넘친 물이 배수 홈을 타고 벽을 따라 — 위층 응접실 남쪽으로 스며든다.'},{s:'할미',t:'"설탕 바닥은 물기를 싫어하거든." — 첫날의 그 말이, 이제 다르게 들린다.'}]);
+      solveSlot('S23');}
+     else{sfx('bad');toast('두레박이 미끄러져 내려갔다 ('+hits+'/16). 다시.');st.textContent='박 0/16 · 성공 0';}}}
+  },40);};
+ tap.onclick=()=>{if(!running||tapped)return;const ph=ang%360;
+  if(ph>325||ph<35){hits++;tapped=true;sfx('tap');st.textContent='박 '+beats+'/16 · 성공 '+hits;}
+  else{sfx('bad');tapped=true;}};}});
+
+/* S24 재층 발굴 */
+defSlot({id:'S24',t:'재층 발굴 — 단면 기둥',type:'미션',
+desc:'발굴 격자 — 위쪽 흰 설탕층은 흙손(강)으로 걷어도 되지만, <b>회색 그을음층부터는 솔(약)만</b>. 흙손을 대면 그 칸은 훼손된다. 세로 한 열(4칸)을 무손상으로 맨 밑 재까지 노출해 "단면 기둥"을 만들어라.',
+hints:['깊어질수록 조심스러워져야 한다. 도구를 바꿔라.','색이 어두워지는 순간부터는 솔이다.','흰 층까지만 흙손. 회색이 비치면 즉시 토글.'],
+ans:'설탕(흙손) → 그을음·재(솔). 흰 켜 아래 그을음, 맨 밑에 재 — 이 구덩이는 불을 기억하고 있다.',
+build(box){if(done('S24'))return solvedMark(box,'단면 기둥 기록 완료 — 설탕, 그을음, 재.');
+ const COLS=6,ROWS=4;
+ /* 각 칸: 남은 층 ['s','s','g'] → 다 걷으면 재 노출 */
+ const cells=[];let tool='trowel';
+ const tr=el('div','cardRow');box.appendChild(tr);
+ const bT=el('button','pcard sel','🛠 흙손 (강)');const bB=el('button','pcard','🖌 솔 (약)');
+ bT.onclick=()=>{tool='trowel';bT.classList.add('sel');bB.classList.remove('sel');sfx('tap');};
+ bB.onclick=()=>{tool='brush';bB.classList.add('sel');bT.classList.remove('sel');sfx('tap');};
+ tr.appendChild(bT);tr.appendChild(bB);
+ const grid=el('div','grid');grid.style.gridTemplateColumns='repeat(6,44px)';box.appendChild(grid);
+ for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
+  const cell={layers:['s','s','g'],ruin:false,brush:0};
+  const b=el('button','cell','');b.style.minHeight='40px';
+  const paint=()=>{if(cell.ruin){b.textContent='✕';b.className='cell bad';return;}
+   const top=cell.layers[0];
+   b.style.background=top==='s'?'#e9e2d2':(top==='g'?'#6b6862':'#17130f');
+   b.style.color=top==='s'?'#232220':'#D8D2C2';
+   b.textContent=top==='s'?'':(top==='g'?'':'재');
+   if(!cell.layers.length){b.style.background='#17130f';b.textContent='재';b.classList.add('ok');}};
+  paint();
+  b.onclick=()=>{if(cell.ruin||!cell.layers.length)return;
+   const top=cell.layers[0];
+   if(tool==='trowel'){
+    if(top==='s'){cell.layers.shift();cell.brush=0;sfx('tap');}
+    else{cell.ruin=true;sfx('bad');toast('층위 훼손! 이 칸은 기록할 수 없다.');}}
+   else{cell.brush++;if(cell.brush>=3){cell.layers.shift();cell.brush=0;sfx('tap');}}
+   paint();};
+  grid.appendChild(b);cells.push(cell);}
+ const rec=mkBtn('단면 기록 📸','bigBtn');box.appendChild(rec);
+ rec.onclick=()=>{let okCol=-1;
+  for(let c=0;c<COLS;c++){let good=true;
+   for(let r=0;r<ROWS;r++){const cl=cells[r*COLS+c];if(cl.ruin||cl.layers.length)good=false;}
+   if(good){okCol=c;break;}}
+  if(okCol<0){sfx('bad');toast('무손상으로 재까지 노출된 세로 열이 아직 없다.');return;}
+  note('층위 단면 데이터','흰 설탕 켜가 겹겹이, 그 아래 그을음, 맨 밑에 재. 5겹마다 굵은 띠.','물증');
+  say([{s:'',t:'단면 기록 완료. 흰 켜가 몇 겹이고 쌓여 있고, 그 아래 그을음, 맨 밑에 재. 이 구덩이는 불을 기억하고 있다.'}]);
+  solveSlot('S24');};}});
+
+/* S25 층위 계수 */
+defSlot({id:'S25',t:'설탕 층위 계수',type:'퀴즈',
+desc:'확대경 아래 단면 — 5겹마다 살짝 굵은 띠가 있다(해마다 첫눈 뒤 첫 코팅이 두껍다). 굵은 띠는 모두 열셋.<br><b>문항 1</b> — 설탕은 몇 겹인가?',
+hints:['한 겹씩 다 세지 않아도 된다. 굵은 띠의 규칙을 찾아라.','굵은 띠 사이는 언제나 다섯 겹이다.','굵은 띠 13개 × 5.'],
+ans:'65겹 — 방명록의 65년과 같다. 한 번 부은 것이 아니라, 예순다섯 번 매년 다시 입힌 것이다.',
+build(box){if(done('S25'))return solvedMark(box,'65겹 = 방명록 65년. 매년, 다시 입힌 것이다.');
+ const q2=el('div','hidden');
+ mkNum(box,'몇 겹?',v=>{
+  const n=parseInt(v,10);
+  if(n===65){sfx('ok');q2.classList.remove('hidden');box.querySelector('.numpadIn').disabled=true;}
+  else if(Math.abs(n-65)<=2){sfx('bad');toast('다시 세자 — 굵은 띠는 다섯 겹마다.');}
+  else{sfx('bad');toast('셈이 크게 어긋났다. 굵은 띠부터.');}});
+ box.appendChild(q2);
+ q2.appendChild(el('div','clue','<b>문항 2</b> — 이 숫자와 같은 숫자를 가진 것은?'));
+ const row=el('div','cardRow');q2.appendChild(row);
+ [['방명록의 햇수',1],['항아리 개수',0],['삽화 점수',0],['판본 쇄수',0]].forEach(o=>{
+  const b=el('button','pcard',o[0]);
+  b.onclick=()=>{if(o[1]){setFlag('ev_card65');
+   note('물증 — 65겹','설탕 층위 65겹 = 방명록 65년. 예순다섯 번, 매년, 다시 입혔다. 누가, 무엇 위에.','물증');
+   say([{s:'',t:'65겹 — 방명록의 65년과 같다. 이 설탕은 한 번 부은 것이 아니다. 예순다섯 번, 매년, 다시 입힌 것이다. 누가, 무엇 위에.'}]);
+   solveSlot('S25');}
+  else{sfx('bad');toast('그 숫자가 아니다 — 방명록 표지가 자꾸 눈에 밟힌다.');}};
+  row.appendChild(b);});}});
+
+/* S26 남벽 설탕 긁기 */
+defSlot({id:'S26',t:'남벽 설탕 긁어내기',type:'미션',
+desc:'우물물이 스며 남벽 아래쪽부터 설탕이 물러지고 있다. <b>젖은 칸만</b> 긁힌다(칸당 3연타). 마른 칸은 물이 차오르길 기다려라. 다 벗겨낸 뒤 — 관찰 과제가 있다.',
+hints:['벽이 돌처럼 단단하다면 — 설탕은 물기를 싫어한다고 했지. (지하의 우물)','물이 스민 아래쪽부터. 위는 물이 차오르길 기다려라.','자국은 아홉. 겹친 두 개를 놓치기 쉽다 — 왼쪽 위를 다시 보라.'],
+ans:'도끼 자국 아홉, 문 높이까지 튄 그을음. 65겹의 설탕이 덮고 있던 것.',
+build(box){if(done('S26'))return solvedMark(box,'남벽 — 도끼 자국 9개, 문 높이의 그을음. 스냅샷은 수첩에.');
+ if(!flag('T6')){box.appendChild(el('div','clue','벽이 돌처럼 단단하다. 설탕은 물기를 싫어한다고 했지 — 물이 필요하다.'));return;}
+ const COLS=6,ROWS=5;let scraped=0;let phase=1;
+ const grid=el('div','grid');grid.style.gridTemplateColumns='repeat(6,44px)';box.appendChild(grid);
+ const st=el('div','progRow','벗겨냄 0%');box.appendChild(st);
+ const cells=[];
+ const wetRow=()=>{const elp=(Date.now()-(G.flags.T6time||0))/1000;return Math.min(5,1+Math.floor(elp/20));};/* 20초마다 한 줄씩 */
+ for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
+  const cell={taps:0,done:false,r:r};
+  const b=el('button','cell','');b.style.minHeight='40px';
+  cell.el=b;cells.push(cell);grid.appendChild(b);
+  b.onclick=()=>{if(phase!==1||cell.done)return;
+   const wet=(ROWS-1-cell.r)<wetRow();
+   if(!wet){sfx('bad');toast('딱딱하다 — 아직 물이 닿지 않았다.');return;}
+   cell.taps++;sfx('tap');
+   if(cell.taps>=3){cell.done=true;scraped++;paintAll();
+    st.textContent='벗겨냄 '+Math.round(scraped/(COLS*ROWS)*100)+'%';
+    if(scraped>=24)phase2();}
+   else b.style.opacity=String(1-cell.taps*0.2);};}
+ function paintAll(){const w=wetRow();cells.forEach(cl=>{
+  if(cl.done){cl.el.style.background='#3a3531';cl.el.textContent='';cl.el.classList.add('ok');return;}
+  const wet=(ROWS-1-cl.r)<w;
+  cl.el.style.background=wet?'#cfc4a6':'#efe6cf';
+  cl.el.style.boxShadow=wet?'inset 0 0 12px rgba(60,50,30,.5)':'none';});}
+ paintAll();
+ const iv=setInterval(()=>{if(!document.body.contains(grid)){clearInterval(iv);return;}paintAll();},2000);
+ const p2=el('div','hidden');box.appendChild(p2);
+ let marks=0;
+ function phase2(){if(phase===2)return;phase=2;sfx('trig');p2.classList.remove('hidden');
+  p2.appendChild(el('div','clue','설탕 아래 — 나무 벽에 깊게 팬 자국들, 그리고 위로 번진 그을음.<br><b>과제 ①</b> 도끼 자국을 하나씩 탭해 마킹하고 개수를 적어라.'));
+  const mrow=el('div','cardRow');p2.appendChild(mrow);
+  const POS=[1,1,2,3,4,5,6,7,7];/* 9개 — 두 개는 겹침 */
+  POS.forEach((p,i)=>{const m=el('button','holeBtn','⟍');m.style.fontSize='15px';
+   if(i===0||i===8)m.style.borderColor='var(--cinna)';
+   m.onclick=()=>{if(m.dataset.ok)return;m.dataset.ok='1';m.classList.add('closed');marks++;sfx('tap');};
+   mrow.appendChild(m);});
+  const inWrap=el('div');p2.appendChild(inWrap);
+  mkNum(inWrap,'자국 개수',v=>{
+   if(v==='9'&&marks>=9){sfx('ok');phase3();inWrap.querySelector('.bigBtn').disabled=true;}
+   else if(v==='9'){toast('세기 전에 전부 마킹부터 — 겹친 자국을 놓쳤다.');}
+   else{sfx('bad');toast('미마킹 자국 주변이 옅게 빛난다 — 왼쪽 위를 다시 보라.');}});}
+ function phase3(){
+  p2.appendChild(el('div','clue','<b>과제 ②</b> 그을음이 튄 최고점은 어디인가?'));
+  const hrow=el('div','cardRow');p2.appendChild(hrow);
+  [['무릎 높이',0],['허리 높이',0],['문 높이',1]].forEach(o=>{const b=el('button','pcard',o[0]);
+   b.onclick=()=>{if(o[1]){setFlag('ev_cardWall');
+    note('물증 — 남벽 스냅샷','도끼 자국 아홉 개, 문 높이까지 튄 그을음. 65겹의 설탕이 덮고 있던 것.','물증');
+    say([{s:'',t:'도끼 자국 아홉, 문 높이까지 튄 그을음. 이 방에서 무슨 일이 있었다 — 그리고 누군가 매년 그것을 덮어 왔다.'}]);
+    solveSlot('S26');}
+   else{sfx('bad');toast('그보다 높다.');}};
+   hrow.appendChild(b);});}}});
+
+/* ================= SLOTS D (S27~S33 + Ch9 이벤트) ================= */
+/* S27 낡은 안경 */
+defSlot({id:'S27',t:'낡은 안경 — 서명 판독과 필체 순회',type:'미션',
+desc:'안경을 쓰면 세상이 흐려지고, 아주 가까운 미세 글씨만 선명해진다. 장부 하단 모서리의 서명을 판독하고 — 같은 손을 세 방에서 찾아라.',
+hints:['이 안경의 주인은 세상이 거의 보이지 않았다. 아주 가까운 글씨만 남는다.','장부 맨 아래 모서리, 살림꾼이 서명을 남기는 자리.','라벨, 1판 여백, 도감 헌사 — 셋 다 같은 ㅅ 삐침이다.'],
+ans:'아그네스. 장부·라벨·1판 교정·도감 헌사 — 한 사람. "빨간 눈의 마녀"는 눈이 먼 노파가 냄새와 소리로 아이를 찾던 모습이었다.',
+build(box){if(done('S27'))return solvedMark(box,'아그네스 — 인물 로그 생성 완료.');
+ if(G.ch<8){box.appendChild(el('div','clue','체크리스트의 다른 항목들이 먼저다. 일곱 개 방의 검증을 끝내고 오라.'));return;}
+ let worn=false,focus=0,read=false;const target=3;
+ const wearB=mkBtn('안경 착용 토글 👓','bigBtn');box.appendChild(wearB);
+ const view=el('div','clue','장부 하단 모서리 — 맨눈으로는 얼룩처럼 보이는 무언가.');box.appendChild(view);
+ const focusRow=el('div','cardRow hidden');box.appendChild(focusRow);
+ const fm=el('button','pcard','초점 −');const fv=el('div','pcard','0');const fp=el('button','pcard','초점 +');
+ focusRow.appendChild(fm);focusRow.appendChild(fv);focusRow.appendChild(fp);
+ const readB=mkBtn('판독한다');readB.classList.add('hidden');box.appendChild(readB);
+ const tour=el('div','hidden');box.appendChild(tour);
+ function upd(){fv.textContent=String(focus);
+  if(!worn){view.style.filter='';view.textContent='장부 하단 모서리 — 맨눈으로는 얼룩처럼 보이는 무언가.';return;}
+  const off=Math.abs(focus-target);
+  view.style.filter='blur('+(off*1.6)+'px)';
+  view.innerHTML=off===0?'미세한 서명이 또렷해진다: <b>"아그네스"</b>':'세상이 온통 흐리다. 흐림 속에서 작은 글씨가 어른거린다.';
+  readB.classList.toggle('hidden',off!==0);}
+ wearB.onclick=()=>{worn=!worn;focusRow.classList.toggle('hidden',!worn);sfx('tap');
+  if(worn)toast('…이 정도 도수라니. 이 안경의 주인은 거의 실명 상태였다.');upd();};
+ fm.onclick=()=>{focus=Math.max(0,focus-1);sfx('tap');upd();};
+ fp.onclick=()=>{focus=Math.min(5,focus+1);sfx('tap');upd();};
+ readB.onclick=()=>{if(read)return;read=true;sfx('ok');
+  say([{s:'',t:'"아그네스." 장부의 주인에게 이름이 생겼다. 이제 — 같은 손을 세 방에서 찾아라.'}]);
+  tour.classList.remove('hidden');readB.disabled=true;};
+ tour.appendChild(el('div','clue','<b>필체 순회</b> — 각 방에서 "같은 손"의 흔적을 하나씩 지목하라.'));
+ const TOUR=[['저장고',[['항아리 뚜껑의 분필 표시',0],['씨앗 단지 라벨',1],['저울 각인',0]]],
+  ['다락',[['6판의 인쇄 활자',0],['1판 여백의 교정 메모',1],['연대기 표지 제목',0]]],
+  ['온실',[['화단 팻말의 숫자',0],['도감 속표지 헌사 "새들과 나누어 먹을 것"',1],['벤치의 새김 낙서',0]]]];
+ let got=0;const fails={};
+ TOUR.forEach((T,ti)=>{tour.appendChild(el('div','progRow','— '+T[0]+' —'));
+  const row=el('div','cardRow');tour.appendChild(row);
+  T[1].forEach(opt=>{const b=el('button','pcard',opt[0]);
+   b.onclick=()=>{if(!read){toast('먼저 서명을 판독하라.');return;}
+    if(b.dataset.done)return;
+    if(opt[1]){b.dataset.done='1';b.classList.add('sel');got++;sfx('tap');
+     if(got===3){setFlag('ev_cardAgnes');
+      note('인물 — 아그네스','장부를 쓰고, 새 모이 라벨을 붙이고, 동화 1판을 교정하고, 도감에 헌사를 남긴 한 사람. 거의 실명 상태였다.','물증');
+      say([{s:'',t:'장부, 라벨, 교정 메모, 헌사 — 한 사람. "빨간 눈으로 냄새 맡아 아이를 찾는 마녀"는, 눈이 먼 노파가 냄새와 소리로 아이를 찾던 모습이었다.'}]);
+      solveSlot('S27');}}
+    else{sfx('bad');fails[ti]=(fails[ti]||0)+1;toast('ㅅ 삐침이 다르다.');}};
+   row.appendChild(b);});});}});
+
+/* S28 안내판 판정 */
+defSlot({id:'S28',t:'메타 추리 — 안내판 12개 판정',type:'퀴즈',
+desc:'인증 체크리스트가 판정 모드로 전환됐다. 전시물 열두 점 — <b>물증이 반박하는 안내판만</b> "교체"로 돌리고, 수첩의 물증 카드를 근거로 연결하라. 근거 없는 의심은 아직 의심일 뿐이다.',
+hints:['새 단서는 없다. 수첩의 불일치 로그를 처음부터 다시 읽어라.','물증이 반박하는 안내판만 뒤집어라. 물증이 없는 의심은 아직 의심일 뿐이다.','로그 #1~#4가 각각 가리키는 전시물 하나씩 + 근거가 아직 안 붙은 관찰 카드 두 장 — 그것이 나머지 둘이다.'],
+ans:'오븐(로그#1)·장부(로그#2)·문틀 눈금(로그#3)·우리(로그#4)·뼈 피리(관찰)·조약돌 주머니(관찰) — 여섯 장만 교체.',
+build(box){if(done('S28'))return solvedMark(box,'여섯 장의 안내판이 뒤집혔다. 뒷방 자물쇠가 낮게 응답하고 있다.');
+ const self=this;if(self._fails===undefined)self._fails=0;
+ const state={};EXHIBITS.forEach(e=>state[e.id]={rep:false,ev:null});
+ const avail=Object.keys(EV_CARDS).filter(k=>flag('ev_'+k));
+ const list=el('div');box.appendChild(list);
+ EXHIBITS.forEach(e2=>{const row=el('div','clue');
+  row.innerHTML='<b>'+e2.n+'</b><br><span style="opacity:.8;font-size:12px">'+e2.sign+'</span>';
+  const ctl=el('div','cardRow');ctl.style.margin='6px 0 0';
+  const keep=el('button','pcard sel','유지');const rep=el('button','pcard','교체');
+  const evSel=el('select','');evSel.style.cssText='display:none;margin-top:6px;width:100%;background:#17110b;color:var(--cream);border:1px solid var(--honey);padding:7px;border-radius:5px;font-family:inherit';
+  evSel.innerHTML='<option value="">근거 물증 선택…</option>'+avail.map(k=>'<option value="'+k+'">'+EV_CARDS[k]+'</option>').join('');
+  keep.onclick=()=>{state[e2.id].rep=false;keep.classList.add('sel');rep.classList.remove('sel');evSel.style.display='none';sfx('tap');updSubmit();};
+  rep.onclick=()=>{state[e2.id].rep=true;rep.classList.add('sel');keep.classList.remove('sel');evSel.style.display='block';sfx('tap');updSubmit();};
+  evSel.onchange=()=>{state[e2.id].ev=evSel.value||null;updSubmit();};
+  ctl.appendChild(keep);ctl.appendChild(rep);row.appendChild(ctl);row.appendChild(evSel);
+  list.appendChild(row);});
+ const nb=mkBtn('수첩 열기 📔');box.appendChild(nb);nb.onclick=openNotebook;
+ const sub=mkBtn('판정 제출','bigBtn');sub.disabled=true;box.appendChild(sub);
+ function updSubmit(){const reps=EXHIBITS.filter(e2=>state[e2.id].rep);
+  sub.disabled=!(reps.length===6&&reps.every(e2=>state[e2.id].ev));}
+ sub.onclick=()=>{let wrongN=0;
+  EXHIBITS.forEach(e2=>{const st=state[e2.id];
+   if(e2.fake!==st.rep)wrongN++;
+   else if(e2.fake&&st.ev!==e2.ev)wrongN++;});
+  if(wrongN===0){
+   say([{s:'',t:'여섯 장의 안내판이 한 장씩 뒤집힌다. 오븐. 장부. 눈금. 우리. 뼈 피리. 조약돌 주머니. — 지나온 방들이 전부 다른 이야기를 하기 시작한다.'},
+    {s:'',t:'그리고 잠긴 뒷방이, 새소리 같은 음으로 낮게 응답한다.'},
+    {s:'할미',t:'"…다 됐구나. 그럼 이제, 마지막 방을 보여줄 차례네. 이 집에서 설탕을 입히지 않은 방은 하나뿐이야."'}]);
+   solveSlot('S28');}
+  else{sfx('bad');self._fails++;
+   if(self._fails>=5)toast('물증 불충분 — 반려. (수첩에서 아직 근거로 쓰지 않은 카드가 점멸한다)');
+   else if(self._fails>=3)toast('물증 불충분 — 반려. 잘못 뒤집혔거나 덜 뒤집힌 안내판: '+wrongN+'장.');
+   else toast('물증 불충분 — 반려. 설명과 물증이 다른 곳이 남아 있다.');}};}});
+
+/* S29 뼈 피리 연주 */
+defSlot({id:'S29',t:'뼈 피리 — 합성 음계',type:'미션',
+desc:'열쇠 구멍 없는 자물쇠 — 듣는 자물쇠다. 수첩의 규칙 카드: <i>"새의 노래는 끝의 세 걸음으로 저문다 — 새가 남긴 높이, 오르골이 남긴 박자."</i><br>자물쇠 옆 새김(운지 대응표): 창살 번호 = 구멍 조합. <b>1=○○○ · 2=○○● · 3=○●○ · 4=○●● · 5=●○○ · 6=●○● · 7=●●○ · 8=●●●</b> (●=막음)<br>불기 버튼을 <b>누르는 길이</b>가 음의 길이다.',
+hints:['자물쇠에 열쇠 구멍이 없다 — 듣는 자물쇠다. 재료는 이미 수첩에 두 가지가 있다. 규칙 카드의 문장을 끝까지 읽어라.','새의 일곱 걸음 중 끝의 세 걸음만. 박자는 자장가에게 빌려라.','창살 1·6·4에 해당하는 운지로, 길게-짧게-길게.'],
+ans:'1(○○○)·6(●○●)·4(○●●), 장-단-장. 새를 부르던 세 음이 문을 연다.',
+build(box){if(done('S29'))return solvedMark(box,'뒷방은 열렸다.');
+ if(!hasNote('합성 규칙'))note('합성 규칙','"새의 노래는 끝의 세 걸음으로 저문다 — 새가 남긴 높이, 오르골이 남긴 박자."','기록');
+ const holes=[false,false,false];let seq=[];let fails=0;
+ const hr=el('div','cardRow');box.appendChild(hr);
+ const hEls=holes.map((h,i)=>{const b=el('button','holeBtn','○');
+  b.onclick=()=>{holes[i]=!holes[i];b.textContent=holes[i]?'●':'○';b.classList.toggle('closed',holes[i]);sfx('tap');};
+  hr.appendChild(b);return b;});
+ const st=el('div','progRow','연주: (없음)');box.appendChild(st);
+ const blow=mkBtn('불기 🎵 (누르는 길이 = 음 길이)','bigBtn');box.appendChild(blow);
+ const NOTE=h=>(h[0]?4:0)+(h[1]?2:0)+(h[2]?1:0)+1;/* 창살 번호 */
+ const TARGET=[[1,'L'],[6,'S'],[4,'L']];
+ pressMeasure(blow,ms=>{
+  const bar=NOTE(holes);const len=ms>=550?'L':'S';
+  sfxNote(bar);
+  seq.push([bar,len]);
+  st.textContent='연주: '+seq.map(n=>n[0]+(n[1]==='L'?'—':'·')).join('  ');
+  const i=seq.length-1;
+  if(seq[i][0]!==TARGET[i][0]||seq[i][1]!==TARGET[i][1]){
+   fails++;seq=[];
+   setTimeout(()=>{st.textContent='…자물쇠는 침묵한다.';},600);
+   if(fails===3)toast('자물쇠 옆 운지 대응표 새김이 도드라져 보인다.','trig');
+   if(fails>=5)toast('리듬 가이드 — 길게, 짧게, 길게.','trig');
+   return;}
+  if(seq.length===3){
+   G.back=true;save();sfx('trig');
+   say([{s:'',t:'1·6·4, 장-단-장. 새를 부르던 세 음이 문을 연다. 이 집의 마지막 방 — 설탕이 한 겹도 없는 방으로.'}]);
+   solveSlot('S29');}});}});
+
+/* Ch9 — 뒷방 편지 이벤트 */
+function backroomEvent(){if(flag('letterRead'))return;
+ say([{s:'',t:'뒷방은 소박하다. 설탕 한 겹 없는 나무 벽. 침대 하나, 설탕 솔과 양동이, 그리고 유품 상자.'},
+  {s:'',t:'침대맡에 편지가 놓여 있다. — 오늘 날짜다.'}],()=>{
+  curSlot=null;$('modal').className='night';
+  $('modalTag').textContent='편지';$('modalTitle').textContent='그레텔의 편지';
+  const body=$('modalBody');body.innerHTML='';
+  $('btnHint').classList.add('hidden');$('btnAnswer').classList.add('hidden');
+  body.appendChild(el('div','docCard','<div style="white-space:pre-wrap;font-size:13px;line-height:2">'+LETTER+'</div>'));
+  const ok=mkBtn('편지를 내려놓는다','bigBtn');body.appendChild(ok);
+  ok.onclick=()=>{closeModal();setFlag('letterRead');
+   gainItem('letter',true);gainItem('relicCase',true);gainItem('relicScore',true);gainItem('relicHalf',true);
+   sfx('sting');
+   setTimeout(()=>{G.ch=9;nightOn();
+    chapterCard(9,CH_TITLES[9],()=>{
+     say([{s:'',t:'편지를 내려놓는 순간 — 집 전체의 조명이 바뀐다. 오르골 태엽이 풀리듯 음이 늘어져 멈추고, 심장 한 박, 정적.'},
+      {s:'',t:'모든 방에 65년 전 그날 밤의 잔상이 겹쳐 보인다. 유품 상자의 세 물건을, 각각 "그날 밤 있던 자리"로 되돌려 놓아야 한다.'}]);});
+    save();},900);};
+  $('modalWrap').classList.add('on');});}
+
+/* S30 유품 순례 */
+defSlot({id:'S30',t:'유품 순례 — 그날 밤의 자리',type:'미션',
+desc:'유품 세 점 — 안경집, 뼈 피리 악보, 타다 만 장부 반쪽. 잔상을 보라. 물건은 주인의 손버릇이 두던 자리로 돌아가고 싶어 한다. 물건을 고르고, 자리를 골라라.',
+hints:['잔상을 봐라. 물건은 주인의 손버릇이 두던 자리로 돌아가고 싶어 한다.','안경은 글씨 곁에, 악보는 새 곁에, 장부는 — 불 곁에.','장부 서랍 옆 / 모이통 아래 / 가마 앞 재 위.'],
+ans:'안경집→저장고 장부 서랍 옆, 악보→온실 모이통 아래, 장부 반쪽→지하 가마 앞.',
+build(box){if(done('S30'))return solvedMark(box,'세 물건이 제자리로 돌아갔다. 반납이 아니라 — 애도다.');
+ const RELICS=[['relicCase','안경집','🕶'],['relicScore','뼈 피리 악보','🎼'],['relicHalf','타다 만 장부 반쪽','📄']];
+ const SPOTS=[['저장고 — 장부 서랍 옆','relicCase'],['저장고 — 항아리 선반 위',null],['온실 — 모이통 아래','relicScore'],['온실 — 장미 화단 속',null],['우물 지하 — 가마 앞 재 위','relicHalf'],['우물 지하 — 우물 두레박 안',null]];
+ let selR=null;const placed={};
+ const rr=el('div','cardRow');box.appendChild(rr);
+ const rEls={};
+ RELICS.forEach(R=>{const b=el('button','pcard',R[2]+'<br><span style="font-size:11px">'+R[1]+'</span>');
+  b.onclick=()=>{if(placed[R[0]])return;selR=(selR===R[0]?null:R[0]);
+   Object.values(rEls).forEach(e2=>e2.classList.remove('sel'));
+   if(selR)b.classList.add('sel');sfx('tap');};
+  rr.appendChild(b);rEls[R[0]]=b;});
+ box.appendChild(el('div','progRow','— 그날 밤의 자리 —'));
+ const sr=el('div');box.appendChild(sr);
+ SPOTS.forEach(S=>{const b=mkBtn(S[0]);b.style.display='block';b.style.margin='6px auto';
+  b.onclick=()=>{if(!selR){toast('먼저 유품을 골라라.');return;}
+   if(S[1]===selR){placed[selR]=1;rEls[selR].classList.add('dim');rEls[selR].classList.remove('sel');
+    b.classList.add('gold');b.disabled=true;sfx('trig');
+    toast('잔상이 잠시 선명해진다.','trig');
+    const was=selR;selR=null;
+    if(Object.keys(placed).length===3){
+     ['relicCase','relicScore','relicHalf'].forEach(loseItem);
+     note('잔상 장면 카드 8장','여덟 방의 그날 밤 — 도착, 간호, 빵, 성에 글씨, 배급, 습격, 가마, 새벽.','기록');
+     say([{s:'',t:'세 물건이 제자리로 돌아가자, 잔상들이 잠시 숨을 쉰다. 반납이 아니라 — 애도다.'},
+      {s:'',t:'여덟 방의 잔상 장면이 수첩에 카드로 남았다. 응접실에서 시간순으로 배열할 수 있을 것 같다.'}]);
+     solveSlot('S30');}}
+   else{sfx('bad');toast('잔상이 조용히 고개를 젓는다.');}};
+  sr.appendChild(b);});}});
+
+/* S31 그날 밤 타임라인 */
+const S31_SCENES=[{k:1,n:'온실 — 모이 길을 걸어오는 두 아이',ic:'❄️'},{k:2,n:'아이들의 방 — 간호와 기록',ic:'🛏'},{k:3,n:'부엌 — 빵 굽는 낮',ic:'🍞'},{k:4,n:'다락 — 성에에 긁는 글씨',ic:'🌙'},{k:5,n:'저장고 — 식량을 받아 가는 손들',ic:'🫱'},{k:6,n:'응접실 — 문이 부서지는 밤',ic:'🪓'},{k:7,n:'우물 지하 — 걸쇠에 얹힌 작은 손',ic:'🕯'},{k:8,n:'뒷방 — 새벽, 소년의 첫 설탕 칠',ic:'🌅'}];
+defSlot({id:'S31',t:'그날 밤 타임라인',type:'퀴즈',
+desc:'위에는 당신이 처음 맞춘 동화의 순서. 아래에는 여덟 장의 잔상 — 같은 손짓으로, 이번에는 진짜 밤을 배열하라.',
+hints:['계절과 빛을 봐라. 도착은 겨울, 습격은 밤, 설탕은 새벽이다.','배급(저장고)은 오래 계속된 일 — 하지만 카드 속 장면은 "들킨 밤"에 가장 가깝다. 습격 직전에 놓아라.','도착→간호→빵→성에 글씨→배급의 밤→습격→가마→새벽.'],
+ans:'도착→간호→빵→성에 글씨→배급→습격→가마→새벽. 이번 이야기에는 마녀가 없다.',
+build(box){if(done('S31'))return solvedMark(box,'두 개의 순서가 나란히 있다 — 동화와, 그날 밤.');
+ const strip=el('div','clue','당신이 맞춘 동화의 순서: '+(G.s02&&G.s02.length?G.s02.map(k=>S02_SCENES[k-1].ic).join(' → '):S02_SCENES.map(s=>s.ic).join(' → ')));
+ box.appendChild(strip);
+ orderPuzzle(box,S31_SCENES,[5,0,7,2,4,1,6,3],()=>{
+  say([{s:'',t:'같은 집, 같은 순서 놀이 — 그러나 이번 이야기에는 마녀가 없다. 위에는 당신이 처음 맞춘 동화가, 아래에는 당신이 끝내 맞춘 그날 밤이 나란히 있다.'}]);
+  solveSlot('S31');},true);}});
+
+/* S32 가마 앞 재연 */
+defSlot({id:'S32',t:'가마 앞 재연 — 걸쇠의 기억',type:'미션',noAns:true,
+desc:'',
+hints:['발끝의 표시를 따라가라.','이번에는, 끝까지.'],
+ans:'이 방의 정답은 이미 65년 전에 정해져 있었다.',
+build(box){if(done('S32'))return solvedMark(box,'그는 고개를 한 번 숙였다. 두 반쪽은 하나가 되었다.');
+ stopBgm();
+ let step=0;
+ const stage=el('div');box.appendChild(stage);
+ const VOICES=['…횃불이 몇 개였는지 세지 못했다.','…"창고는 어디냐"라고 누군가 외쳤다.','…할머니는 소리치지 않았다. 새장 문부터 열었다.'];
+ function s1(){stage.innerHTML='';stage.appendChild(el('div','slotDesc','어둠 속, 가마 문. 발밑에 청색 발자국이 하나씩 떠오른다.'));
+  const fb=mkBtn('발자국을 따라간다 👣','bigBtn');stage.appendChild(fb);let n=0;
+  fb.onclick=()=>{sfx('tap');stage.appendChild(el('div','progRow','『'+VOICES[n]+'』'));n++;
+   if(n>=3){setTimeout(s2,800);}};}
+ function s2(){stage.innerHTML='';
+  stage.appendChild(el('div','slotDesc','가마 앞. 잔상의 작은 손이 걸쇠 위에 떠 있다.'));
+  const hb=mkBtn('잔상 손 위에 손을 겹친다 ✋ (길게)','bigBtn');stage.appendChild(hb);
+  pressHold(hb,2000,()=>{s3();},p=>{hb.style.letterSpacing=(p*3)+'px';});}
+ function s3(){stage.innerHTML='';
+  stage.appendChild(el('div','slotDesc','화면이 미세하게 떨린다. 방앗간 주인의 목소리 — 『네가 닫으면, 이건 네 이야기가 된다.』<br><br>놓지 말고, 버텨라.'));
+  const hb=mkBtn('버틴다 (길게)','bigBtn');stage.appendChild(hb);
+  hb.style.animation='hsPulse 0.6s infinite';
+  pressHold(hb,4000,()=>{s4();},p=>{hb.textContent=p>0?'버틴다… '+Math.round(p*100)+'%':'버틴다 (길게)';});}
+ function s4(){stage.innerHTML='';
+  stage.appendChild(el('div','slotDesc','걸쇠가 손바닥 아래 있다. 65년 전의 갈림.'));
+  const row=el('div','cardRow');stage.appendChild(row);
+  const push=el('button','pcard','걸쇠를 민다');
+  const off=el('button','pcard','손을 뗀다');
+  const fin=msg=>{row.querySelectorAll('.pcard').forEach(b=>b.disabled=true);
+   say([{s:'',t:msg},
+    {s:'',t:'…계단에서 발소리. 정원사가 — 65년 만에 — 지하로 내려온다. 그는 가마 앞에 무릎을 꿇고, 재 위에 씨앗 한 줌을 놓는다.'},
+    {s:'',t:'그리고 일어서며, 가마 앞에 안치된 타다 만 장부 반쪽을 집어 든다. 당신이 지닌 출납 장부 반쪽 위에 그것을 겹쳐 — 두 반쪽을 하나로 합친 온전한 장부를, 말없이 건넨다. 고개를 한 번 숙일 뿐.'}],()=>{
+    loseItem('ledgerHalf');gainItem('mergedLedger');
+    solveSlot('S32',{stay:true});closeModal();bgmPhase();});};
+  push.onclick=()=>fin('65년 전, 이 손은 밀렸다. 오늘 당신은 그 무게를 안다.');
+  off.onclick=()=>fin('당신은 뗄 수 있었다. 그날, 뗄 수 있는 손은 없었다.');
+  row.appendChild(push);row.appendChild(off);}
+ s1();}});
+
+/* S33 최종 선택 의식 */
+defSlot({id:'S33',t:'최종 선택 의식',type:'미션',noHint:true,noAns:true,hints:[],
+ans:'여기서부터는 힌트가 없습니다. 검증관의 서명은 이야기를 영원히 확정합니다 — 어느 쪽으로든.',
+desc:'응접실에 세 개의 자리가 있다 — 우물 계단, 벽난로, 창가 모이대. 하나의 물건을, 하나의 자리에.',
+build(box){if(G.ended)return solvedMark(box,'이야기는 이미 확정되었다.');
+ if(!hasItem('cert')){gainItem('cert');
+  say([{s:'그레텔',t:'"…인증서야. 서명란은 비워 뒀어. 기록국의 규칙은 알고 있지? 검증관의 서명은 이야기를 영원히 확정한다. 어느 쪽으로든."'}]);}
+ const OBJ=[['mergedLedger','합쳐진 장부','📕'],['cert','인증서','📜'],['boneFlute','뼈 피리','🦴']];
+ const SPOT=[['well','우물 계단 — 아래로, 기록으로','🕳'],['hearth','벽난로 — 불 위에, 봉인으로','🔥'],['window','창가 모이대 — 단 한 사람에게','🐦']];
+ const MATCH={mergedLedger:'well',cert:'hearth',boneFlute:'window'};
+ const END={mergedLedger:'E1',cert:'E2',boneFlute:'E3'};
+ let so=null,ss=null,misTimer=null;
+ const or_=el('div','cardRow');box.appendChild(or_);
+ const oEls={};
+ OBJ.forEach(o=>{const b=el('button','pcard',o[2]+'<br><span style="font-size:11px">'+o[1]+'</span>');
+  b.onclick=()=>{so=(so===o[0]?null:o[0]);Object.values(oEls).forEach(e2=>e2.classList.remove('sel'));if(so)b.classList.add('sel');sfx('tap');upd();};
+  or_.appendChild(b);oEls[o[0]]=b;});
+ box.appendChild(el('div','progRow','— 자리 —'));
+ const sr=el('div','cardRow');box.appendChild(sr);
+ const sEls={};
+ SPOT.forEach(s2=>{const b=el('button','pcard',s2[2]+'<br><span style="font-size:11px">'+s2[1]+'</span>');
+  b.onclick=()=>{ss=(ss===s2[0]?null:s2[0]);Object.values(sEls).forEach(e2=>e2.classList.remove('sel'));if(ss)b.classList.add('sel');sfx('tap');upd();};
+  sr.appendChild(b);sEls[s2[0]]=b;});
+ const msg=el('div','progRow','');box.appendChild(msg);
+ const conf=mkBtn('이 자리에 놓는다 (길게 — 의식)','bigBtn');conf.disabled=true;box.appendChild(conf);
+ function upd(){if(misTimer){clearTimeout(misTimer);misTimer=null;}
+  if(so&&ss){if(MATCH[so]===ss){conf.disabled=false;msg.textContent='';}
+   else{conf.disabled=true;msg.textContent='그레텔이 조용히 되묻는다 — "…그걸, 거기에?"';
+    misTimer=setTimeout(()=>{so=null;ss=null;Object.values(oEls).forEach(e2=>e2.classList.remove('sel'));Object.values(sEls).forEach(e2=>e2.classList.remove('sel'));msg.textContent='(물건을 조용히 거두었다)';},30000);}}
+  else conf.disabled=true;}
+ pressHold(conf,3000,()=>{
+  const ek=END[so];
+  const q1=el('div','clue','<b>이 이야기를 이렇게 끝내겠습니까?</b>');box.appendChild(q1);
+  const row=el('div','cardRow');box.appendChild(row);
+  const yes=el('button','pcard','그렇다');const no=el('button','pcard','아직');
+  row.appendChild(yes);row.appendChild(no);
+  no.onclick=()=>{q1.remove();row.remove();};
+  yes.onclick=()=>{
+   if(ek==='E2'){q1.innerHTML='인증서 서명란 미리보기 — <b style="font-style:italic">'+(G.sig||'무명')+'</b><br>"상기인은 이 이야기가 진실임을 확인함."<br><br><b>서명을 확정하시겠습니까?</b>';
+    yes.onclick=()=>{finish(ek);};no.textContent='손이 멎는다';
+    if(!yes.dataset.armed){yes.dataset.armed='1';return;}}
+   finish(ek);};
+  function finish(k){G.solved['S33']=1;loseItem(so);save();
+   closeModal();
+   say([{s:'',t:k==='E1'?'장부를 안고, 우물 계단을 내려간다. 재의 층 위에 — 기록이 놓인다.':(k==='E2'?'인증서가 벽난로 위에 오른다. 불빛이 서명을 핥는다.':'창가에서, 뼈 피리로 악보의 세 음을 분다. 새들이 모이고 — 정원사가 창밖에 멈춰 선다.')}],
+    ()=>{runEnding(k);if(k==='E2'){const s2=document.getElementById('e2sig');if(s2)s2.textContent=G.sig||'무명';}});}
+ },p=>{conf.style.opacity=String(1-p*0.4);});}});
+
+/* ================= AUDIO (WebAudio 합성 — 외부 샘플 없음) ================= */
+let actx=null,master=null,muted=false,bgmTimer=null,bgmBeat=0,bgmPat=null,bgmGain=null;
+try{muted=localStorage.getItem('sugarMelts_mute')==='1';}catch(e){}
+function audioInit(){if(actx)return true;
+ try{actx=new (window.AudioContext||window.webkitAudioContext)();
+  master=actx.createGain();master.gain.value=muted?0:1;master.connect(actx.destination);
+  bgmGain=actx.createGain();bgmGain.gain.value=0.5;bgmGain.connect(master);
+  return true;}catch(e){return false;}}
+function setMute(m){muted=m;try{localStorage.setItem('sugarMelts_mute',m?'1':'0');}catch(e){}
+ if(master)master.gain.value=m?0:1;
+ $('btnMute').textContent=m?'🔇':'🔊';}
+function tone(f,dur,opt){if(!actx||muted)return;opt=opt||{};
+ const o=actx.createOscillator(),g=actx.createGain();
+ o.type=opt.type||'sine';o.frequency.value=f;
+ const t=actx.currentTime+(opt.at||0);const vol=opt.vol||0.18;
+ g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(vol,t+0.012);
+ g.gain.exponentialRampToValueAtTime(0.0001,t+dur+(opt.decay||0.25));
+ let dest=opt.bgm?bgmGain:master;
+ if(opt.lp){const f2=actx.createBiquadFilter();f2.type='lowpass';f2.frequency.value=opt.lp;o.connect(g);g.connect(f2);f2.connect(dest);}
+ else{o.connect(g);g.connect(dest);}
+ if(opt.glide)o.frequency.linearRampToValueAtTime(opt.glide,t+dur);
+ o.start(t);o.stop(t+dur+(opt.decay||0.25)+0.05);}
+function noiseBurst(dur,opt){if(!actx||muted)return;opt=opt||{};
+ const len=Math.max(1,Math.floor(actx.sampleRate*dur));
+ const buf=actx.createBuffer(1,len,actx.sampleRate);
+ const d=buf.getChannelData(0);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*(1-i/len);
+ const src=actx.createBufferSource();src.buffer=buf;
+ const g=actx.createGain();g.gain.value=opt.vol||0.1;
+ const f=actx.createBiquadFilter();f.type=opt.hp?'highpass':'bandpass';f.frequency.value=opt.f||2000;
+ src.connect(f);f.connect(g);g.connect(master);
+ src.start(actx.currentTime+(opt.at||0));}
+function sfx(name){if(!audioInit())return;
+ switch(name){
+ case 'ok':[880,1046.5,1318.5].forEach((f,i)=>tone(f,0.09,{at:i*0.09,vol:0.14,decay:0.4}));noiseBurst(0.01,{hp:1,f:5000,vol:0.05});break;
+ case 'bad':tone(110,0.2,{type:'triangle',lp:400,vol:0.14,decay:0.3});break;
+ case 'item':noiseBurst(0.03,{f:2000,vol:0.09});tone(1568,0.05,{at:0.06,vol:0.1});tone(1411,0.05,{at:0.14,vol:0.09});break;
+ case 'door':tone(180,0.25,{type:'sawtooth',glide:140,lp:900,vol:0.06});noiseBurst(0.5,{f:600,vol:0.03});break;
+ case 'trig':tone(220,0.8,{vol:0.12,decay:1.2});tone(1760,0.06,{at:0.85,vol:0.08});break;
+ case 'sting':[880,1046.5,1318.5].forEach((f,i)=>tone(f*(1-i*0.12),0.3,{at:i*0.34,vol:0.2,decay:0.5}));tone(55,0.15,{at:1.7,vol:0.3,decay:0.4});break;
+ case 'tap':tone(660,0.03,{vol:0.05,decay:0.08});break;}}
+function sfxNote(n){if(!audioInit())return;
+ const SC=[440,493.9,523.3,587.3,659.3,698.5,784,880];/* 창살 1~8 */
+ tone(SC[(n-1)%8],0.16,{vol:0.15,decay:0.35});}
+function sfxKnock(clear){if(!audioInit())return;
+ if(clear){tone(1180,0.12,{vol:0.13,decay:1.0});}
+ else{tone(95,0.09,{type:'triangle',lp:350,vol:0.16,decay:0.12});}}
+function playOrgel(){if(!audioInit())return;
+ [880,1046.5,1318.5,880,1046.5,1318.5].forEach((f,i)=>tone(f,0.18,{at:i*0.42,vol:0.13,decay:0.8}));}
+
+/* ---- BGM (국면별 앰비언트 루프 — 라·도·미 오르골 모티프) ---- */
+const A4=440,C5=523.25,E5=659.25,A5=880,C6=1046.5,E6=1318.5;
+const BGM_PATS={
+ title:{bpm:72,loop:16,notes:[[0,A5,.5],[1,C6,.5],[2,E6,.9],[4,E6,.4],[5,C6,.4],[6,A5,.9],[8,A5,.5],[9,C6,.5],[10,E6,.9],[12,C6,.5],[13,A5,.5],[14,830.6,1.2],[0,110,7.6,'drone'],[8,110,7.6,'drone']]},
+ explore:{bpm:84,loop:16,notes:[[0,349.2,.4],[1,440,.4],[2,523.3,.4],[3,440,.4],[4,349.2,.4],[5,440,.4],[6,523.3,.4],[7,440,.4],[8,A5,.5],[9,C6,.5],[10,E6,1.2],[12,392,.4],[13,493.9,.4],[14,587.3,.9],[0,87.3,7.8,'drone'],[8,87.3,7.8,'drone']]},
+ uneasy:{bpm:76,loop:16,notes:[[0,349.2,.5],[2,415.3,.5],[4,349.2,.5],[6,293.7,.8],[8,A5,.5],[9,C6,.5],[10,1244.5,1.4],[13,293.7,.6],[14,220,1.2],[0,73.4,7.8,'drone'],[8,73.4,7.8,'drone']]},
+ tension:{bpm:60,loop:16,notes:[[0,73.4,7.8,'drone'],[8,69.3,7.8,'drone'],[2,587.3,.3],[7,440,.3],[11,622.3,.3],[14,293.7,.5]]},
+ night:{bpm:52,loop:16,notes:[[0,A4,1.2],[3,C5,1.2],[6,E5,2.0],[10,C5,1.2],[13,A4,2.2],[0,55,7.8,'drone'],[8,55,7.8,'drone'],[5,E6,.3],[12,C6,.3]]},
+ ending:{bpm:66,loop:16,notes:[[0,A4,.8],[2,C5,.8],[4,E5,1.4],[8,554.4,.8],[10,E5,.8],[12,A5,2.4],[0,110,7.8,'drone'],[8,110,7.8,'drone']]}};
+function bgmKeyForState(){if(!G)return 'title';
+ if(G.ended)return 'ending';
+ if(G.night||G.ch>=9)return 'night';
+ if(G.ch>=8)return 'tension';
+ if(G.ch>=5)return 'uneasy';
+ return 'explore';}
+function startBgm(key){if(!audioInit())return;stopBgm();
+ bgmPat=BGM_PATS[key]||BGM_PATS.explore;bgmBeat=0;
+ const beatSec=60/bgmPat.bpm;
+ bgmTimer=setInterval(()=>{
+  if(muted){bgmBeat=(bgmBeat+1)%bgmPat.loop;return;}
+  bgmPat.notes.forEach(n=>{if(n[0]===bgmBeat){
+   const isDrone=n[3]==='drone';
+   tone(n[1],n[2]*beatSec,{vol:isDrone?0.035:0.055,decay:isDrone?1.5:1.2,type:isDrone?'triangle':'sine',lp:isDrone?300:undefined,bgm:true});}});
+  bgmBeat=(bgmBeat+1)%bgmPat.loop;},beatSec*1000);}
+function stopBgm(){if(bgmTimer){clearInterval(bgmTimer);bgmTimer=null;}}
+function bgmPhase(){if(!actx)return;startBgm(bgmKeyForState());}
+function bgmEnding(){if(!actx)return;startBgm('ending');
+ setTimeout(()=>playOrgel(),2000);}
+
+/* ================= BOOT ================= */
+function roomEnterHook(id,first){
+ if(id==='p8'&&!flag('letterRead'))backroomEvent();
+ if(id==='p3'&&flag('T3')&&!flag('resoSeen')&&!done('S10')){setFlag('resoSeen');
+  sfx('trig');say([{s:'',t:'저장고에 들어서자 — 항아리 하나가 3초쯤, 저 혼자 가늘게 운다. 먼지가 떨린다.'}]);}
+ if(id==='p1'&&flag('T6')&&!done('S26')&&!flag('wetSeen')){setFlag('wetSeen');
+  say([{s:'',t:'남쪽 벽 아래쪽이 거뭇하게 젖어 있다. 설탕이 무른다 — 긁어낼 수 있겠다.'}]);}
+ if(id==='p6'&&G.night&&done('S31')&&!done('S32')&&!flag('kilnCue')){setFlag('kilnCue');
+  say([{s:'',t:'가마 앞 — 잔상의 작은 손이 걸쇠 위에 떠서, 당신을 기다리고 있다.'}]);}}
+
+function startNew(){wipeSave();G=baseState();
+ showScreen('scrPrologue');$('nameInput').value='';$('nameInput').focus();}
+function beginGame(){const nm=($('nameInput').value||'').trim();
+ if(!nm){toast('임명장 아래 서명란이 비어 있다 — 이름을 적으시오.');$('nameInput').focus();return;}
+ G.sig=nm;G.start=Date.now();save();
+ showScreen('scrGame');document.body.classList.remove('night');
+ renderAll();bgmPhase();
+ chapterCard(1,CH_TITLES[1],()=>{goRoom('p1',true);});}
+function continueGame(){if(!loadSave()){toast('저장된 기록이 없다.');return;}
+ document.body.classList.toggle('night',!!G.night);
+ showScreen('scrGame');renderAll();updateHud();bgmPhase();
+ goRoom(G.room||'p1',true);
+ toast('이어서 — '+(G.sig||'검증관')+', Ch.'+G.ch);}
+
+function openMenu(){curSlot=null;
+ $('modal').className=G&&G.night?'night':'';
+ $('modalTag').textContent='메뉴';$('modalTitle').textContent='설탕은 녹는다';
+ const body=$('modalBody');body.innerHTML='';
+ $('btnHint').classList.add('hidden');$('btnAnswer').classList.add('hidden');
+ body.appendChild(el('div','slotDesc','진행은 자동 저장된다. (챕터 '+G.ch+' · 해결 '+Object.keys(G.solved).length+'/33)'));
+ const b1=mkBtn('계속한다','bigBtn');b1.onclick=closeModal;body.appendChild(b1);
+ const b2=mkBtn('타이틀로 (진행 저장됨)');b2.style.display='block';b2.style.margin='8px auto';
+ b2.onclick=()=>{save();closeModal();stopBgm();showScreen('scrTitle');$('btnContinue').disabled=!hasSave();};
+ body.appendChild(b2);
+ const b3=mkBtn('처음부터 (기록 삭제)');b3.style.display='block';b3.style.margin='8px auto';b3.classList.add('warn');
+ let armed=false;
+ b3.onclick=()=>{if(!armed){armed=true;b3.textContent='정말로? — 한 번 더 누르면 삭제';return;}
+  wipeSave();closeModal();stopBgm();document.body.classList.remove('night');
+  showScreen('scrTitle');$('btnContinue').disabled=true;};
+ body.appendChild(b3);
+ $('modalWrap').classList.add('on');}
+
+(function boot(){
+ /* 타이틀 배경 */
+ const ti=$('titleBgImg');ti.onerror=()=>{ti.style.display='none';};ti.src=IMG.title;
+ $('btnContinue').disabled=!hasSave();
+ $('btnNew').addEventListener('click',()=>{audioInit();startNew();});
+ $('btnContinue').addEventListener('click',()=>{audioInit();continueGame();});
+ $('btnBegin').addEventListener('click',()=>{audioInit();beginGame();});
+ $('btnEndTitle').addEventListener('click',()=>{stopBgm();document.body.classList.remove('night');
+  showScreen('scrTitle');$('btnContinue').disabled=!hasSave();});
+ $('btnNotebook').addEventListener('click',openNotebook);
+ $('btnMenu').addEventListener('click',openMenu);
+ $('btnMute').addEventListener('click',()=>{audioInit();setMute(!muted);});
+ $('modalClose').addEventListener('click',closeModal);
+ $('modalWrap').addEventListener('click',e=>{if(e.target===$('modalWrap')&&curSlot!==SLOTS['S32'])closeModal();});
+ $('dialogBox').addEventListener('click',nextDlg);
+ $('chapterCard').addEventListener('click',closeChapterCard);
+ $('nameInput').addEventListener('keydown',e=>{if(e.key==='Enter')beginGame();});
+ /* 첫 상호작용에서 오디오 시작 */
+ const unlock=()=>{if(audioInit()){if(actx.state==='suspended')actx.resume();bgmPhase();}
+  document.removeEventListener('pointerdown',unlock);};
+ document.addEventListener('pointerdown',unlock);
+ setMute(muted);
+ showScreen('scrTitle');})();
+
+</script>
+</body>
+</html>

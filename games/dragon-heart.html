@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>용의 심장 — 이그나로크의 둥지</title>
+<style>
+:root{
+  --bg:#0c0604; --panel:#1a0e08; --panel2:#241209; --border:#4a2a16;
+  --ember:#ff6b2b; --gold:#ffcf6b; --green:#7fd08a; --red:#ff4444;
+  --text:#e8d9c4; --dim:#8a715a;
+  --glow:0 0 22px rgba(255,107,43,.45);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{background:var(--bg);color:var(--text);font-family:'Malgun Gothic','맑은 고딕',sans-serif;
+  height:100vh;height:100dvh;overflow:hidden;user-select:none;-webkit-text-size-adjust:100%}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+  background:radial-gradient(ellipse at 50% 120%, rgba(255,80,20,.07), transparent 60%)}
+em{color:var(--gold);font-style:normal}
+b{color:var(--ember)}
+.screen{position:fixed;inset:0;display:none;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.screen.active{display:flex;flex-direction:column;align-items:center}
+.btn{background:linear-gradient(180deg,#2e1608,#1d0d05);border:1px solid var(--ember);color:#ffc9a8;
+  padding:13px 32px;font-size:1.02rem;border-radius:10px;cursor:pointer;letter-spacing:.12em;
+  font-family:inherit;transition:all .2s}
+.btn:hover{box-shadow:var(--glow);color:#fff}
+.btn:active{transform:scale(.96)}
+.btn.ghost{background:none;border-color:var(--border);color:var(--dim);letter-spacing:.05em}
+.btn.ghost:hover{color:var(--text);box-shadow:none}
+.btn.big{font-size:1.25rem;padding:18px 44px}
+.btn:disabled{opacity:.35;pointer-events:none}
+
+/* TITLE */
+#s-title{justify-content:center;text-align:center;
+  background:radial-gradient(ellipse at 50% 25%,#2a0f05 0%,#0c0604 65%)}
+.t-emoji{font-size:4.2rem;margin-bottom:14px;filter:drop-shadow(0 0 30px rgba(255,107,43,.6));
+  animation:heartb 1.6s ease-in-out infinite}
+@keyframes heartb{0%,100%{transform:scale(1)}12%{transform:scale(1.14)}24%{transform:scale(1)}36%{transform:scale(1.1)}48%{transform:scale(1)}}
+.t-main{font-size:3.1rem;font-weight:900;color:#fff;letter-spacing:.1em;
+  text-shadow:0 0 44px rgba(255,107,43,.55);margin-bottom:10px}
+.t-sub{color:var(--dim);letter-spacing:.3em;font-size:.92rem;margin-bottom:6px}
+.t-diff{color:var(--red);font-size:.85rem;letter-spacing:.2em;margin-bottom:38px}
+.t-diff .sk{color:#5a4534}
+
+/* PROLOGUE / STORY */
+.story-box{max-width:640px;padding:44px 30px;line-height:2.05;font-size:1.03rem;margin:auto}
+.story-box p{margin-bottom:1.25em;opacity:0;animation:fadein 1s forwards}
+@keyframes fadein{to{opacity:1}}
+.story-actions{text-align:center;padding-bottom:50px}
+
+/* STAGE INTRO */
+#s-stage{justify-content:center;text-align:center;background:radial-gradient(ellipse at 50% 40%,#20100a 0%,#0c0604 70%)}
+.st-num{color:var(--ember);letter-spacing:.4em;font-size:.85rem;margin-bottom:16px}
+.st-emoji{font-size:3.4rem;margin-bottom:16px}
+.st-name{font-size:2rem;font-weight:900;color:#fff;margin-bottom:20px;letter-spacing:.06em}
+.st-intro{max-width:560px;color:var(--text);line-height:1.95;padding:0 26px;margin-bottom:36px;font-size:.98rem}
+
+/* MISSION */
+#s-mission{background:var(--bg)}
+.m-head{width:100%;max-width:720px;display:flex;align-items:center;gap:10px;
+  padding:12px 16px;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(12,6,4,.96);z-index:50}
+.m-stagechip{color:var(--ember);font-size:.78rem;letter-spacing:.1em;white-space:nowrap}
+.m-count{color:var(--dim);font-size:.78rem;white-space:nowrap}
+.m-spacer{flex:1}
+.m-frags{font-size:.8rem;color:var(--gold);letter-spacing:.15em}
+.hintbtn{background:none;border:1px solid var(--border);color:var(--gold);border-radius:8px;
+  padding:6px 12px;cursor:pointer;font-family:inherit;font-size:.8rem;white-space:nowrap}
+.m-wrap{width:100%;max-width:720px;padding:22px 18px 60px;margin:0 auto}
+.m-title{font-size:1.4rem;font-weight:900;color:#fff;margin-bottom:6px}
+.m-type{display:inline-block;font-size:.7rem;letter-spacing:.2em;color:var(--bg);
+  background:var(--ember);border-radius:4px;padding:2px 8px;margin-bottom:12px;font-weight:700}
+.m-type.quiz{background:var(--gold)}
+.m-brief{color:var(--dim);line-height:1.8;margin-bottom:22px;font-size:.95rem}
+.m-box{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:22px 16px;min-height:280px}
+.plaque{background:var(--panel2);border:1px dashed var(--border);border-radius:10px;
+  padding:14px 16px;line-height:1.9;font-size:.93rem;color:var(--text);margin-bottom:18px}
+.centered{text-align:center}
+.statline{color:var(--dim);font-size:.85rem;margin:12px 0;text-align:center;letter-spacing:.08em}
+.statline b{color:var(--gold)}
+
+/* WIDGETS */
+.padgrid{display:grid;gap:12px;justify-content:center}
+.pad{width:84px;height:84px;border-radius:14px;border:2px solid var(--border);cursor:pointer;
+  font-size:2rem;display:flex;align-items:center;justify-content:center;background:var(--panel2);
+  transition:all .12s;color:#fff}
+.pad.lit{filter:brightness(2.2);box-shadow:0 0 24px currentColor;transform:scale(1.06)}
+.pad:active{transform:scale(.93)}
+.cellgrid{display:grid;gap:6px;justify-content:center;margin:0 auto}
+.cell{border-radius:8px;border:1px solid var(--border);background:var(--panel2);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all .12s;color:var(--text)}
+.cell:active{transform:scale(.94)}
+.cell.on{border-color:var(--ember);background:#31170a;box-shadow:inset 0 0 14px rgba(255,107,43,.35)}
+.cell.path{background:#3a2408;border-color:var(--gold);box-shadow:inset 0 0 12px rgba(255,207,107,.4)}
+.barwrap{position:relative;height:46px;background:var(--panel2);border:1px solid var(--border);
+  border-radius:10px;overflow:hidden;margin:18px 0}
+.barzone{position:absolute;top:0;bottom:0;background:rgba(127,208,138,.3);border-left:2px solid var(--green);border-right:2px solid var(--green)}
+.barmark{position:absolute;top:0;bottom:0;width:5px;background:var(--ember);box-shadow:0 0 10px var(--ember)}
+.barfill{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#7a2c0a,#ff6b2b);transition:width .1s}
+input[type=text]{width:100%;max-width:340px;background:#120a06;border:1px solid var(--border);
+  color:var(--gold);border-radius:10px;padding:13px 16px;font-size:1.1rem;font-family:inherit;
+  text-align:center;letter-spacing:.15em;outline:none}
+input[type=text]:focus{border-color:var(--ember)}
+input[type=range]{width:100%;accent-color:var(--ember);height:34px}
+.choice{display:block;width:100%;text-align:left;background:var(--panel2);border:1px solid var(--border);
+  color:var(--text);border-radius:10px;padding:14px 16px;margin-bottom:10px;cursor:pointer;
+  font-family:inherit;font-size:.95rem;line-height:1.6;transition:all .15s}
+.choice:hover{border-color:var(--ember);color:#fff}
+.card{border-radius:10px;border:1px solid var(--border);background:var(--panel2);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:1.7rem;transition:transform .25s;color:transparent}
+.card.open{background:#31190c;border-color:var(--gold);color:#fff}
+.card.gone{opacity:.15;pointer-events:none;color:#fff}
+.lane{flex:1;height:190px;border:1px solid var(--border);border-radius:12px;background:var(--panel2);
+  position:relative;overflow:hidden;cursor:pointer;transition:background .15s}
+.lane.warn{background:#3d1503;box-shadow:inset 0 0 30px rgba(255,107,43,.5)}
+.lane.fire{background:#7a1e02;box-shadow:inset 0 0 50px rgba(255,60,0,.9)}
+.lane .pc{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);font-size:2rem}
+.toast{position:fixed;left:50%;bottom:34px;transform:translateX(-50%) translateY(20px);
+  background:#2a1206;border:1px solid var(--ember);color:#ffd9c2;padding:12px 22px;border-radius:12px;
+  font-size:.92rem;opacity:0;transition:all .3s;z-index:999;pointer-events:none;max-width:88vw;text-align:center;line-height:1.6}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.bad{border-color:var(--red);color:#ffc4c4;background:#2a0808}
+.toast.good{border-color:var(--green);color:#d2f5d8;background:#0d2210}
+.overlay{position:fixed;inset:0;background:rgba(6,3,2,.9);display:none;z-index:200;
+  align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:26px}
+.overlay.active{display:flex}
+.ov-emoji{font-size:3.4rem;margin-bottom:16px}
+.ov-title{font-size:1.6rem;font-weight:900;color:var(--gold);margin-bottom:12px}
+.ov-text{color:var(--text);line-height:1.9;max-width:520px;margin-bottom:28px}
+
+/* CLEAR / END */
+#s-clear,#s-end{justify-content:center;text-align:center}
+.end-title{font-size:2.4rem;font-weight:900;color:#fff;margin:18px 0;text-shadow:0 0 40px rgba(255,207,107,.5)}
+.end-stats{color:var(--dim);line-height:2.2;margin-bottom:34px}
+.end-stats b{color:var(--gold)}
+@media (max-width:480px){
+  .t-main{font-size:2.2rem}
+  .pad{width:64px;height:64px;font-size:1.5rem}
+  .m-box{padding:16px 10px}
+}
+</style>
+</head>
+<body>
+
+<div class="screen active" id="s-title">
+  <div class="t-emoji">🐉</div>
+  <div class="t-main">용의 심장</div>
+  <div class="t-sub">이그나로크의 둥지에서 살아나가라</div>
+  <div class="t-diff">난이도 <b>🔥🔥🔥🔥🔥</b> <span class="sk">— 미션 32 · 14구역</span></div>
+  <button class="btn big" id="btn-start">잠입한다</button>
+  <div style="height:14px"></div>
+  <button class="btn ghost" id="btn-continue" style="display:none">이어서 하기</button>
+  <p style="color:var(--dim);font-size:.78rem;margin-top:40px;line-height:1.8;padding:0 20px">
+    ⚠ 실패하면 미션이 처음부터 다시 시작됩니다.<br>힌트의 불씨는 단 3개. 아껴 쓰십시오.</p>
+</div>
+
+<div class="screen" id="s-prologue">
+  <div class="story-box" id="prologue-text"></div>
+  <div class="story-actions"><button class="btn" id="btn-prologue-next">둥지로 들어간다</button></div>
+</div>
+
+<div class="screen" id="s-stage">
+  <div class="st-num" id="st-num"></div>
+  <div class="st-emoji" id="st-emoji"></div>
+  <div class="st-name" id="st-name"></div>
+  <div class="st-intro" id="st-intro"></div>
+  <button class="btn" id="btn-stage-go">들어간다</button>
+</div>
+
+<div class="screen" id="s-mission">
+  <div class="m-head">
+    <span class="m-stagechip" id="m-stagechip"></span>
+    <span class="m-count" id="m-count"></span>
+    <span class="m-spacer"></span>
+    <span class="m-frags" id="m-frags"></span>
+    <button class="hintbtn" id="btn-hint">🕯️ ×3</button>
+  </div>
+  <div class="m-wrap">
+    <div class="m-title" id="m-title"></div>
+    <div><span class="m-type" id="m-type">미션</span></div>
+    <div class="m-brief" id="m-brief"></div>
+    <div class="m-box" id="m-box"></div>
+  </div>
+</div>
+
+<div class="screen" id="s-clear">
+  <div class="ov-emoji" id="clear-emoji">🔥</div>
+  <div class="end-title" id="clear-title"></div>
+  <div class="end-stats" id="clear-text"></div>
+  <button class="btn" id="btn-clear-next">다음 구역으로</button>
+</div>
+
+<div class="screen" id="s-end">
+  <div class="ov-emoji" id="end-emoji">🐉</div>
+  <div class="end-title" id="end-title"></div>
+  <div class="end-stats" id="end-text"></div>
+  <button class="btn ghost" id="btn-restart">처음부터 다시</button>
+</div>
+
+<div class="overlay" id="ov-done">
+  <div class="ov-emoji">✅</div>
+  <div class="ov-title" id="ov-done-title">돌파</div>
+  <div class="ov-text" id="ov-done-text"></div>
+  <button class="btn" id="btn-ov-next">계속</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+/* ═══════════ CORE ═══════════ */
+const $=s=>document.querySelector(s);
+function el(tag,cls,html){const e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e;}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function rnd(n){return Math.floor(Math.random()*n);}
+
+let timers=[];
+function T(fn,ms){const id=setTimeout(fn,ms);timers.push({id,r:0});return id;}
+function I(fn,ms){const id=setInterval(fn,ms);timers.push({id,r:1});return id;}
+function clearT(){timers.forEach(t=>t.r?clearInterval(t.id):clearTimeout(t.id));timers=[];}
+
+let toastT=null;
+function toast(msg,kind){const t=$('#toast');t.textContent=msg;t.className='toast show'+(kind?' '+kind:'');
+  if(toastT)clearTimeout(toastT);toastT=setTimeout(()=>t.className='toast',2200);}
+
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active');
+  $(id).scrollTop=0;}
+
+const S={mi:0,hints:3,frags:{},fails:0,t0:Date.now(),elapsed:0};
+const SAVE_KEY='dragonheart_v1';
+function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({mi:S.mi,hints:S.hints,frags:S.frags,fails:S.fails,elapsed:Date.now()-S.t0}));}catch(e){}}
+function loadSave(){try{return JSON.parse(localStorage.getItem(SAVE_KEY));}catch(e){return null;}}
+
+/* ═══════════ STORY DATA ═══════════ */
+const PROLOGUE=[
+  '대륙의 모든 도둑이 꿈꾸는 단 하나의 보물 — <em>용의 심장</em>.',
+  '천 년 전, 마지막 용기사 <em>세라핀</em>은 폭주하는 고대룡 <b>이그나로크</b>의 심장을 몸에서 떼어내 제단에 봉인했다. 심장을 잃은 용은 화산 카르바노스 깊은 곳에서 잠들었다.',
+  '당신은 그 심장을 훔치는 데 성공했다. 품 안에서 심장은 아직도 뜨겁게 뛰고 있다.',
+  '그러나 심장이 제단을 떠난 순간 — 산 전체가 눈을 떴다. 모든 통로의 봉인이 깨어나고, 입구는 녹은 바위로 닫혔다.',
+  '잠들었던 둥지의 시험이, 이제 도둑인 당신을 향해 이빨을 드러낸다.',
+  '<b>살아서 나가라. 방법은 그것뿐이다.</b>'
+];
+const STAGES=[
+ {e:'🪨',n:'무너진 입구',t:'등 뒤에서 입구가 녹아내리며 닫혔다. 되돌아갈 길은 없다. 벽에는 옛 용기사단의 룬 자물쇠가 박혀 있고, 무너진 잔해가 안쪽 길을 막고 있다.'},
+ {e:'🦇',n:'박쥐의 동굴',t:'수천 마리의 화염박쥐가 천장에 매달려 있다. 놈들은 어둠 속에서 노래로 길을 기억한다. 이 동굴의 문은 그 노래를 따라 부르는 자에게만 열린다.'},
+ {e:'🌋',n:'용암의 다리',t:'끓는 용암 위로 부서진 돌다리가 이어진다. 다리의 옛 수문장들은 발판에 이렇게 새겼다 — "성급한 자는 가라앉고, 셈이 밝은 자만 건넌다."'},
+ {e:'💰',n:'보물의 방',t:'산더미 같은 황금. 그러나 이그나로크의 보물에는 저주가 섞여 있다. 가짜를 쥐는 손은 재가 된다. 방 한구석, 용을 연구하던 옛 학자의 낡은 고서가 펼쳐져 있다.'},
+ {e:'🪞',n:'거울의 회랑',t:'용의 눈물로 만든 거울들이 늘어서 있다. 거울은 빛을 기억하고, 그림자를 시험한다. 벽의 문장 — "빛이 제 길을 찾을 때, 그림자는 제 짝을 찾는다."'},
+ {e:'🥚',n:'알의 부화장',t:'이그나로크의 마지막 알들이 잠들어 있다. 온기가 흐트러지면 어미가 깨어난다. 그리고 이 방의 어둠 속 — 감시하는 <b>용의 눈</b> 하나가 아직 살아 있다.'},
+ {e:'📜',n:'룬의 서고',t:'용기사단이 남긴 서고. 재가 된 책들 사이에 봉인의 기록이 흩어져 있다. 낡은 표지에 이렇게 적혀 있다 — "읽을 수 있는 자만이 나갈 자격이 있다."'},
+ {e:'☠️',n:'독안개의 통로',t:'용의 숨이 고여 썩은 통로. 초록 안개가 폐를 태운다. 벽에는 옛 연금술사가 남긴 해독의 시와, 숨을 아끼는 법이 긁혀 있다.'},
+ {e:'🌊',n:'지하 수로',t:'화산의 열기를 식히던 옛 수로. 물길이 끊긴 지 오래다. 물을 다시 흐르게 해야 다음 문의 증기 자물쇠가 풀린다.'},
+ {e:'⚔️',n:'격전의 흔적',t:'천 년 전, 용기사단이 최후를 맞은 곳. 부러진 검과 여섯 개의 방패가 흩어져 있다. 마지막 용기사 <em>세라핀</em>의 검도 여기 잠들어 있다. 전사자들의 맹세는 아직 이 방을 지킨다.'},
+ {e:'❤️‍🔥',n:'심장의 제단',t:'비어 버린 봉인의 제단. 당신 품속의 심장이 제단을 향해 미친 듯이 뛴다. 제단은 심장의 박동을 기억하는 자만 통과시킨다.'},
+ {e:'🐲',n:'대면',t:'거대한 그림자가 어둠에서 몸을 일으킨다. 심장 없이도 천 년을 버틴 고대룡 <b>이그나로크</b>. "도둑이여. 내 심장을 품고 어디로 가려 하는가." — 놈은 대화를 원한다. 거짓은 화염으로 돌아온다.'},
+ {e:'💥',n:'무너지는 둥지',t:'대면의 대가로 산이 흔들린다. 천장이 무너지고 바닥이 갈라진다. 출구까지 남은 것은 당신의 손과 발, 그리고 기억뿐이다.'},
+ {e:'🚪',n:'최후의 봉인문',t:'새벽빛이 문틈으로 스민다. 마지막 문은 네 개의 각인 조각을 요구한다. 그리고 문 너머에서, 당신은 선택해야 한다 — 심장을 가질 것인가, 돌려놓을 것인가.'}
+];
+const FRAG_ORDER=['ash','ember','oath','pact'];
+const FRAG_NAME={ash:'재의 각인',ember:'잿불의 각인',oath:'맹세의 각인',pact:'맹약의 각인'};
+const FRAG_DIGIT={ash:'4',ember:'7',oath:'2',pact:'9'};
+
+/* ═══════════ ENGINE ═══════════ */
+const MISSIONS=[];
+function M(st,type,title,brief,hint,run){MISSIONS.push({st,type,title,brief,hint,run});}
+
+function fragBar(){const got=FRAG_ORDER.filter(k=>S.frags[k]);
+  $('#m-frags').textContent=got.length?('각인 '+got.map(()=>'◆').join('')+'◇'.repeat(4-got.length)):'';}
+
+function grantFrag(key){if(S.frags[key])return;S.frags[key]=true;fragBar();save();
+  T(()=>toast('🔶 '+FRAG_NAME[key]+' 획득 — 조각에 새겨진 수 「'+FRAG_DIGIT[key]+'」','good'),600);}
+
+function useHint(){const m=MISSIONS[S.mi];if(!m)return;
+  if(S.hints<=0){toast('힌트의 불씨가 모두 꺼졌다…','bad');return;}
+  if(confirm('힌트의 불씨를 하나 태웁니다. (남은 불씨 '+S.hints+'개)'))
+  {S.hints--;$('#btn-hint').textContent='🕯️ ×'+S.hints;save();alert('🕯️ '+m.hint);}}
+
+function missionFail(msg){S.fails++;toast(msg||'실패… 처음부터 다시.','bad');save();}
+
+function runMission(){const m=MISSIONS[S.mi];if(!m){ending();return;}
+  clearT();window.onkeydown=null;
+  $('#m-stagechip').textContent=(m.st+1)+'구역 · '+STAGES[m.st].n;
+  const inSt=MISSIONS.filter(x=>x.st===m.st);
+  $('#m-count').textContent='미션 '+(S.mi+1)+'/'+MISSIONS.length;
+  $('#m-title').textContent=m.title;
+  const ty=$('#m-type');ty.textContent=m.type==='quiz'?'퀴즈':'미션';ty.className='m-type'+(m.type==='quiz'?' quiz':'');
+  $('#m-brief').innerHTML=m.brief;
+  $('#btn-hint').textContent='🕯️ ×'+S.hints;
+  fragBar();
+  const box=$('#m-box');box.innerHTML='';
+  show('#s-mission');
+  const api={
+    done(txt){clearT();save();
+      $('#ov-done-title').textContent=m.title+' — 돌파';
+      $('#ov-done-text').innerHTML=txt||'봉인 하나가 재가 되어 흩어진다.';
+      $('#ov-done').classList.add('active');},
+    fail(msg){missionFail(msg);},
+    reset(msg){missionFail(msg);clearT();box.innerHTML='';m.run(box,api);}
+  };
+  m.run(box,api);
+}
+
+function nextMission(){
+  const cur=MISSIONS[S.mi];S.mi++;save();
+  const nxt=MISSIONS[S.mi];
+  if(!nxt){ending();return;}
+  if(nxt.st!==cur.st){
+    $('#clear-emoji').textContent=STAGES[cur.st].e;
+    $('#clear-title').textContent=(cur.st+1)+'구역 돌파';
+    $('#clear-text').innerHTML='<em>'+STAGES[cur.st].n+'</em>의 봉인이 완전히 풀렸다.<br>남은 구역 <b>'+(14-(cur.st+1))+'</b>';
+    show('#s-clear');
+  }else runMission();
+}
+
+function stageIntro(st){
+  $('#st-num').textContent='제 '+(st+1)+' 구역 / 14';
+  $('#st-emoji').textContent=STAGES[st].e;
+  $('#st-name').textContent=STAGES[st].n;
+  $('#st-intro').innerHTML=STAGES[st].t;
+  show('#s-stage');
+}
+/* ═══════════ 공용 위젯 ═══════════ */
+function quizWidget(box,api,answers,placeholder,doneTxt,after){
+  const w=el('div','centered');
+  const inp=el('input');inp.type='text';inp.placeholder=placeholder||'답을 입력하라';
+  const b=el('button','btn','바친다');b.style.marginTop='16px';
+  w.appendChild(inp);w.appendChild(el('div'));w.appendChild(b);box.appendChild(w);
+  function chk(){const v=inp.value.replace(/\s/g,'').toLowerCase();
+    if(answers.some(a=>v===a)){if(after)after();api.done(doneTxt);}
+    else{api.fail('제단이 침묵한다… 틀린 답이다.');inp.value='';}}
+  b.onclick=chk;inp.onkeydown=e=>{if(e.key==='Enter')chk();};
+}
+
+/* ═══ 1구역: 무너진 입구 ═══ */
+M(0,'game','룬 다이얼 자물쇠',
+ '세 개의 회전 고리에 여덟 개의 룬. 벽의 수수께끼가 가리키는 세 룬을 위쪽 홈에 맞춰라.',
+ '① 번개 ② 돌 ③ 달. 용암도 별도 아니다.',
+ function(box,api){
+  const SYM=['🔥','🌙','⭐','🐉','⚡','🌊','🪨','🌪️'];
+  const target=[4,6,1]; // ⚡ 🪨 🌙
+  const pos=[rnd(8),rnd(8),rnd(8)];
+  box.appendChild(el('div','plaque','「첫째 룬 — 구름 한 점 없이도 산등성이를 태우는 것.<br>둘째 룬 — 용의 숨결이 지나간 자리에 남는 것. 불이 아니라 그 <em>주검</em>.<br>셋째 룬 — 밤마다 소리 없이 바다를 끌어당기는 것.」'));
+  const row=el('div','padgrid');row.style.gridTemplateColumns='repeat(3,auto)';
+  const disp=[];
+  for(let i=0;i<3;i++){
+    const col=el('div','centered');
+    const up=el('button','btn ghost','▲');up.style.padding='6px 22px';
+    const d=el('div','pad');d.style.margin='8px auto';d.textContent=SYM[pos[i]];
+    const dn=el('button','btn ghost','▼');dn.style.padding='6px 22px';
+    up.onclick=()=>{pos[i]=(pos[i]+7)%8;d.textContent=SYM[pos[i]];};
+    dn.onclick=()=>{pos[i]=(pos[i]+1)%8;d.textContent=SYM[pos[i]];};
+    col.appendChild(up);col.appendChild(d);col.appendChild(dn);row.appendChild(col);disp.push(d);
+  }
+  box.appendChild(row);
+  const b=el('button','btn','자물쇠를 돌린다');b.style.marginTop='20px';
+  const c=el('div','centered');c.appendChild(b);box.appendChild(c);
+  b.onclick=()=>{if(pos.every((p,i)=>p===target[i]))api.done('철컥 — 천 년 묵은 자물쇠가 굴복한다.');
+    else api.fail('룬이 붉게 달아오른다. 조합이 틀렸다.');};
+});
+
+M(0,'game','잔해 걷어내기',
+ '길을 막은 여덟 개의 바위. 새겨진 문구 — <b>"어둠은 빛보다 무겁다. 무거운 것부터 걷어내라."</b> 순서가 틀리면 잔해가 다시 쏟아진다.',
+ '가장 어두운(검은) 바위부터, 점점 밝은 순서로 클릭하라.',
+ function(box,api){
+  function build(){
+    box.innerHTML='';
+    const shades=shuffle([12,22,32,42,52,62,72,82]);
+    let expect=0;const sorted=shades.slice().sort((a,b)=>a-b);
+    const g=el('div','cellgrid');g.style.gridTemplateColumns='repeat(4,74px)';
+    shades.forEach(sh=>{
+      const c=el('div','cell','🪨');c.style.height='74px';c.style.fontSize='2rem';
+      c.style.filter='brightness('+(sh/50)+')';
+      c.onclick=()=>{
+        if(sh===sorted[expect]){expect++;c.style.visibility='hidden';
+          if(expect===8)api.done('마지막 바위가 구르며 길이 열린다.');}
+        else{api.fail('우르릉 — 잔해가 다시 무너져 내렸다!');T(build,700);}
+      };
+      g.appendChild(c);
+    });
+    box.appendChild(g);
+    box.appendChild(el('div','statline','어두운 것 → 밝은 것'));
+  }
+  build();
+});
+
+/* ═══ 2구역: 박쥐의 동굴 ═══ */
+M(1,'game','화염박쥐 사냥',
+ '문을 여는 열쇠를 박쥐 한 마리가 삼켰다. 어느 놈인지 알 수 없으니 — <b>전부 잡아라.</b> 12마리를 잡아야 한다. 5마리를 놓치면 무리가 흩어져 처음부터.',
+ '박쥐는 나타난 곳에서 0.8초만 머문다. 손가락을 화면 중앙에 두고 반응하라.',
+ function(box,api){
+  let hits=0,miss=0,alive=true;
+  const field=el('div');field.style.cssText='position:relative;height:340px;background:#120a06;border-radius:10px;overflow:hidden';
+  const stat=el('div','statline');box.appendChild(stat);box.appendChild(field);
+  function up(){stat.innerHTML='잡음 <b>'+hits+'</b>/12 · 놓침 <b style="color:var(--red)">'+miss+'</b>/5';}
+  up();
+  function spawn(){
+    if(!alive)return;
+    const bat=el('div',null,'🦇');
+    bat.style.cssText='position:absolute;font-size:2.1rem;cursor:pointer;transition:transform .1s;'
+      +'left:'+(6+rnd(78))+'%;top:'+(4+rnd(76))+'%';
+    let caught=false;
+    bat.onpointerdown=()=>{if(caught)return;caught=true;hits++;up();bat.textContent='💥';
+      T(()=>bat.remove(),160);
+      if(hits>=12){alive=false;api.done('마지막 박쥐의 배 속에서 청동 열쇠가 떨어진다.');}};
+    field.appendChild(bat);
+    T(()=>{if(!caught){bat.remove();miss++;up();
+      if(miss>=5){alive=false;api.reset('박쥐 떼가 비명을 지르며 흩어졌다…');}}},820);
+    if(alive)T(spawn,650+rnd(500));
+  }
+  T(spawn,800);
+});
+
+M(1,'game','어둠의 노래',
+ '동굴 문의 여섯 룬이 차례로 빛나며 노래한다. <b>같은 순서로 따라 연주하라.</b> 3음에서 시작해 7음까지. 한 번이라도 틀리면 노래는 처음(3음)으로 돌아간다.',
+ '눈으로만 외우지 말고, 위치를 입으로 중얼거려라. "왼위, 오른아래, 가운데…"',
+ function(box,api){
+  const COL=['#ff6b2b','#ffcf6b','#7fd08a','#6d8cff','#c77dff','#ff5d76'];
+  const pads=[];let seq=[],inputPos=0,len=3,playing=true;
+  const stat=el('div','statline');box.appendChild(stat);
+  const g=el('div','padgrid');g.style.gridTemplateColumns='repeat(3,auto)';
+  for(let i=0;i<6;i++){
+    const p=el('div','pad','ᚱᚨᚦᛟᚲᛉ'[i]);p.style.color=COL[i];p.style.borderColor=COL[i];
+    p.onpointerdown=()=>{if(playing)return;flash(i,220);
+      if(seq[inputPos]===i){inputPos++;
+        if(inputPos===seq.length){
+          if(len>=7)api.done('동굴 전체가 낮게 공명하며 문이 열린다.');
+          else{len++;T(round,900);}}}
+      else{api.fail('불협화음! 박쥐들이 날카롭게 운다. 노래가 처음으로 돌아간다.');len=3;T(round,1100);}};
+    pads.push(p);g.appendChild(p);
+  }
+  box.appendChild(g);
+  function flash(i,ms){pads[i].classList.add('lit');T(()=>pads[i].classList.remove('lit'),ms);}
+  function round(){playing=true;inputPos=0;seq=[];
+    for(let i=0;i<len;i++)seq.push(rnd(6));
+    stat.innerHTML='이번 노래: <b>'+len+'음</b> (목표 7음)';
+    seq.forEach((s,i)=>T(()=>flash(s,340),700+i*520));
+    T(()=>{playing=false;stat.innerHTML='따라 연주하라 — <b>'+len+'음</b>';},700+seq.length*520);}
+  T(round,600);
+});
+
+/* ═══ 3구역: 용암의 다리 ═══ */
+M(2,'game','도약의 감각',
+ '다리가 끊긴 곳마다 용암 위로 뛰어야 한다. 움직이는 불꽃이 <b>초록 지대</b>에 있을 때 도약하라. <b>연속 6회.</b> 한 번이라도 빗나가면 처음부터. 뛸수록 불꽃은 빨라진다.',
+ '불꽃의 왕복 리듬을 두 번 관찰한 뒤, 초록 지대에 "들어오기 직전" 손을 준비하라.',
+ function(box,api){
+  let streak=0,posv=0,dir=1,speed=1.15,zoneL=0;
+  const stat=el('div','statline');box.appendChild(stat);
+  const bw=el('div','barwrap');const zone=el('div','barzone');const mark=el('div','barmark');
+  bw.appendChild(zone);bw.appendChild(mark);box.appendChild(bw);
+  const c=el('div','centered');const b=el('button','btn big','도약!');c.appendChild(b);box.appendChild(c);
+  function newZone(){zoneL=8+rnd(76);zone.style.left=zoneL+'%';zone.style.width='13%';}
+  function up(){stat.innerHTML='연속 도약 <b>'+streak+'</b>/6 · 속도 ×'+speed.toFixed(2);}
+  newZone();up();
+  I(()=>{posv+=dir*speed;if(posv>=97){posv=97;dir=-1;}if(posv<=0){posv=0;dir=1;}
+    mark.style.left=posv+'%';},16);
+  b.onclick=()=>{
+    if(posv>=zoneL&&posv<=zoneL+13){streak++;speed+=0.28;newZone();up();
+      toast(streak+'번째 발판에 착지!','good');
+      if(streak>=6)api.done('마지막 도약 — 발밑에서 용암이 아쉬운 듯 끓는다.');}
+    else{streak=0;speed=1.15;up();api.fail('발이 미끄러졌다! 간신히 첫 발판으로 기어올랐다.');}};
+});
+
+M(2,'game','수문장의 셈',
+ '여섯 개의 압력 발판. 새겨진 규칙 — <b>"합이 열둘이 되도록 셋을 밟되, 서로 이웃한 발판을 함께 밟지 말라."</b> 발판의 값은 자리 순서(1~6)다. 틀리면 다리가 기운다.',
+ '이웃하지 않게 3개를 고르는 조합은 몇 없다. (1,3,5) (1,3,6) (1,4,6) (2,4,6) — 이 중 합이 12인 것은?',
+ function(box,api){
+  const sel=new Set();
+  const row=el('div','padgrid');row.style.gridTemplateColumns='repeat(6,auto)';
+  const pads=[];
+  for(let i=1;i<=6;i++){
+    const p=el('div','pad',['Ⅰ','Ⅱ','Ⅲ','Ⅳ','Ⅴ','Ⅵ'][i-1]);p.style.width='58px';p.style.height='58px';p.style.fontSize='1.3rem';
+    p.onclick=()=>{if(sel.has(i)){sel.delete(i);p.classList.remove('lit');}
+      else{sel.add(i);p.classList.add('lit');}};
+    pads.push(p);row.appendChild(p);
+  }
+  box.appendChild(row);
+  const c=el('div','centered');const b=el('button','btn','밟는다');b.style.marginTop='20px';c.appendChild(b);box.appendChild(c);
+  b.onclick=()=>{
+    const a=[...sel].sort((x,y)=>x-y);
+    const sum=a.reduce((s,v)=>s+v,0);
+    const adj=a.some((v,i)=>i>0&&v-a[i-1]===1);
+    if(a.length===3&&sum===12&&!adj)api.done('발판이 하나씩 가라앉으며 숨은 다리가 솟는다.');
+    else{sel.clear();pads.forEach(p=>p.classList.remove('lit'));
+      api.fail('다리가 크게 기울었다! 발판이 원래대로 돌아간다.');}};
+});
+
+/* ═══ 4구역: 보물의 방 ═══ */
+M(3,'game','저주받은 황금',
+ '산더미 황금 속, 저주가 걸린 <b>가짜 글자 하나</b>가 섞여 있다. 세 번 연속으로 찾아내라. 제한시간 <b>각 15초.</b> 시간이 다하거나 틀리면 처음부터.',
+ '글자를 하나하나 읽지 말고 시야를 넓혀 "모양이 어긋난 곳"을 흘겨보라.',
+ function(box,api){
+  const PAIRS=[['흙','훍'],['왕','앙'],['템','탬'],['금','급'],['보','뵤']];
+  let round=0,tleft=15,tick=null;
+  const stat=el('div','statline');box.appendChild(stat);
+  const wrap=el('div');box.appendChild(wrap);
+  function up(){stat.innerHTML='라운드 <b>'+(round+1)+'</b>/3 · 남은 시간 <b style="color:'+(tleft<=5?'var(--red)':'var(--gold)')+'">'+tleft+'초</b>';}
+  function build(){
+    wrap.innerHTML='';tleft=15;up();
+    const [norm,odd]=PAIRS[rnd(PAIRS.length)];
+    const n=36,oi=rnd(n);
+    const g=el('div','cellgrid');g.style.gridTemplateColumns='repeat(6,1fr)';g.style.maxWidth='420px';
+    for(let i=0;i<n;i++){
+      const c=el('div','cell',i===oi?odd:norm);c.style.height='52px';c.style.fontSize='1.15rem';c.style.color='var(--gold)';
+      c.onclick=()=>{
+        if(i===oi){round++;
+          if(round>=3){clearInterval(tick);api.done('저주받은 금화들이 검게 바스러진다. 진짜만 남았다.');}
+          else{toast('가짜 발견! ('+round+'/3)','good');build();}}
+        else{round=0;api.fail('손끝이 타들어간다! 저주다. 처음부터.');build();}};
+      g.appendChild(c);
+    }
+    wrap.appendChild(g);
+  }
+  build();
+  tick=I(()=>{tleft--;up();if(tleft<=0){round=0;api.fail('시간 초과 — 황금이 뒤섞였다.');build();}},1000);
+});
+
+M(3,'game','황금 저울',
+ '문 앞의 거대한 저울. <b>"용의 몸무게 예순여섯 근을, 추 셋으로 정확히."</b> 추는 여섯 개 — 4, 9, 14, 22, 31, 40근. 초과도 미달도 용서하지 않는다.',
+ '가장 무거운 40근을 올렸다고 치고, 남은 26근을 두 추로 만들 수 있는가?',
+ function(box,api){
+  const W=[4,9,14,22,31,40];const sel=new Set();
+  const stat=el('div','statline');box.appendChild(stat);
+  const row=el('div','padgrid');row.style.gridTemplateColumns='repeat(3,auto)';
+  function up(){const s=[...sel].reduce((a,b)=>a+b,0);
+    stat.innerHTML='저울 위: <b>'+s+'근</b> / 목표 66근 · 추 '+sel.size+'/3';}
+  W.forEach(w=>{
+    const p=el('div','pad',w+'근');p.style.fontSize='1.05rem';
+    p.onclick=()=>{if(sel.has(w)){sel.delete(w);p.classList.remove('lit');}
+      else{sel.add(w);p.classList.add('lit');}up();};
+    row.appendChild(p);
+  });
+  box.appendChild(row);up();
+  const c=el('div','centered');const b=el('button','btn','저울을 잠근다');b.style.marginTop='18px';c.appendChild(b);box.appendChild(c);
+  b.onclick=()=>{const s=[...sel].reduce((a,b)=>a+b,0);
+    if(sel.size===3&&s===66)api.done('저울이 수평을 이루자 황금 문이 녹아 사라진다.');
+    else api.fail('저울이 요란하게 기운다. 다시.');};
+});
+
+M(3,'quiz','학자의 고서',
+ '고서의 마지막 장. <b>"이것을 답하는 자에게 첫 각인을 주노라 — 천 년을 먹어도 배고프고, 물 한 모금에 죽는 것은 무엇인가?"</b>',
+ '지금 이 산 전체를 채우고 있는 것. 당신이 훔친 심장도 이것으로 뛴다.',
+ function(box,api){
+  quizWidget(box,api,['불','불꽃','화염','불길'],'그것은…',
+    '고서가 스스로 낱장을 넘기며 <em>재의 각인</em>을 뱉어낸다.',()=>grantFrag('ash'));
+});
+
+/* ═══ 5구역: 거울의 회랑 ═══ */
+M(4,'game','빛의 길',
+ '왼쪽 틈에서 새어드는 한 줄기 빛을 거울로 꺾어 <b>오른쪽 아래 출구</b>까지 보내라. 거울(◪)을 클릭하면 기울기가 바뀐다. 빛이 닿지 않는 거울도 있다 — 함정이다.',
+ '빛은 가운데 줄에서 출발한다. 첫 거울에서 위로, 천장에서 오른쪽으로, 끝에서 아래로.',
+ function(box,api){
+  const SIZE=5;
+  const mirrors={'2,2':rnd(2),'0,2':rnd(2),'0,4':rnd(2),'3,1':rnd(2),'4,0':rnd(2)};
+  const g=el('div','cellgrid');g.style.gridTemplateColumns='repeat(5,58px)';
+  const cells={};
+  for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++){
+    const d=el('div','cell');d.style.height='58px';d.style.fontSize='1.4rem';
+    const k=r+','+c;cells[k]=d;
+    if(k in mirrors){d.textContent=mirrors[k]?'∖':'∕';d.style.color='var(--gold)';
+      d.onclick=()=>{mirrors[k]^=1;d.textContent=mirrors[k]?'∖':'∕';};}
+    else d.style.cursor='default';
+    g.appendChild(d);
+  }
+  box.appendChild(el('div','statline','빛 입구: 왼쪽 3번째 줄 ▶ · 출구: 오른쪽 아래 ▼'));
+  box.appendChild(g);
+  const c2=el('div','centered');const b=el('button','btn','빛을 쏜다');b.style.marginTop='18px';c2.appendChild(b);box.appendChild(c2);
+  b.onclick=()=>{
+    Object.keys(cells).forEach(k=>cells[k].classList.remove('path'));
+    let r=2,c=0,dr=0,dc=1,steps=0,ok=false;
+    while(steps++<40){
+      if(r<0||r>=SIZE||c<0||c>=SIZE)break;
+      cells[r+','+c].classList.add('path');
+      const k=r+','+c;
+      if(k in mirrors){
+        const m=mirrors[k];
+        if(m===0){const t=dr;dr=-dc;dc=-t;}   // '/' 반사
+        else{const t=dr;dr=dc;dc=t;}          // '\' 반사
+      }
+      if(r===4&&c===4&&dr===1){ok=true;break;}
+      if(r===4&&c===4){ok=true;break;}
+      r+=dr;c+=dc;
+    }
+    if(ok)api.done('빛이 출구의 수정에 닿자 회랑 전체가 밝아진다.');
+    else T(()=>{api.fail('빛이 어둠 속으로 사라졌다. 거울을 다시 기울여라.');},400);
+  };
+});
+
+M(4,'game','그림자 짝찾기',
+ '열여섯 개의 거울에 갇힌 여덟 쌍의 그림자. 같은 그림자끼리 짝지어 해방시켜라. 단 — 거울을 <b>24번</b>만 뒤집을 수 있다. 초과하면 그림자들이 다시 뒤섞인다.',
+ '2×2 블록 단위로 외워라. "왼쪽 위 구석엔 늑대와 뱀…" 하는 식으로.',
+ function(box,api){
+  const EMO=['🐺','🦂','🕷️','🦎','🐍','🦉','🦇','🕸️'];
+  function build(){
+    box.innerHTML='';
+    const deck=shuffle(EMO.concat(EMO));
+    let open=[],matched=0,flips=0,lock=false;
+    const stat=el('div','statline');box.appendChild(stat);
+    function up(){stat.innerHTML='남은 뒤집기 <b>'+(24-flips)+'</b> · 해방 '+matched+'/8쌍';}
+    up();
+    const g=el('div','cellgrid');g.style.gridTemplateColumns='repeat(4,72px)';
+    deck.forEach((e,i)=>{
+      const card=el('div','card',e);card.style.height='72px';
+      card.onclick=()=>{
+        if(lock||card.classList.contains('open')||card.classList.contains('gone'))return;
+        flips++;up();card.classList.add('open');open.push({card,e});
+        if(open.length===2){lock=true;
+          T(()=>{
+            if(open[0].e===open[1].e){open.forEach(o=>{o.card.classList.remove('open');o.card.classList.add('gone');});
+              matched++;up();
+              if(matched===8){api.done('마지막 그림자가 고개 숙여 인사하고 사라진다.');return;}}
+            else open.forEach(o=>o.card.classList.remove('open'));
+            open=[];lock=false;
+            if(flips>=24&&matched<8){api.fail('거울이 요동친다 — 그림자들이 다시 뒤섞였다!');build();}
+          },520);}
+        else if(flips>=24){T(()=>{api.fail('거울이 요동친다 — 그림자들이 다시 뒤섞였다!');build();},400);}
+      };
+      g.appendChild(card);
+    });
+    box.appendChild(g);
+  }
+  build();
+});
+
+/* ═══ 6구역: 알의 부화장 ═══ */
+M(5,'game','세 개의 화로',
+ '알을 데우는 세 화로의 밸브. 문제는 — 밸브들이 낡은 관으로 <b>서로 얽혀 있다</b>는 것. 하나를 돌리면 다른 것도 움직인다. 세 화로를 동시에 초록 온도에 2초간 유지하라.',
+ '한 번에 맞추려 하지 마라. 서로 미는 정도가 다르다 — 셋째 밸브의 영향이 가장 약하니 마지막에 미세조정하라.',
+ function(box,api){
+  const val=[50,50,50];
+  const ZONES=[[62,72],[28,38],[74,86]];
+  const sls=[],fills=[],labs=[];
+  let holdMs=0,busy=false;
+  const stat=el('div','statline');box.appendChild(stat);
+  for(let i=0;i<3;i++){
+    const wrap=el('div');wrap.style.marginBottom='14px';
+    const lab=el('div','statline');lab.style.textAlign='left';
+    const bw=el('div','barwrap');bw.style.height='26px';bw.style.margin='6px 0';
+    const zone=el('div','barzone');zone.style.left=ZONES[i][0]+'%';zone.style.width=(ZONES[i][1]-ZONES[i][0])+'%';
+    const fill=el('div','barfill');
+    bw.appendChild(fill);bw.appendChild(zone);
+    const sl=el('input');sl.type='range';sl.min=0;sl.max=100;sl.value=50;
+    wrap.appendChild(lab);wrap.appendChild(bw);wrap.appendChild(sl);box.appendChild(wrap);
+    sls.push(sl);fills.push(fill);labs.push(lab);
+    sl.oninput=()=>{
+      if(busy)return;busy=true;
+      const d=sl.value-val[i];val[i]=+sl.value;
+      if(i===0)val[1]=Math.max(0,Math.min(100,val[1]+d*0.6));
+      if(i===1)val[2]=Math.max(0,Math.min(100,val[2]-d*0.5));
+      if(i===2)val[0]=Math.max(0,Math.min(100,val[0]+d*0.34));
+      sls.forEach((s,j)=>s.value=val[j]);
+      busy=false;draw();
+    };
+  }
+  function inz(i){return val[i]>=ZONES[i][0]&&val[i]<=ZONES[i][1];}
+  function draw(){
+    for(let i=0;i<3;i++){fills[i].style.width=val[i]+'%';
+      labs[i].innerHTML=['첫째','둘째','셋째'][i]+' 화로 — <b style="color:'+(inz(i)?'var(--green)':'var(--red)')+'">'+Math.round(val[i])+'°</b> (목표 '+ZONES[i][0]+'~'+ZONES[i][1]+'°)';}
+  }
+  draw();
+  I(()=>{
+    if(inz(0)&&inz(1)&&inz(2)){holdMs+=100;
+      stat.innerHTML='🔥 온도 안정… <b>'+((holdMs/1000).toFixed(1))+'</b>/2.0초';
+      if(holdMs>=2000)api.done('알 껍질 속에서 만족스러운 옹알이가 들린다. 통로가 열린다.');}
+    else{if(holdMs>0)toast('온도가 흐트러졌다!','bad');holdMs=0;
+      stat.innerHTML='세 화로를 동시에 초록 지대로';}
+  },100);
+});
+
+M(5,'game','용의 눈을 피해',
+ '방 끝의 문까지 어둠을 기어간다. <b>버튼을 누르는 동안 전진.</b> 하지만 벽에 박힌 용의 눈이 주기적으로 뜬다 — 눈이 <b>붉게 뜬 순간</b> 움직이고 있으면 처음 위치로 끌려온다. 눈꺼풀이 떨리면(주황) 곧 뜬다는 뜻.',
+ '주황 떨림을 보자마자 손을 떼라. 욕심내서 반 발짝 더 가려다 전부 잃는다.',
+ function(box,api){
+  let prog=0,holding=false,eye=0; // 0 감김 1 떨림 2 뜸
+  const eyeD=el('div','centered');eyeD.style.fontSize='3.6rem';eyeD.style.margin='8px 0';
+  const eyeLab=el('div','statline');
+  const bw=el('div','barwrap');const fill=el('div','barfill');fill.style.width='0%';bw.appendChild(fill);
+  const c=el('div','centered');const b=el('button','btn big','▶ 기어간다 (누르는 동안)');
+  c.appendChild(b);
+  box.appendChild(eyeD);box.appendChild(eyeLab);box.appendChild(bw);box.appendChild(c);
+  function drawEye(){
+    eyeD.textContent=eye===2?'👁️':(eye===1?'😳':'😴');
+    eyeLab.innerHTML=eye===2?'<b style="color:var(--red)">눈을 떴다! 멈춰!</b>':(eye===1?'<b style="color:var(--gold)">눈꺼풀이 떨린다…</b>':'잠들어 있다. 지금이다.');
+  }
+  drawEye();
+  function cycle(){
+    T(()=>{eye=1;drawEye();
+      T(()=>{eye=2;drawEye();
+        T(()=>{eye=0;drawEye();cycle();},900+rnd(700));
+      },450+rnd(350));
+    },1300+rnd(2200));
+  }
+  cycle();
+  b.onpointerdown=()=>holding=true;
+  const stop=()=>holding=false;
+  b.onpointerup=stop;b.onpointerleave=stop;b.onpointercancel=stop;
+  I(()=>{
+    if(holding){
+      if(eye===2){prog=0;fill.style.width='0%';holding=false;
+        api.fail('시선이 당신을 꿰뚫는다 — 보이지 않는 힘이 처음으로 내동댕이친다!');return;}
+      prog=Math.min(100,prog+1.1);fill.style.width=prog+'%';
+      if(prog>=100)api.done('문틈으로 미끄러져 들어간다. 등 뒤에서 눈이 두리번거린다.');
+    }
+  },60);
+});
+
+/* ═══ 7구역: 룬의 서고 ═══ */
+M(6,'game','룬 해독',
+ '서고의 철문에 네 개의 룬이 타오른다. 흩어진 낱장들에 해독표가 남아 있다. 룬이 가리키는 <b>네 글자의 말</b>을 문에 고하라.',
+ '표에서 하나씩 옮겨 적어라. ᚱ→용, ᚲ→의… 답은 이 둥지가 지키는 바로 그것이다.',
+ function(box,api){
+  box.appendChild(el('div','plaque',
+   '낱장의 해독표 —<br>ᚠ = 잿 · ᚢ = 불 · ᚦ = 심 · ᚨ = 장 · ᚱ = 용 · ᚲ = 의<br><br>철문의 룬 — <b style="font-size:1.5rem;letter-spacing:.3em">ᚱ ᚲ ᚦ ᚨ</b>'));
+  quizWidget(box,api,['용의심장'],'네 글자',
+   '철문이 낮게 울린다 — "읽을 자격이 있다." 문이 열리며 <em>잿불의 각인</em>이 굴러떨어진다.',
+   ()=>grantFrag('ember'));
+});
+
+M(6,'game','무너진 서가',
+ '봉인 기록이 담긴 석판이 아홉 조각으로 흩어져 틀에 뒤섞여 박혔다. 빈칸 옆의 조각을 밀어 <b>Ⅰ부터 Ⅷ까지 순서대로</b> 맞춰라.',
+ '왼쪽 위부터 한 줄씩 완성하라. 마지막 줄은 두 칸을 동시에 생각해야 한다.',
+ function(box,api){
+  const LAB=['Ⅰ','Ⅱ','Ⅲ','Ⅳ','Ⅴ','Ⅵ','Ⅶ','Ⅷ'];
+  let tiles=[0,1,2,3,4,5,6,7,8]; // 8=빈칸, 값 i는 라벨 LAB[i]
+  for(let k=0;k<80;k++){ // 풀린 상태에서 유효 이동만 반복 → 항상 풀 수 있음
+    const bi=tiles.indexOf(8),br=Math.floor(bi/3),bc=bi%3,cand=[];
+    if(br>0)cand.push(bi-3);if(br<2)cand.push(bi+3);if(bc>0)cand.push(bi-1);if(bc<2)cand.push(bi+1);
+    const s=cand[rnd(cand.length)];[tiles[bi],tiles[s]]=[tiles[s],tiles[bi]];
+  }
+  const g=el('div','cellgrid');g.style.gridTemplateColumns='repeat(3,86px)';
+  box.appendChild(g);
+  function draw(){
+    g.innerHTML='';
+    tiles.forEach((v,i)=>{
+      const c=el('div','cell',v===8?'':LAB[v]);c.style.height='86px';c.style.fontSize='1.7rem';
+      if(v===8){c.style.background='transparent';c.style.borderStyle='dashed';}
+      else c.style.color='var(--gold)';
+      c.onclick=()=>{
+        const bi=tiles.indexOf(8);
+        const r=Math.floor(i/3),cc=i%3,br=Math.floor(bi/3),bc=bi%3;
+        if(Math.abs(r-br)+Math.abs(cc-bc)===1){[tiles[i],tiles[bi]]=[tiles[bi],tiles[i]];draw();
+          if(tiles.slice(0,8).every((v2,j)=>v2===j))api.done('석판이 하나로 붙으며 봉인 기록이 빛난다.');}
+      };
+      g.appendChild(c);
+    });
+  }
+  draw();
+});
+
+M(6,'quiz','서고의 수수께끼',
+ '출구의 문지기 석상이 묻는다. <b>"많으면 많을수록, 아무것도 보이지 않게 되는 것은?"</b>',
+ '이 둥지에 가장 많은 것. 촛불 하나면 조금은 쫓을 수 있는 것.',
+ function(box,api){
+  quizWidget(box,api,['어둠','어두움','암흑'],'그것은…','석상의 눈에서 빛이 꺼지고, 길이 열린다.');
+});
+/* ═══ 8구역: 독안개의 통로 ═══ */
+M(7,'game','숨의 박자',
+ '독안개 속에서는 <b>안개가 걷히는 순간에만</b> 숨을 쉴 수 있다. 원이 가장 크게 부풀었을 때 정확히 탭하라. <b>연속 8회.</b> 빠르거나 늦으면 기침이 터져 처음부터.',
+ '원이 커지는 속도는 일정하다. 눈이 아니라 몸속으로 박자를 세라. "하나, 둘, 지금."',
+ function(box,api){
+  const CYCLE=2200,WIN=170;
+  let count=0,start=null;
+  const stat=el('div','statline');box.appendChild(stat);
+  const area=el('div','centered');area.style.cssText='height:300px;display:flex;align-items:center;justify-content:center;cursor:pointer';
+  const orb=el('div',null,'🫧');orb.style.cssText='font-size:3rem;transition:none';
+  area.appendChild(orb);box.appendChild(area);
+  function up(){stat.innerHTML='숨 <b>'+count+'</b>/8';}
+  up();
+  start=performance.now();
+  I(()=>{
+    const t=(performance.now()-start)%CYCLE;
+    const ph=t/CYCLE; // 0~1
+    const s=1+2.6*(ph<0.5?ph*2:(1-ph)*2); // 삼각파: 중간에 최대
+    orb.style.transform='scale('+s.toFixed(3)+')';
+  },16);
+  area.onpointerdown=()=>{
+    const t=(performance.now()-start)%CYCLE;
+    const peak=CYCLE/2;
+    if(Math.abs(t-peak)<=WIN){count++;up();toast('깊게 들이쉰다… ('+count+'/8)','good');
+      if(count>=8)api.done('마지막 숨 — 안개 걷힌 문틈으로 몸을 던진다.');}
+    else{count=0;up();api.fail('컥— 독기가 목을 태운다! 숨이 흐트러졌다.');}
+  };
+});
+
+M(7,'game','해독약 조제',
+ '연금술사의 시(詩)대로 <b>네 가지 재료를 정확한 순서로</b> 솥에 넣어라. 잘못된 재료 하나면 솥이 폭발한다.',
+ '달 없는 밤=🌑, 늑대가 남긴 것=🦴, 숲의 숨=🌿, 용의 눈물=💧. 이 순서다.',
+ function(box,api){
+  box.appendChild(el('div','plaque','「먼저 <em>달 없는 밤</em>을 붓고,<br>다음 <em>늑대가 남긴 것</em>을 갈아 넣어라.<br>세 번째로 <em>숲의 숨</em>을 저은 뒤,<br>마지막에 <em>용의 눈물</em> 한 방울.」'));
+  const ORDER=['🌑','🦴','🌿','💧'];
+  const ING=shuffle(['🍄','🦴','🌿','💧','🪶','🩸','🌑','🔥']);
+  let step=0;
+  const pot=el('div','statline','솥: 비어 있음');box.appendChild(pot);
+  const g=el('div','padgrid');g.style.gridTemplateColumns='repeat(4,auto)';
+  ING.forEach(e=>{
+    const p=el('div','pad',e);
+    p.onclick=()=>{
+      if(e===ORDER[step]){step++;pot.innerHTML='솥: '+ORDER.slice(0,step).join(' → ');
+        if(step>=4)api.done('솥에서 은빛 김이 피어오른다. 해독약을 들이켜고 안개를 가른다.');}
+      else{step=0;pot.textContent='솥: 비어 있음';
+        api.fail('콰앙! 솥이 검은 연기를 뿜으며 뒤집혔다.');}
+    };
+    g.appendChild(p);
+  });
+  box.appendChild(g);
+});
+
+/* ═══ 9구역: 지하 수로 ═══ */
+M(8,'game','물길 잇기',
+ '관을 돌려(클릭) <b>왼쪽 2번째 줄 입구</b>에서 <b>오른쪽 아래 바닥 배수구</b>까지 물길을 이어라. 이어지지 않은 채 밸브를 열면 물이 역류한다.',
+ '입구에서 오른쪽으로 두 칸, 위로 꺾고, 천장을 따라 오른쪽 끝, 그리고 곧장 아래로.',
+ function(box,api){
+  const BASE={'1,0':'s','1,1':'c','0,1':'c','0,2':'s','0,3':'c','1,3':'v','2,3':'v','3,3':'v',
+              '2,1':'c','3,0':'s','2,2':'s','3,2':'c'};
+  const rot={};Object.keys(BASE).forEach(k=>rot[k]=rnd(4));
+  const SHAPES={s:['─','│'],c:['┌','┐','┘','└']};
+  function glyph(k){const t=BASE[k];if(t==='v')return '│';return t==='s'?SHAPES.s[rot[k]%2]:SHAPES.c[rot[k]%4];}
+  const CONN={'─':[[0,-1],[0,1]],'│':[[-1,0],[1,0]],'┌':[[0,1],[1,0]],'┐':[[0,-1],[1,0]],'┘':[[0,-1],[-1,0]],'└':[[0,1],[-1,0]]};
+  const g=el('div','cellgrid');g.style.gridTemplateColumns='repeat(4,68px)';
+  const cells={};
+  for(let r=0;r<4;r++)for(let c=0;c<4;c++){
+    const k=r+','+c;const d=el('div','cell');d.style.height='68px';d.style.fontSize='1.9rem';
+    cells[k]=d;
+    if(k in BASE){d.textContent=glyph(k);d.style.color='var(--gold)';
+      if(BASE[k]==='v'){d.style.color='#6b5136';d.style.cursor='default';}
+      else d.onclick=()=>{rot[k]=(rot[k]+1)%4;d.textContent=glyph(k);};}
+    else d.style.cursor='default';
+    g.appendChild(d);
+  }
+  box.appendChild(el('div','statline','입구: 왼쪽 2번째 줄 ▶ · 배수구: 오른쪽 아래 칸의 바닥 ▼'));
+  box.appendChild(g);
+  const c2=el('div','centered');const b=el('button','btn','밸브를 연다');b.style.marginTop='18px';c2.appendChild(b);box.appendChild(c2);
+  b.onclick=()=>{
+    Object.keys(cells).forEach(k=>cells[k].classList.remove('path'));
+    let r=1,c=0,from=[0,1],steps=0,ok=false;
+    while(steps++<30){
+      if(r<0||r>3||c<0||c>3)break;
+      const k=r+','+c;if(!(k in BASE))break;
+      const gl=glyph(k);const con=CONN[gl];
+      const inDir=[-from[0],-from[1]]; // 셀 기준 물이 들어온 쪽
+      const hasIn=con.some(d2=>d2[0]===inDir[0]&&d2[1]===inDir[1]);
+      if(!hasIn)break;
+      cells[k].classList.add('path');
+      const out=con.find(d2=>!(d2[0]===inDir[0]&&d2[1]===inDir[1]));
+      if(r===3&&c===3&&out[0]===1){ok=true;break;}
+      from=out;r+=out[0];c+=out[1];
+    }
+    if(ok)api.done('콸콸 — 천 년 만에 물이 노래하며 흐른다.');
+    else T(()=>api.fail('물이 역류해 얼굴을 때린다! 관이 아직 어긋나 있다.'),400);
+  };
+});
+
+M(8,'game','증기 압력 유지',
+ '문의 증기 자물쇠는 <b>수위를 초록 눈금 안에 12초</b> 유지해야 풀린다. 물은 계속 새어나가고, 가끔 <b>바닥 균열로 왈칵</b> 빠진다. 펌프를 두드려 수위를 지켜라. 눈금 밖에서 1.5초를 넘기면 압력이 완전히 빠진다.',
+ '수위를 눈금 한가운데(55 근처)에 두고 잔펌프질로 유지하라. 균열 경고가 뜨면 미리 몇 번 더 눌러둬라.',
+ function(box,api){
+  let level=50,held=0,out=0;
+  const stat=el('div','statline');box.appendChild(stat);
+  const bw=el('div','barwrap');bw.style.height='34px';
+  const zone=el('div','barzone');zone.style.left='42%';zone.style.width='26%';
+  const fill=el('div','barfill');
+  bw.appendChild(fill);bw.appendChild(zone);box.appendChild(bw);
+  const warn=el('div','statline','');box.appendChild(warn);
+  const c=el('div','centered');const b=el('button','btn big','🔧 펌프!');c.appendChild(b);box.appendChild(c);
+  b.onpointerdown=()=>{level=Math.min(100,level+4);};
+  function crack(){T(()=>{warn.innerHTML='<b style="color:var(--red)">⚠ 균열 감지!</b>';
+    T(()=>{level=Math.max(0,level-16);warn.innerHTML='';crack();},900);},2500+rnd(3500));}
+  crack();
+  I(()=>{
+    level=Math.max(0,level-0.75);
+    fill.style.width=level+'%';
+    const inz=level>=42&&level<=68;
+    if(inz){held+=90;out=0;}
+    else{out+=90;
+      if(out>=1500){api.fail('치익— 압력이 전부 빠졌다. 처음부터.');held=0;out=0;level=50;return;}}
+    stat.innerHTML='유지 <b>'+(held/1000).toFixed(1)+'</b>/12.0초'+(inz?'':' · <b style="color:var(--red)">눈금 이탈!</b>');
+    if(held>=12000)api.done('증기 자물쇠가 하얀 김을 내뿜으며 풀린다.');
+  },90);
+});
+
+/* ═══ 10구역: 격전의 흔적 ═══ */
+M(9,'game','부러진 검',
+ '세라핀의 검이 여섯 조각으로 부러져 있다. 조각마다 새겨진 <b>눈금(❘)의 수</b>가 순서다 — 장식 문양(·)에 속지 마라. 눈금이 적은 조각부터 이어 붙여라. 틀리면 조각이 튕겨 나간다.',
+ '점(·)은 세지 마라. 세로 눈금(❘)만 세어 1개부터 6개까지 순서대로.',
+ function(box,api){
+  function deco(n){
+    let s='';const total=7;
+    const marks=shuffle(Array(n).fill('❘').concat(Array(total-n).fill('·')));
+    return marks.join(' ');
+  }
+  function build(){
+    box.innerHTML='';
+    const order=shuffle([1,2,3,4,5,6]);
+    let expect=1;
+    const stat=el('div','statline','이어 붙인 조각: 0/6');box.appendChild(stat);
+    const g=el('div','cellgrid');g.style.gridTemplateColumns='repeat(2,1fr)';g.style.maxWidth='440px';
+    order.forEach(n=>{
+      const c=el('div','cell','⚔️ <span style="letter-spacing:2px;font-size:.95rem">'+deco(n)+'</span>');
+      c.style.cssText+='height:64px;gap:8px;font-size:1.1rem;color:var(--text)';
+      c.onclick=()=>{
+        if(n===expect){expect++;c.style.visibility='hidden';
+          stat.textContent='이어 붙인 조각: '+(expect-1)+'/6';
+          if(expect>6)api.done('검이 푸른빛을 내며 하나가 된다 — 그리고 재가 되어 당신에게 절한다.');}
+        else{api.fail('조각이 손을 베며 튕겨 나갔다!');T(build,700);}
+      };
+      g.appendChild(c);
+    });
+    box.appendChild(g);
+  }
+  build();
+});
+
+M(9,'game','전사자의 방패',
+ '여섯 용기사의 방패가 벽에 걸려 있다. <b>6초간 보여준 뒤 장막이 내려온다.</b> 망령들이 세 가지를 묻는다. 전부 맞히면 <em>맹세의 각인</em>을 내어준다. 하나라도 틀리면 — 다시 처음부터.',
+ '색과 문양을 짝으로 외우지 말고 이야기로 엮어라. "빨간 늑대가 파란 매를 쫓고…"',
+ function(box,api){
+  const EMB=['🐺','🦅','🐍','🐉','🐻','🐦‍⬛'];
+  const COLNAME=['빨강','파랑','초록','금색','검정','보라'];
+  const COLCSS=['#c0392b','#2980b9','#27ae60','#d4a017','#2c3e50','#8e44ad'];
+  function build(){
+    box.innerHTML='';
+    const emb=shuffle(EMB);            // 위치별 문양
+    const col=shuffle([0,1,2,3,4,5]);  // 위치별 색 인덱스
+    const g=el('div','padgrid');g.style.gridTemplateColumns='repeat(6,auto)';
+    for(let i=0;i<6;i++){
+      const p=el('div','pad',emb[i]);p.style.width='54px';p.style.height='66px';p.style.fontSize='1.5rem';
+      p.style.background=COLCSS[col[i]];p.style.borderColor='#000';
+      g.appendChild(p);
+    }
+    box.appendChild(el('div','statline','새겨라. 장막이 내려오기까지 —'));
+    box.appendChild(g);
+    const cd=el('div','statline');box.appendChild(cd);
+    let left=6;cd.innerHTML='<b>6</b>초';
+    const iv=I(()=>{left--;cd.innerHTML='<b>'+left+'</b>초';
+      if(left<=0){clearInterval(iv);ask();}},1000);
+    function ask(){
+      box.innerHTML='';
+      const qs=[];
+      const t1=rnd(6);
+      qs.push({q:COLNAME[col[t1]]+' 방패의 문양은?',opts:EMB,ans:emb[t1]});
+      const t2=rnd(6);
+      qs.push({q:emb[t2]+' 문양은 왼쪽에서 몇 번째였나?',opts:['1','2','3','4','5','6'],ans:String(t2+1)});
+      const t3=1+rnd(4);
+      qs.push({q:emb[t3]+' 문양의 바로 왼쪽 이웃은?',opts:EMB,ans:emb[t3-1]});
+      let qi=0;
+      const qd=el('div');box.appendChild(qd);
+      function drawQ(){
+        qd.innerHTML='';
+        qd.appendChild(el('div','m-title','물음 '+(qi+1)+'/3'));
+        qd.appendChild(el('div','plaque',qs[qi].q));
+        const row=el('div','padgrid');row.style.gridTemplateColumns='repeat(6,auto)';
+        qs[qi].opts.forEach(o=>{
+          const p=el('div','pad',o);p.style.width='54px';p.style.height='54px';p.style.fontSize='1.2rem';
+          p.onclick=()=>{
+            if(o===qs[qi].ans){qi++;
+              if(qi>=3){grantFrag('oath');api.done('망령들이 투구를 벗어 경의를 표한다.');}
+              else drawQ();}
+            else{api.fail('망령의 창이 바닥을 내리친다 — "기억하지 못하는 자!"');T(build,900);}
+          };
+          row.appendChild(p);
+        });
+        qd.appendChild(row);
+      }
+      drawQ();
+    }
+  }
+  build();
+});
+
+/* ═══ 11구역: 심장의 제단 ═══ */
+M(10,'game','심장의 박동',
+ '품속의 심장이 뛴다 — 제단의 북이 그 박동을 요구한다. 불꽃이 터지는 박자에 맞춰 <b>연속 16회</b> 두드려라. 반 박자만 어긋나도 심장은 침묵한다.',
+ '박동은 정확히 0.6초 간격. 화면을 보지 말고 소리 없는 박자를 몸으로 세며 두드려라.',
+ function(box,api){
+  const BEAT=600,WIN=150;
+  let count=0,start=null;
+  const stat=el('div','statline');box.appendChild(stat);
+  const area=el('div','centered');area.style.cssText='height:300px;display:flex;align-items:center;justify-content:center;cursor:pointer';
+  const heart=el('div',null,'❤️‍🔥');heart.style.cssText='font-size:4rem';
+  area.appendChild(heart);box.appendChild(area);
+  function up(){stat.innerHTML='박동 <b>'+count+'</b>/16';}
+  up();
+  start=performance.now();
+  I(()=>{
+    const t=(performance.now()-start)%BEAT;
+    heart.style.transform='scale('+(t<130?1.35:1)+')';
+  },16);
+  area.onpointerdown=()=>{
+    const t=(performance.now()-start)%BEAT;
+    const off=Math.min(t,BEAT-t);
+    if(off<=WIN){count++;up();
+      if(count>=16)api.done('제단의 북이 화답한다. 두 개의 박동이 하나로 겹친다.');}
+    else{count=0;up();api.fail('박동이 어긋났다 — 심장이 싸늘하게 식는다.');}
+  };
+});
+
+M(10,'game','봉인의 순서',
+ '제단 둘레의 여섯 원소 룬. 창세의 시가 말하는 <b>탄생의 순서대로</b> 눌러라. 순서가 틀리면 룬 전체가 식는다.',
+ '어둠→빛→물→바람→땅→불. 시를 거꾸로 읽지 마라.',
+ function(box,api){
+  box.appendChild(el('div','plaque','「태초에 <em>어둠</em>이 있었고, 어둠은 <em>빛</em>을 낳았다.<br>빛이 <em>물</em>을 데우니 <em>바람</em>이 일었고,<br>바람이 <em>땅</em>을 깎아 마침내 <em>불</em>을 깨웠다.」'));
+  const NAMES=['불','물','바람','땅','빛','어둠'];
+  const ORDER=['어둠','빛','물','바람','땅','불'];
+  const ICON={'불':'🔥','물':'💧','바람':'🌪️','땅':'🪨','빛':'✨','어둠':'🌑'};
+  let step=0;
+  const stat=el('div','statline','밝힌 룬: 0/6');box.appendChild(stat);
+  const g=el('div','padgrid');g.style.gridTemplateColumns='repeat(3,auto)';
+  shuffle(NAMES).forEach(nm=>{
+    const p=el('div','pad',ICON[nm]+'<div style="font-size:.7rem;margin-top:2px">'+nm+'</div>');
+    p.style.flexDirection='column';
+    p.onclick=()=>{
+      if(nm===ORDER[step]){step++;p.classList.add('lit');stat.textContent='밝힌 룬: '+step+'/6';
+        if(step>=6){grantFrag('pact');api.done('여섯 룬이 순서대로 타오르며 제단이 <em>맹약의 각인</em>을 내놓는다.');}}
+      else{step=0;g.querySelectorAll('.pad').forEach(x=>x.classList.remove('lit'));
+        stat.textContent='밝힌 룬: 0/6';api.fail('룬이 일제히 식는다. 순서가 아니다.');}
+    };
+    g.appendChild(p);
+  });
+  box.appendChild(g);
+});
+
+M(10,'quiz','제단의 물음',
+ '제단 중앙에 마지막 물음이 떠오른다. <b>"나는 언제나 다가오고 있으나, 결코 도착하지 않는다. 나는 무엇인가?"</b>',
+ '오늘이 되는 순간, 그것은 이미 그것이 아니다.',
+ function(box,api){
+  quizWidget(box,api,['내일','미래'],'그것은…','제단이 조용히 갈라지며 아래로 향하는 계단이 드러난다.');
+});
+
+/* ═══ 12구역: 대면 ═══ */
+M(11,'game','화염의 숨결',
+ '이그나로크가 시험한다. 세 갈래 길목으로 화염이 쏟아진다 — <b>불길이 몰아칠 길목을 피해 서라.</b> 길목이 달아오르면(주황) 곧 화염이 온다. <b>12번의 숨결</b>을 버텨라. 맞으면 처음부터.',
+ '달아오른 직후가 아니라, 달아오르는 "순간" 옆 길목으로 옮겨라. 연속으로 같은 길목이 달아오를 수도 있다.',
+ function(box,api){
+  let lane=1,survived=0,active=true;
+  const stat=el('div','statline');box.appendChild(stat);
+  const row=el('div');row.style.cssText='display:flex;gap:10px;margin:12px 0';
+  const lanes=[];
+  for(let i=0;i<3;i++){
+    const l=el('div','lane');const pc=el('div','pc','');l.appendChild(pc);
+    l.onpointerdown=()=>{if(!active)return;lane=i;draw();};
+    lanes.push(l);row.appendChild(l);
+  }
+  box.appendChild(row);
+  box.appendChild(el('div','statline','길목을 탭해서 이동'));
+  function draw(){lanes.forEach((l,i)=>l.querySelector('.pc').textContent=i===lane?'🧝':'');}
+  function up(){stat.innerHTML='버틴 숨결 <b>'+survived+'</b>/12';}
+  draw();up();
+  function wave(){
+    if(!active)return;
+    const target=rnd(3);
+    T(()=>{if(!active)return;lanes[target].classList.add('warn');
+      T(()=>{if(!active)return;
+        lanes[target].classList.remove('warn');lanes[target].classList.add('fire');
+        T(()=>{if(!active)return;lanes[target].classList.remove('fire');
+          if(lane===target){survived=0;up();
+            api.fail('화염이 스친다! 굴러서 불을 끄고 — 다시 처음부터.');wave();}
+          else{survived++;up();
+            if(survived>=12){active=false;api.done('"…제법이군." 용의 목소리에 처음으로 흥미가 섞인다.');}
+            else wave();}
+        },380);
+      },600-Math.min(250,survived*22));
+    },500+rnd(900));
+  }
+  wave();
+});
+
+M(11,'game','용과의 문답',
+ '이그나로크가 네 가지를 묻는다. 지금까지 둥지에서 <b>보고 읽은 모든 것</b>이 답이다. 거짓이나 아첨이 두 번 쌓이면 — 문답은 화염으로 끝난다.',
+ '용의 이름은 프롤로그에, 봉인한 자는 10구역에, 마지막 질문의 답은 "당신이 앞으로 할 일"이다.',
+ function(box,api){
+  const QS=[
+   {q:'"내 이름을 알고 훔쳤느냐. 말해보라."',
+    o:['카르바노스','이그나로크','세라핀'],a:1},
+   {q:'"천 년 전, 내 심장을 뜯어 봉인한 자는 누구였지."',
+    o:['마지막 용기사 세라핀','연금술사','학자'],a:0},
+   {q:'"내 심장은 지금 어디서 뛰고 있나."',
+    o:['제단 위에','당신의 가슴 속에','내 품 안에'],a:2},
+   {q:'"그래서, 도둑. 이제 무엇을 할 셈이냐."',
+    o:['심장을 팔아 부자가 된다','살려만 달라 빈다','살아서 이 산을 나간다'],a:2}
+  ];
+  let qi=0,anger=0;
+  const stat=el('div','statline');const qd=el('div');
+  box.appendChild(stat);box.appendChild(qd);
+  function up(){stat.innerHTML='용의 분노: '+'🔥'.repeat(anger)+'<span style="opacity:.3">'+'🔥'.repeat(2-anger)+'</span>';}
+  function drawQ(){
+    up();qd.innerHTML='';
+    qd.appendChild(el('div','plaque','<b>이그나로크</b> — '+QS[qi].q));
+    QS[qi].o.forEach((o,i)=>{
+      const c=el('button','choice',o);
+      c.onclick=()=>{
+        if(i===QS[qi].a){qi++;
+          if(qi>=QS.length)api.done('"…거짓 없는 혀로군." 용이 길을 비킨다. "가라. 단, 문 앞에서 다시 생각하게 될 것이다."');
+          else drawQ();}
+        else{anger++;
+          if(anger>=2){qi=0;anger=0;
+            api.fail('화염이 발치를 태운다! 문답이 처음으로 돌아간다.');drawQ();}
+          else{up();toast('용의 눈이 가늘어진다… "다시 말해보라."','bad');}}
+      };
+      qd.appendChild(c);
+    });
+  }
+  drawQ();
+});
+
+/* ═══ 13구역: 무너지는 둥지 ═══ */
+M(12,'game','낙석의 회랑',
+ '천장이 무너진다! 방패를 연타해 잔해를 튕겨내며 전진하라 — <b>15초 안에 50연타.</b> 단, <b>「균열!」</b>이 번쩍이는 동안 두드리면 방패가 쪼개진다.',
+ '균열 경고는 1초간만 뜬다. 연타 중에도 시선은 경고 글자에 고정하라.',
+ function(box,api){
+  function run(){
+    box.innerHTML='';
+    let taps=0,tleft=15,cracked=false;
+    const stat=el('div','statline');box.appendChild(stat);
+    const warn=el('div','centered');warn.style.cssText='height:60px;font-size:1.5rem;font-weight:900';
+    box.appendChild(warn);
+    const c=el('div','centered');const b=el('button','btn big','🛡️ 밀어낸다!');c.appendChild(b);box.appendChild(c);
+    function up(){stat.innerHTML='연타 <b>'+taps+'</b>/50 · 남은 시간 <b style="color:'+(tleft<=5?'var(--red)':'var(--gold)')+'">'+tleft+'</b>초';}
+    up();
+    b.onpointerdown=()=>{
+      if(cracked){api.reset('균열 속에 방패를 박았다 — 방패가 쪼개진다!');return;}
+      taps++;up();
+      if(taps>=50)api.done('마지막 잔해를 튕겨내며 회랑을 빠져나온다!');
+    };
+    function crackLoop(){T(()=>{cracked=true;warn.innerHTML='<b style="color:var(--red)">⚠ 균열! 멈춰!</b>';
+      T(()=>{cracked=false;warn.innerHTML='';crackLoop();},1000);},1800+rnd(2600));}
+    crackLoop();
+    I(()=>{tleft--;up();if(tleft<=0)api.reset('길이 완전히 막혔다… 다른 틈을 찾아 처음부터.');},1000);
+  }
+  run();
+});
+
+M(12,'game','붕괴의 미로',
+ '갈라진 바닥 틈새로 유일한 탈출로가 보인다. <b>45초 안에</b> 미로를 빠져나가라. 시간이 다하면 길이 무너져 처음 자리로 떨어진다.',
+ '막다른 길이 많다. 오른손을 벽에 붙이고 간다는 기분으로 — 그리고 남서쪽 큰 방은 함정이다.',
+ function(box,api){
+  const MAP=[
+   '#########',
+   '#S..#...#',
+   '##.#.#.##',
+   '#..#.#..#',
+   '#.##.##.#',
+   '#.#...#.#',
+   '#.#.#.#.#',
+   '#...#..E#',
+   '#########'];
+  let pr=1,pc=1,tleft=45;
+  const stat=el('div','statline');box.appendChild(stat);
+  const g=el('div','cellgrid');g.style.gridTemplateColumns='repeat(9,34px)';
+  box.appendChild(g);
+  const ctr=el('div','padgrid');ctr.style.cssText+=';grid-template-columns:repeat(3,auto);margin-top:16px';
+  box.appendChild(ctr);
+  function draw(){
+    g.innerHTML='';
+    for(let r=0;r<9;r++)for(let c=0;c<9;c++){
+      const ch=MAP[r][c];
+      const d=el('div','cell');d.style.cssText+=';height:34px;font-size:1rem;cursor:default;border-radius:4px';
+      if(ch==='#'){d.style.background='#3a2210';d.style.borderColor='#3a2210';}
+      if(r===pr&&c===pc)d.textContent='🧝';
+      else if(ch==='E')d.textContent='🚪';
+      g.appendChild(d);
+    }
+  }
+  function up(){stat.innerHTML='남은 시간 <b style="color:'+(tleft<=15?'var(--red)':'var(--gold)')+'">'+tleft+'</b>초';}
+  function move(dr,dc){
+    const nr=pr+dr,nc=pc+dc;
+    if(MAP[nr][nc]==='#'){toast('벽이다!','bad');return;}
+    pr=nr;pc=nc;draw();
+    if(MAP[pr][pc]==='E')api.done('문을 박차고 나온 순간, 등 뒤에서 미로가 통째로 무너진다.');
+  }
+  [['',0,0],['▲',-1,0],['',0,0],['◀',0,-1],['·',0,0],['▶',0,1],['',0,0],['▼',1,0],['',0,0]].forEach(a=>{
+    if(!a[0]||a[0]==='·'){ctr.appendChild(el('div'));return;}
+    const b=el('button','btn ghost',a[0]);b.style.cssText+=';width:64px;height:52px;padding:0';
+    b.onclick=()=>move(a[1],a[2]);ctr.appendChild(b);
+  });
+  window.onkeydown=e=>{
+    if(e.key==='ArrowUp')move(-1,0);if(e.key==='ArrowDown')move(1,0);
+    if(e.key==='ArrowLeft')move(0,-1);if(e.key==='ArrowRight')move(0,1);
+  };
+  draw();up();
+  I(()=>{tleft--;up();if(tleft<=0){pr=1;pc=1;tleft=45;draw();up();
+    api.fail('발밑이 꺼졌다! 처음 자리로 굴러떨어진다.');}},1000);
+});
+
+/* ═══ 14구역: 최후의 봉인문 ═══ */
+M(13,'game','네 개의 각인',
+ '문에는 네 개의 홈 — <em>재 · 잿불 · 맹세 · 맹약</em>. 각 조각에 새겨져 있던 <b>네 개의 수</b>를 그 순서대로 바쳐라.',
+ '재=4, 잿불=7, 맹세=2, 맹약=9. 얻은 순서 그대로.',
+ function(box,api){
+  const got=FRAG_ORDER.filter(k=>S.frags[k]).length;
+  box.appendChild(el('div','plaque',
+   FRAG_ORDER.map(k=>(S.frags[k]?'◆':'◇')+' '+FRAG_NAME[k]+(S.frags[k]?' — 「?」':' — 아직 없다')).join('<br>')));
+  if(got<4){
+    box.appendChild(el('div','statline','…이상하다. 조각이 모자란데도 문이 당신을 재고 있다. (모든 각인은 여정 중에 이미 얻었다)'));
+  }
+  quizWidget(box,api,['4729'],'네 자리 수','네 홈이 차례로 붉게 타오른다. 빗장이 하나 남았다.');
+});
+
+M(13,'game','되돌리는 손',
+ '문의 마지막 빗장 — 회전하는 봉인 고리를 <b>정중앙 홈</b>에 세 번 멈춰라. 멈출 때마다 홈은 좁아지고 고리는 빨라진다. 한 번이라도 빗나가면 처음부터.',
+ '고리를 눈으로 쫓지 말고, 왕복 주기를 세어 "도착할 시각"에 눌러라.',
+ function(box,api){
+  let stage=0,posv=0,dir=1;
+  const CONF=[[46.5,7,1.6],[47.5,5,2.2],[48.25,3.5,2.9]]; // [중심-폭/2, 폭, 속도]
+  const stat=el('div','statline');box.appendChild(stat);
+  const bw=el('div','barwrap');const zone=el('div','barzone');const mark=el('div','barmark');
+  bw.appendChild(zone);bw.appendChild(mark);box.appendChild(bw);
+  const c=el('div','centered');const b=el('button','btn big','봉인을 박는다');c.appendChild(b);box.appendChild(c);
+  function conf(){const [l,w]=CONF[stage];zone.style.left=l+'%';zone.style.width=w+'%';
+    stat.innerHTML='봉인 <b>'+stage+'</b>/3 · 고리 속도 ×'+CONF[stage][2];}
+  conf();
+  I(()=>{posv+=dir*CONF[stage][2];if(posv>=97){posv=97;dir=-1;}if(posv<=0){posv=0;dir=1;}
+    mark.style.left=posv+'%';},16);
+  b.onclick=()=>{
+    const [l,w]=CONF[stage];
+    if(posv>=l&&posv<=l+w){stage++;
+      if(stage>=3){api.done('쿵 — 마지막 빗장이 떨어진다. 문틈으로 새벽 공기가 밀려든다.');return;}
+      conf();toast(stage+'번째 봉인!','good');}
+    else{stage=0;conf();api.fail('고리가 튕겨 나간다! 처음부터.');}
+  };
+});
+
+M(13,'game','새벽의 선택',
+ '문이 열렸다. 등 뒤에는 심장을 잃은 용의 둥지, 품속에는 아직도 뜨거운 <b>용의 심장</b>. 마지막 미션은 자물쇠가 아니라 — <b>당신 자신이다.</b>',
+ '힌트는 없다. 이것은 당신의 이야기다.',
+ function(box,api){
+  const c1=el('button','choice','🏃 <b>심장을 품고 달아난다.</b><br><span style="color:var(--dim);font-size:.85rem">대륙 제일의 도둑으로 역사에 남는다. 산은… 뒤를 돌아보지 않기로 한다.</span>');
+  const c2=el('button','choice','🫀 <b>심장을 제자리에 돌려놓는다.</b><br><span style="color:var(--dim);font-size:.85rem">빈손의 도둑. 그러나 문답에서 용이 마지막에 했던 말이 마음에 걸린다.</span>');
+  c1.onclick=()=>{S.ending='thief';api.done('당신은 새벽빛 속으로 사라졌다.');};
+  c2.onclick=()=>{S.ending='hero';api.done('당신은 발걸음을 돌렸다 — 둥지의 심장부를 향해.');};
+  box.appendChild(c1);box.appendChild(c2);
+});
+
+/* ═══════════ 엔딩 ═══════════ */
+function ending(){
+  clearT();window.onkeydown=null;
+  const mins=Math.floor((Date.now()-S.t0)/60000),secs=Math.floor(((Date.now()-S.t0)%60000)/1000);
+  let title,text,emoji;
+  if(S.ending==='hero'){
+    emoji='🌅';title='엔딩 — 심장을 돌려놓은 도둑';
+    text='제단에 심장이 놓이자 산 전체가 길게 숨을 내쉬었다.<br>"…천 년 만에 두 번 놀라게 하는군, 도둑."<br>이그나로크는 당신을 등에 태워 산 아래까지 데려다주었다.<br>당신은 빈손으로 돌아왔지만 — 용의 비늘 하나가 품속에서 반짝인다.<br>그것은 어떤 보물과도 바꿀 수 없는 <em>맹약의 증표</em>다.<br><br><b>진 엔딩 달성</b>';
+  }else{
+    emoji='🌄';title='엔딩 — 대륙 제일의 도둑';
+    text='당신은 살아서 카르바노스를 걸어 나온 유일한 도둑이 되었다.<br>용의 심장은 왕국 하나 값에 팔렸고, 당신의 이름은 전설이 되었다.<br>다만 — 맑은 밤마다, 산 쪽에서 낮게 우는 소리가 들린다고 한다.<br>당신은 그 소리를 들을 때마다 술잔을 내려놓는다.<br><br><b>노말 엔딩 달성</b> <span style="color:var(--dim)">(다른 결말도 존재한다…)</span>';
+  }
+  $('#end-emoji').textContent=emoji;
+  $('#end-title').textContent=title;
+  $('#end-text').innerHTML=text+'<br><br>플레이 시간 <b>'+mins+'분 '+secs+'초</b> · 실패 <b>'+S.fails+'회</b> · 남은 불씨 <b>'+S.hints+'</b>';
+  try{localStorage.removeItem(SAVE_KEY);}catch(e){}
+  show('#s-end');
+}
+
+/* ═══════════ BOOT ═══════════ */
+$('#btn-start').onclick=()=>{
+  try{localStorage.removeItem(SAVE_KEY);}catch(e){}
+  Object.assign(S,{mi:0,hints:3,frags:{},fails:0,t0:Date.now()});
+  const pb=$('#prologue-text');pb.innerHTML='';
+  PROLOGUE.forEach((p,i)=>{const d=el('p',null,p);d.style.animationDelay=(i*.9)+'s';pb.appendChild(d);});
+  show('#s-prologue');
+};
+$('#btn-prologue-next').onclick=()=>stageIntro(0);
+$('#btn-stage-go').onclick=()=>runMission();
+$('#btn-ov-next').onclick=()=>{$('#ov-done').classList.remove('active');nextMission();};
+$('#btn-clear-next').onclick=()=>stageIntro(MISSIONS[S.mi].st);
+$('#btn-hint').onclick=useHint;
+$('#btn-restart').onclick=()=>location.reload();
+
+(function(){
+  const sv=loadSave();
+  if(sv&&sv.mi>0&&sv.mi<MISSIONS.length){
+    const bc=$('#btn-continue');bc.style.display='inline-block';
+    bc.textContent='이어서 하기 (미션 '+(sv.mi+1)+'부터)';
+    bc.onclick=()=>{
+      Object.assign(S,{mi:sv.mi,hints:sv.hints,frags:sv.frags||{},fails:sv.fails||0});
+      S.t0=Date.now()-(sv.elapsed||0);
+      stageIntro(MISSIONS[S.mi].st);
+    };
+  }
+})();
+</script>
+</body>
+</html>

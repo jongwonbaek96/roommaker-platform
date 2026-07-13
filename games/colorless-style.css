@@ -95,3 +95,56 @@ input[type=text]:focus{outline:none;border-color:var(--acc)}
 .kp button:active{border-color:var(--acc)}
 .dripwrap{display:inline-block;animation:drip 1.2s ease}
 @keyframes drip{0%{filter:saturate(.2);transform:scale(.92)}60%{transform:scale(1.06)}100%{filter:none;transform:none}}
+/* ===== v3: 이미지·단서수첩·장치 미션 ===== */
+.illust{width:100%;border-radius:14px;border:1px solid var(--line);display:block;filter:grayscale(1);transition:filter 2.2s ease}
+.illust.tinted{filter:grayscale(0)}
+.illust.dim{opacity:.92}
+.notesbtn{position:fixed;right:14px;bottom:14px;z-index:15;background:var(--card);border:1px solid var(--acc);color:var(--acc);border-radius:50px;padding:10px 16px;font-weight:700;font-size:.85rem;box-shadow:0 4px 16px rgba(0,0,0,.4)}
+.noteslist .noteitem{border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px;background:#101013}
+.noteslist .noteitem b{color:var(--acc);font-size:.85rem}
+.noteslist .noteitem p{font-size:.85rem;color:var(--dim);margin-top:4px;white-space:pre-line}
+.notenew{animation:fade .5s ease;border:1px dashed var(--acc);border-radius:12px;padding:10px 12px;margin-top:10px;font-size:.85rem}
+.notenew b{color:var(--acc)}
+.device{border:1px solid var(--line);border-radius:16px;background:linear-gradient(180deg,#131316,#0c0c0f);padding:16px;box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+.device .dhead{display:flex;justify-content:space-between;font-size:.72rem;letter-spacing:.18em;color:var(--dim);margin-bottom:10px}
+.device .dhead .lamp{color:var(--acc);animation:glowp 2s infinite}
+.mixrow{display:flex;align-items:center;gap:10px;margin:12px 0}
+.mixrow label{width:64px;font-size:.82rem;color:var(--dim)}
+.mixrow input[type=range]{flex:1;accent-color:var(--acc)}
+.mixrow .mv{width:40px;text-align:right;font-family:ui-monospace,monospace;color:var(--acc)}
+.mixview{height:34px;border-radius:9px;border:1px solid var(--line);margin-top:6px}
+.dialrow{display:flex;justify-content:center;gap:12px;margin:14px 0}
+.dialring{width:64px;display:flex;flex-direction:column;align-items:center;gap:6px}
+.dialring button{width:100%;padding:6px;background:var(--card);border:1px solid var(--line);color:var(--dim);border-radius:9px;font-size:.9rem}
+.dialring .dv{font-size:1.9rem;font-family:ui-monospace,monospace;color:var(--acc);background:#0c0c0f;border:1px solid var(--line);border-radius:10px;width:100%;text-align:center;padding:6px 0}
+.mazegrid{display:grid;gap:3px;background:#0c0c0f;border:1px solid var(--line);border-radius:12px;padding:8px;margin:0 auto;max-width:340px}
+.mz{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:1.05rem;border-radius:6px;background:#17171a}
+.mz.wall{background:#060608}
+.mz.lamp{background:#26261c}
+.mz.watch{background:#241418}
+.mz.goal{background:color-mix(in srgb,var(--acc) 22%,#17171a)}
+.mz.me{background:var(--acc)}
+.mazepad{display:grid;grid-template-columns:repeat(3,64px);gap:8px;justify-content:center;margin-top:12px}
+.mazepad button{padding:12px 0;background:var(--card);border:1px solid var(--line);color:var(--tx);border-radius:12px;font-size:1.1rem}
+.mazepad .blank{visibility:hidden}
+.scratchwrap{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+.scratchwrap .under{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:2rem;letter-spacing:.2em;font-family:'Gaegu';background:#e9e4d8;color:#3a3630}
+.scratchwrap canvas{position:relative;display:block;width:100%;touch-action:none}
+.slots{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.slot{flex:1;min-width:70px;border:1px dashed var(--line);border-radius:10px;padding:10px 6px;text-align:center;font-size:.78rem;color:var(--dim)}
+.slot.filled{border-style:solid;border-color:var(--acc);color:var(--tx)}
+.slot b{display:block;color:var(--acc);font-size:.72rem;margin-bottom:4px}
+.weightbar{font-size:.82rem;text-align:center;margin-top:6px;color:var(--dim)}
+.weightbar.over{color:#ff7d7d}
+.puzz9{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;max-width:280px;margin:0 auto}
+.puzz9 button{aspect-ratio:1;font-size:1.5rem;font-family:'Gaegu';background:var(--card);border:1px solid var(--line);color:var(--tx);border-radius:10px}
+.puzz9 button.hole{background:transparent;border-style:dashed;color:transparent}
+.termlog{background:#0a0a0c;border:1px solid var(--line);border-radius:12px;padding:12px;font-family:ui-monospace,monospace;font-size:.82rem;min-height:70px;margin-bottom:10px;white-space:pre-line;color:var(--dim)}
+.termlog .ok{color:var(--acc)}
+.termlog .no{color:#ff7d7d}
+canvas.tunerwave{width:100%;height:120px;background:#0a0a0c;border:1px solid var(--line);border-radius:12px;display:block}
+.pulse{display:inline-block;background:var(--acc);border-radius:4px;height:10px;margin:0 3px;animation:pulseblink 3.6s steps(1) infinite}
+@keyframes pulseblink{0%,55%{opacity:1}56%,100%{opacity:.15}}
+/* v4: 리빌 몽타주 */
+.truthcap{opacity:0;transition:opacity 1.4s ease;border-color:var(--acc)}
+.truthcap.show{opacity:1}
