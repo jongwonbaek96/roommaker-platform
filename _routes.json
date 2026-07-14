@@ -1,5 +1,5 @@
 {
   "version": 1,
-  "include": ["/play/*", "/games/*"],
+  "include": ["/play/*", "/games/*", "/admin", "/admin/*", "/api/*"],
   "exclude": ["/games/assets/*"]
 }

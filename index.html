@@ -95,7 +95,7 @@
     <h1>룸메이커 관리</h1>
     <div class="sub" id="sync-sub">방탈출 게임 라이브러리</div>
   </div>
-  <div class="auth"><button class="authbtn" id="authbtn" onclick="onAuthBtn()">로그인</button></div>
+  <div class="auth"><a href="/admin"><button class="authbtn" id="authbtn">🧩 관리자</button></a></div>
 </header>
 
 <div id="banner-wrap"></div>
@@ -104,87 +104,20 @@
 <div class="grid" id="grid"></div>
 <div class="empty" id="empty" style="display:none">검색 결과가 없어요.</div>
 
-<div class="ov" id="ov">
-  <div class="sheet">
-    <h3 id="m-title">게임 정보 편집</h3>
-    <div class="fld"><label>제목</label><input id="m-name"></div>
-    <div class="fld"><label>부제</label><input id="m-sub"></div>
-    <div class="fld"><label>장르</label><input id="m-genre"></div>
-    <div class="fld"><label>상태</label>
-      <select id="m-status"><option>완성</option><option>제작중</option><option>검수</option><option>보류</option></select>
-    </div>
-    <div class="fld"><label>메모</label><textarea id="m-memo" placeholder="기획 메모, 수정할 점 등"></textarea></div>
-    <div class="row">
-      <button class="btn edit" onclick="closeModal('ov')">취소</button>
-      <button class="btn play" id="savebtn" onclick="saveEdit()">저장</button>
-    </div>
-    <div class="err" id="m-err"></div>
-    <div class="note">저장하면 모든 기기에 즉시 반영됩니다.</div>
-  </div>
-</div>
-
-<div class="ov" id="login">
-  <div class="sheet">
-    <h3>로그인</h3>
-    <div class="fld"><label>이메일</label><input id="l-email" type="email" autocomplete="username"></div>
-    <div class="fld"><label>비밀번호</label><input id="l-pw" type="password" autocomplete="current-password"></div>
-    <div class="row">
-      <button class="btn edit" onclick="closeModal('login')">취소</button>
-      <button class="btn play" id="loginbtn" onclick="doLogin()">로그인</button>
-    </div>
-    <div class="err" id="l-err"></div>
-  </div>
-</div>
-
 <div class="toast" id="toast"></div>
 
-<script src="config.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const C = window.ROOMMAKER_CONFIG || {};
-const configured = C.SUPABASE_URL && C.SUPABASE_URL.indexOf('http')===0 && C.SUPABASE_ANON_KEY && C.SUPABASE_ANON_KEY.length > 20;
-let sb=null, GAMES=[], EDIT=null, isAuthed=false;
+// 게임 목록은 registry.json에서만 읽는다(손님용 읽기 전용 화면).
+// 편집·토큰 발급은 전부 /admin (관리자 로그인)으로 옮겨갔다.
+let GAMES=[];
 
 const $=id=>document.getElementById(id);
 function toast(t){const e=$('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1800);}
-function closeModal(id){$(id).classList.remove('show');}
 function banner(type,msg){$('banner-wrap').innerHTML='<div class="banner '+type+'">'+msg+'</div>';}
 
 async function init(){
-  if(configured){
-    sb = supabase.createClient(C.SUPABASE_URL, C.SUPABASE_ANON_KEY);
-    const r = await sb.auth.getSession();
-    setAuth(!!(r.data && r.data.session));
-    sb.auth.onAuthStateChange((_e,s)=>setAuth(!!s));
-    await loadFromDB();
-    sb.channel('games-rt').on('postgres_changes',
-      {event:'*',schema:'public',table:'games'}, ()=>loadFromDB()).subscribe();
-    $('sync-sub').textContent='클라우드 동기화 · 모든 기기 연동';
-  } else {
-    banner('warn','아직 Supabase 미설정 상태예요. config.js에 URL/KEY를 넣으면 모든 기기 공유 편집이 켜집니다. 지금은 읽기 전용입니다.');
-    await loadFromRegistry();
-  }
+  await loadFromRegistry();
   $('search').addEventListener('input',render);
-  $('ov').addEventListener('click',e=>{if(e.target.id==='ov')closeModal('ov');});
-  $('login').addEventListener('click',e=>{if(e.target.id==='login')closeModal('login');});
-}
-
-function setAuth(on){
-  isAuthed=on;
-  const b=$('authbtn');
-  b.textContent = on?'로그아웃':'로그인';
-  b.classList.toggle('on',on);
-  if(configured){
-    $('banner-wrap').innerHTML = on ? '' :
-      '<div class="banner ro">읽기 전용 모드입니다. 편집하려면 우측 상단 <b>로그인</b>을 누르세요.</div>';
-  }
-  render();
-}
-
-async function loadFromDB(){
-  const res = await sb.from('games').select('*').order('sort',{ascending:true});
-  if(res.error){ banner('warn','데이터를 불러오지 못했어요: '+res.error.message); return; }
-  GAMES=res.data||[]; render();
 }
 async function loadFromRegistry(){
   try{ const r=await fetch('registry.json?'+Date.now()); GAMES=(await r.json()).games||[]; }
@@ -217,7 +150,6 @@ function render(){
         (g.memo?'<div class="memo">📝 '+g.memo+'</div>':'')+
         '<div class="actions">'+
           '<button class="btn play" onclick="play(\''+g.id+'\')">▶ 플레이</button>'+
-          '<button class="btn edit" '+(isAuthed?'':'disabled')+' onclick="openEdit(\''+g.id+'\')">✎ 편집</button>'+
         '</div>'+
       '</div>'+
     '</div>';
@@ -228,40 +160,8 @@ function render(){
 // 세션 쿠키가 있으면 게이트가 알아서 게임으로 넘겨준다.
 function play(id){ window.open('/play/'+id,'_blank'); }
 
-function openEdit(id){
-  if(!isAuthed) return;
-  const g=GAMES.find(x=>x.id===id); EDIT=id;
-  $('m-name').value=g.title; $('m-sub').value=g.subtitle||''; $('m-genre').value=g.genre||'';
-  $('m-status').value=g.status||'완성'; $('m-memo').value=g.memo||'';
-  $('m-title').textContent=g.title+' 편집'; $('m-err').textContent='';
-  $('ov').classList.add('show');
-}
-async function saveEdit(){
-  if(!sb||!isAuthed) return;
-  $('savebtn').disabled=true; $('m-err').textContent='';
-  const patch={title:$('m-name').value,subtitle:$('m-sub').value,genre:$('m-genre').value,
-    status:$('m-status').value,memo:$('m-memo').value};
-  const res=await sb.from('games').update(patch).eq('id',EDIT);
-  $('savebtn').disabled=false;
-  if(res.error){ $('m-err').textContent='저장 실패: '+res.error.message; return; }
-  closeModal('ov'); toast('저장됨 · 모든 기기 반영'); loadFromDB();
-}
-
-function onAuthBtn(){
-  if(!configured){ banner('warn','먼저 config.js에 Supabase 값을 넣어야 로그인할 수 있어요.'); return; }
-  if(isAuthed){ sb.auth.signOut(); toast('로그아웃됨'); }
-  else { $('l-err').textContent=''; $('login').classList.add('show'); }
-}
-async function doLogin(){
-  $('loginbtn').disabled=true; $('l-err').textContent='';
-  const res=await sb.auth.signInWithPassword({email:$('l-email').value.trim(),password:$('l-pw').value});
-  $('loginbtn').disabled=false;
-  if(res.error){ $('l-err').textContent='로그인 실패: '+res.error.message; return; }
-  closeModal('login'); toast('로그인됨 · 편집 가능');
-}
-
 init();
 if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(function(){});}
 </script>
 </body>
-</html>
+</ht

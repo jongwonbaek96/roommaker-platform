@@ -1,7 +1,7 @@
-const CACHE = 'roommaker-v3';
+const CACHE = 'roommaker-v4';
 const CORE = ['./', './index.html', './manifest.webmanifest',
   './icons/icon-192.png', './icons/icon-512.png'];
-const FRESH = ['registry.json', 'config.js', 'index.html'];
+const FRESH = ['registry.json', 'index.html'];
 // 접속 게이트(/play/*)와 게임 본문(*.html)은 캐시하지 않는다.
 // 캐시되면 무효화된 토큰·만료된 세션으로도 오프라인 사본이 열려 게이트가 뚫린다.
 const NO_CACHE = (p) => p.startsWith('/play/') || (p.startsWith('/games/') && p.endsWith('.html'));
