@@ -1,45 +1,64 @@
 // ============================================================
 // 접속 게이트 공용 로직 (Cloudflare Pages Functions)
-// D1 바인딩 이름: DB  (Pages 설정 → Functions → D1 database bindings)
-// 시크릿은 코드에 없음 — 바인딩만 사용한다.
+// D1 바인딩 이름: DB
+//
+// 게임 목록은 이제 D1 games 테이블이 정본이다(하드코딩 없음).
+//  · status='published' → 구매자에게 공개
+//  · status='draft'     → 비공개. 구매자는 목록·상세·플레이 전부 차단,
+//                          관리자만 미리보기 가능.
+// 게임 본문 파일 경로는 games.meta.file 에 있다.
 // ============================================================
 
 export const SESSION_DAYS = 7;
 
-// 게임 slug ↔ 실제 파일. registry.json과 동일하게 유지할 것.
-export const GAMES = {
-  'sugar-melts':         { file: 'games/sugar-melts.html',         title: '설탕은 녹는다' },
-  'dragon-heart':        { file: 'games/dragon-heart.html',        title: '용의 심장' },
-  'colorless-white':     { file: 'games/colorless-white.html',     title: '색깔없는세상 : 왱?' },
-  'colorless-green':     { file: 'games/colorless-green.html',     title: '색깔없는세상 : APT APT' },
-  'colorless-blue':      { file: 'games/colorless-blue.html',      title: '색깔없는세상 : 수능만점' },
-  'colorless-yellow':    { file: 'games/colorless-yellow.html',    title: '색깔없는세상 : 나는 부자가 될 거에요!' },
-  'colorless-red':       { file: 'games/colorless-red.html',       title: '색깔없는세상 : 난 오늘도 일을 나간다' },
-  'midnight-frequency':  { file: 'games/midnight-frequency.html',  title: '자정의 주파수' },
-  'dawn-444':            { file: 'games/dawn-444.html',            title: '새벽 4시 44분' },
-  'light-first':         { file: 'games/light-first.html',         title: '빛이 먼저 왔다' },
-  'magic-school':        { file: 'games/magic-school.html',        title: '마법학교 졸업은 글렀어요' },
-  'your-letter':         { file: 'games/your-letter.html',         title: '너의 편지를 아직 읽지 못했어' },
-};
+// D1에서 게임 1건 (없거나 DB 없으면 null)
+export async function getGame(env, slug) {
+  if (!env.DB || !slug) return null;
+  const row = await env.DB.prepare(
+    `SELECT id, title, subtitle, genre, emoji, accent_color, status, engine, description, meta
+       FROM games WHERE id=? OR slug=?`
+  ).bind(slug, slug).first();
+  if (!row) return null;
+  let meta = {};
+  try { meta = JSON.parse(row.meta || '{}'); } catch (e) {}
+  row.meta = meta;
+  row.file = meta.file || ('games/' + row.id + '.html');
+  return row;
+}
 
-// 파일 경로 → slug (게이트 미들웨어에서 역방향 조회)
-// Cloudflare Pages가 .html을 떼어낸 경로(/games/dawn-444)도 반드시 잡아야 한다.
-export function slugForFile(pathname) {
+// 공개된 게임 목록 (구매자용)
+export async function publicGames(env) {
+  if (!env.DB) return [];
+  const r = await env.DB.prepare(
+    `SELECT id, title, subtitle, genre, emoji, accent_color, description, meta
+       FROM games WHERE status='published' ORDER BY sort_order, updated_at DESC`
+  ).all();
+  return (r.results || []).map(g => {
+    let meta = {};
+    try { meta = JSON.parse(g.meta || '{}'); } catch (e) {}
+    return { ...g, meta };
+  });
+}
+
+// 파일 경로 → slug. Cloudflare Pages가 .html을 떼어낸 경로도 반드시 잡아야 한다.
+// games/{slug}.html · games/{slug} · games/{slug}-answers 전부 같은 게임으로 본다.
+export function slugFromPath(pathname) {
   const p = pathname
     .replace(/^\//, '')
     .replace(/\/$/, '')
-    .replace(/\.html$/i, ''); // 확장자 유무 모두 수용
-
-  for (const [slug, g] of Object.entries(GAMES)) {
-    const base = g.file.replace(/\.html$/i, ''); // 예: games/dawn-444
-    if (p === base) return slug;
-    // dawn-444-answers 같은 파생 파일(정답 페이지 등)도 같은 게임으로 묶는다
-    if (p.startsWith(base + '-')) return slug;
-  }
-  return null;
+    .replace(/\.html$/i, '');
+  const m = p.match(/^games\/([a-z0-9-]+)$/i);
+  if (!m) return null;
+  // dawn-444-answers → dawn-444 로도 시도할 수 있게 원본을 그대로 넘긴다.
+  return m[1];
 }
 
-export const cookieName = (slug) => 'rm_sess_' + slug.replace(/[^a-z0-9_-]/gi, '');
+// 파생 파일(-answers 등)을 본 게임 slug로 되돌린다.
+export function baseSlug(name) {
+  return String(name || '').replace(/-(answers|answer|solution|guide)$/i, '');
+}
+
+export const cookieName = (slug) => 'rm_sess_' + String(slug).replace(/[^a-z0-9_-]/gi, '');
 
 export function readCookie(request, name) {
   const raw = request.headers.get('cookie') || '';
@@ -60,8 +79,9 @@ export function newId(prefix) {
   return prefix + '-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
 }
 
-// 유효한 세션인지 확인 (만료 지난 세션은 무효 + 정리)
+// 유효한 구매자 세션인지 확인 (만료·무효화 토큰은 거부)
 export async function validSession(env, slug, request) {
+  if (!env.DB) return null;
   const key = readCookie(request, cookieName(slug));
   if (!key) return null;
   const row = await env.DB.prepare(
@@ -70,12 +90,11 @@ export async function validSession(env, slug, request) {
       WHERE s.session_key = ? AND s.game_id = ? AND s.expires_at > datetime('now')`
   ).bind(key, slug).first();
   if (!row) return null;
-  // 무효화(revoked)된 토큰의 세션은 즉시 차단 (편집기에서 세션을 지우지만 이중 방어)
   if (row.token_status === 'revoked') return null;
   return row;
 }
 
-// 토큰 검증 → used 처리 → 세션 발급. 실패 시 { error } 를 그대로 사용자에게 보여준다.
+// 토큰 검증 → used 처리 → 세션 발급
 export async function redeemToken(env, slug, rawToken) {
   const token = String(rawToken || '').trim().toUpperCase().replace(/\s+/g, '');
   if (!token) return { error: '코드를 입력해 주세요.' };
@@ -86,7 +105,7 @@ export async function redeemToken(env, slug, rawToken) {
   if (t.status === 'used') return { error: '이미 사용된 코드입니다. 접속이 안 되면 판매처로 문의해 주세요.' };
   if (t.status === 'revoked') return { error: '사용할 수 없는 코드입니다. 판매처로 문의해 주세요.' };
 
-  // 경쟁 조건 방지: unused → used 로 바뀐 "그 한 번"만 성공 처리
+  // 경쟁 조건 방지: unused → used 로 바뀐 "그 한 번"만 성공
   const upd = await env.DB.prepare(
     `UPDATE tokens SET status='used', used_at=datetime('now') WHERE id=? AND status='unused'`
   ).bind(t.id).run();

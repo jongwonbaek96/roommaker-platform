@@ -136,6 +136,32 @@ export async function onRequest(context) {
     // 게임 / 챕터 / 블록
     // ══════════════════════════════════════════════════════
 
+    // GET /api/dashboard — 대시보드 (게임별 공개상태 + 토큰 발급/사용 수)
+    if (method === 'GET' && p[0] === 'dashboard') {
+      const rows = await q(env,
+        `SELECT g.id, g.title, g.emoji, g.engine, g.status, g.version, g.sort_order,
+          (SELECT COUNT(*) FROM tokens t WHERE t.game_id=g.id) AS tokens_total,
+          (SELECT COUNT(*) FROM tokens t WHERE t.game_id=g.id AND t.status='used') AS tokens_used,
+          (SELECT COUNT(*) FROM tokens t WHERE t.game_id=g.id AND t.status='unused') AS tokens_unused,
+          (SELECT COUNT(*) FROM sessions s WHERE s.game_id=g.id AND s.expires_at > datetime('now')) AS active_sessions
+         FROM games g ORDER BY g.sort_order, g.title`);
+      const sum = await q(env, `SELECT
+          (SELECT COUNT(*) FROM games WHERE status='published') AS published,
+          (SELECT COUNT(*) FROM games WHERE status!='published') AS hidden,
+          (SELECT COUNT(*) FROM tokens) AS tokens_total,
+          (SELECT COUNT(*) FROM tokens WHERE status='used') AS tokens_used`);
+      return json({ games: rows, summary: sum[0] || {} });
+    }
+
+    // POST /api/games/:id/visibility — 공개/비공개 토글 { public: true|false }
+    if (method === 'POST' && p[0] === 'games' && p[1] && p[2] === 'visibility') {
+      const id = decodeURIComponent(p[1]);
+      const status = body.public ? 'published' : 'draft';
+      const r = await run(env, `UPDATE games SET status=?, updated_at=datetime('now') WHERE id=?`, [status, id]);
+      if (!r.meta || r.meta.changes !== 1) return json({ error: '게임을 찾을 수 없습니다' }, 404);
+      return json({ ok: true, id, status });
+    }
+
     // GET /api/games — 목록
     if (method === 'GET' && p[0] === 'games' && !p[1]) {
       const rows = await q(env,

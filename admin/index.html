@@ -81,13 +81,21 @@ td.code{font-family:Consolas,monospace;font-weight:700}
 <body>
 <div id="top">
   <h1>🧩 룸메이커 관리자</h1>
-  <button class="tab on" id="tabEdit" onclick="showView('edit')">게임 편집</button>
+  <button class="tab on" id="tabDash" onclick="showView('dash')">📊 대시보드</button>
+  <button class="tab" id="tabEdit" onclick="showView('edit')">게임 편집</button>
   <button class="tab" id="tabToken" onclick="showView('token')">🎟 토큰 발급</button>
   <span class="sp"></span>
   <a href="/" style="font-size:12px;color:var(--dim);text-decoration:none">게임 목록 ↗</a>
   <a href="/admin/logout"><button>로그아웃</button></a>
 </div>
-<div id="layout">
+<div id="dashView" style="padding:18px;max-width:1000px">
+  <div class="bar2" id="dashSum" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px"></div>
+  <div class="card2">
+    <h2>게임 <span style="font-weight:400;color:var(--dim);font-size:12px">— 비공개로 내리면 구매자 목록·상세·플레이에서 완전히 사라집니다</span></h2>
+    <div id="dashList"><div class="empty">불러오는 중…</div></div>
+  </div>
+</div>
+<div id="layout" style="display:none">
   <div id="side"><div class="empty">불러오는 중…</div></div>
   <div id="main"><div class="empty">왼쪽에서 게임을 선택하세요</div></div>
 </div>
@@ -331,33 +339,58 @@ async function addBlock(chId){
 // ══════════════════════════════════════════════════════════
 // 토큰 (구매자 접속 코드)
 // ══════════════════════════════════════════════════════════
-// 게임 서버에 실제로 올라가 있는 게임 목록.
-// functions/_lib/gate.js 의 GAMES 와 항상 같아야 한다.
-const PLATFORM_GAMES=[
-  ['sugar-melts','🍬 설탕은 녹는다'],
-  ['dragon-heart','🐉 용의 심장'],
-  ['colorless-white','🤍 색깔없는세상 : 왱? (5/5)'],
-  ['colorless-green','🍀 색깔없는세상 : APT APT (4/5)'],
-  ['colorless-blue','📘 색깔없는세상 : 수능만점 (3/5)'],
-  ['colorless-yellow','🪙 색깔없는세상 : 나는 부자가 될 거에요! (2/5)'],
-  ['colorless-red','🌹 색깔없는세상 : 난 오늘도 일을 나간다 (1/5)'],
-  ['midnight-frequency','📻 자정의 주파수'],
-  ['dawn-444','🌅 새벽 4시 44분'],
-  ['light-first','🛰️ 빛이 먼저 왔다'],
-  ['magic-school','🎓 마법학교 졸업은 글렀어요'],
-  ['your-letter','💌 너의 편지를 아직 읽지 못했어'],
-];
+// 게임 목록은 D1이 정본이다(하드코딩 없음). loadGames()가 채운다.
+let PLATFORM_GAMES=[];
 
 function showView(v){
-  const isTok=v==='token';
-  $('#layout').style.display=isTok?'none':'flex';
-  $('#tokenView').style.display=isTok?'block':'none';
-  $('#tabEdit').className='tab'+(isTok?'':' on');
-  $('#tabToken').className='tab'+(isTok?' on':'');
-  if(isTok&&!$('#tkGame').options.length)initTokenView();
+  $('#dashView').style.display = v==='dash'?'block':'none';
+  $('#layout').style.display   = v==='edit'?'flex':'none';
+  $('#tokenView').style.display= v==='token'?'block':'none';
+  $('#tabDash').className ='tab'+(v==='dash'?' on':'');
+  $('#tabEdit').className ='tab'+(v==='edit'?' on':'');
+  $('#tabToken').className='tab'+(v==='token'?' on':'');
+  if(v==='dash')loadDash();
+  if(v==='token'&&!$('#tkGame').options.length)initTokenView();
+}
+
+// ══════════════════════════════════════════════════════════
+// 대시보드 (게임 공개상태 + 토큰 통계)
+// ══════════════════════════════════════════════════════════
+let DASH=[];
+async function loadDash(){
+  try{
+    const r=await api('/dashboard',{method:'GET'});
+    DASH=r.games||[]; const s=r.summary||{};
+    $('#dashSum').innerHTML=[
+      ['공개 게임',s.published??0],['비공개',s.hidden??0],
+      ['발급 토큰',s.tokens_total??0],['사용됨',s.tokens_used??0]
+    ].map(([l,n])=>`<div class="card2" style="flex:1;min-width:120px;margin:0;padding:12px 14px">
+        <div style="font-size:22px;font-weight:800">${n}</div>
+        <div style="font-size:11px;color:var(--dim)">${l}</div></div>`).join('');
+    $('#dashList').innerHTML=`<table>
+      <tr><th>게임</th><th>형식</th><th>공개</th><th>발급</th><th>사용</th><th>미사용</th><th>접속중</th><th></th></tr>
+      ${DASH.map(g=>`<tr>
+        <td><b>${g.emoji||'🎮'} ${esc(g.title)}</b><div style="color:var(--dim);font-size:10px">${g.id} · v${g.version}</div></td>
+        <td><span class="chip ${g.engine}">${g.engine}</span></td>
+        <td><span class="st ${g.status==='published'?'unused':'revoked'}">${g.status==='published'?'공개':'비공개'}</span></td>
+        <td>${g.tokens_total}</td><td>${g.tokens_used}</td><td>${g.tokens_unused}</td>
+        <td>${g.active_sessions?`<span class="chip pub">${g.active_sessions}</span>`:'-'}</td>
+        <td style="white-space:nowrap">
+          <button class="mini" onclick="window.open('/play/${g.id}','_blank')">미리보기</button>
+          <button class="mini ${g.status==='published'?'danger':''}" onclick="toggleVis('${g.id}',${g.status!=='published'})">${g.status==='published'?'비공개로':'공개로'}</button>
+        </td></tr>`).join('')}
+    </table>`;
+  }catch(e){$('#dashList').innerHTML='<div class="empty">'+esc(e.message)+'</div>';}
+}
+async function toggleVis(id,makePublic){
+  if(!confirm(makePublic?'이 게임을 공개할까요?':'비공개로 내리면 구매자가 목록·상세·플레이 어디에서도 접근할 수 없습니다.\n진행할까요?'))return;
+  try{await api('/games/'+encodeURIComponent(id)+'/visibility',{method:'POST',body:{public:makePublic}});
+    toast(makePublic?'공개됨 ✓':'비공개로 내림');loadDash();loadGames();}
+  catch(e){toast(e.message,1);}
 }
 
 function initTokenView(){
+  PLATFORM_GAMES=GAMES.map(g=>[g.id,(g.emoji||'🎮')+' '+g.title]);
   const opts=PLATFORM_GAMES.map(([id,label])=>`<option value="${id}">${esc(label)}</option>`).join('');
   $('#tkGame').innerHTML=opts;
   $('#fGame').innerHTML='<option value="">전체</option>'+opts;
@@ -455,6 +488,7 @@ async function reissueToken(id){
   }catch(e){toast(e.message,1);}
 }
 
+loadDash();
 loadGames();
 </script>
 </body>

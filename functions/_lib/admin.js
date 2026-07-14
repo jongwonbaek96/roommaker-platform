@@ -1,13 +1,23 @@
 // ============================================================
 // 관리자 인증 (비밀번호 1개 + 세션 쿠키)
 //
-// 비밀번호는 코드에 없다. Cloudflare Pages 시크릿 `ADMIN_PW` 로만 들어온다.
-//   Pages → Settings → Variables and secrets → ADMIN_PW (type: Secret)
-// D1 바인딩 이름: DB
+// 비밀번호는 코드에 없다. Cloudflare Pages 시크릿으로만 들어온다.
+//   · 권장: ADMIN_PW_HASH = "스킴$솔트$해시"  (sha256$<salt>$<hex>)
+//   · 임시: ADMIN_PW      = 평문 (해시 미설정 시 폴백. 되도록 해시로 옮길 것)
+// 비교는 항상 timing-safe.
+//
+// 해시 만드는 법(브라우저 콘솔 아무 데서나):
+//   const salt=[...crypto.getRandomValues(new Uint8Array(16))].map(b=>b.toString(16).padStart(2,'0')).join('');
+//   const h=[...new Uint8Array(await crypto.subtle.digest('SHA-256',
+//       new TextEncoder().encode(salt+':'+'여기에비밀번호')))].map(b=>b.toString(16).padStart(2,'0')).join('');
+//   console.log('sha256$'+salt+'$'+h);
+//
+// 계정 테이블은 두지 않지만, admin_sessions에 note 컬럼이 있어
+// 나중에 계정제로 확장할 때 사용자 식별자를 넣을 수 있다.
 // ============================================================
 
 export const ADMIN_COOKIE = 'rm_admin';
-export const ADMIN_DAYS = 30; // 관리자 세션 유지 기간
+export const ADMIN_DAYS = 30;
 
 export function readCookie(request, name) {
   const raw = request.headers.get('cookie') || '';
@@ -34,6 +44,24 @@ function safeEqual(a, b) {
   return diff === 0;
 }
 
+async function sha256Hex(text) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// 비밀번호 검증. 해시(ADMIN_PW_HASH)가 있으면 그걸 쓰고, 없으면 평문(ADMIN_PW) 폴백.
+async function checkPassword(env, password) {
+  const stored = env.ADMIN_PW_HASH;
+  if (stored) {
+    const [scheme, salt, digest] = String(stored).split('$');
+    if (scheme !== 'sha256' || !salt || !digest) return { error: '서버의 비밀번호 해시 형식이 잘못됐습니다. (sha256$솔트$해시)' };
+    const calc = await sha256Hex(salt + ':' + password);
+    return safeEqual(calc, digest) ? { ok: true } : { ok: false };
+  }
+  if (env.ADMIN_PW) return safeEqual(password, env.ADMIN_PW) ? { ok: true } : { ok: false };
+  return { error: '서버에 관리자 비밀번호가 설정되어 있지 않습니다. (Pages 시크릿 ADMIN_PW_HASH)' };
+}
+
 // 로그인된 관리자인지 확인. 유효하면 세션 row, 아니면 null.
 export async function validAdmin(env, request) {
   if (!env.DB) return null;
@@ -46,19 +74,21 @@ export async function validAdmin(env, request) {
 
 // 비밀번호 검증 → 관리자 세션 발급
 export async function loginAdmin(env, password) {
-  if (!env.ADMIN_PW) return { error: '서버에 관리자 비밀번호가 설정되어 있지 않습니다. (Pages 시크릿 ADMIN_PW)' };
   if (!password) return { error: '비밀번호를 입력해 주세요.' };
-  if (!safeEqual(password, env.ADMIN_PW)) {
-    await new Promise(r => setTimeout(r, 600)); // 무차별 대입 완화
+
+  const r = await checkPassword(env, password);
+  if (r.error) return { error: r.error };
+  if (!r.ok) {
+    await new Promise(res => setTimeout(res, 600)); // 무차별 대입 완화
     return { error: '비밀번호가 올바르지 않습니다.' };
   }
+
   const sessionKey = randKey();
   await env.DB.prepare(
     `INSERT INTO admin_sessions (id, session_key, expires_at)
      VALUES (?, ?, datetime('now', '+${ADMIN_DAYS} days'))`
   ).bind('adm-' + Date.now().toString(36) + '-' + randKey(3), sessionKey).run();
 
-  // 만료된 세션 청소
   await env.DB.prepare(`DELETE FROM admin_sessions WHERE expires_at <= datetime('now')`).run();
   return { sessionKey };
 }
