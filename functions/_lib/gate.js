@@ -23,12 +23,18 @@ export const GAMES = {
 };
 
 // 파일 경로 → slug (게이트 미들웨어에서 역방향 조회)
+// Cloudflare Pages가 .html을 떼어낸 경로(/games/dawn-444)도 반드시 잡아야 한다.
 export function slugForFile(pathname) {
-  const p = pathname.replace(/^\//, '');
+  const p = pathname
+    .replace(/^\//, '')
+    .replace(/\/$/, '')
+    .replace(/\.html$/i, ''); // 확장자 유무 모두 수용
+
   for (const [slug, g] of Object.entries(GAMES)) {
-    if (g.file === p) return slug;
-    // dawn-444-answers.html 같은 파생 파일도 같은 게임으로 묶는다
-    if (p.startsWith(g.file.replace(/\.html$/, '')) && p.endsWith('.html')) return slug;
+    const base = g.file.replace(/\.html$/i, ''); // 예: games/dawn-444
+    if (p === base) return slug;
+    // dawn-444-answers 같은 파생 파일(정답 페이지 등)도 같은 게임으로 묶는다
+    if (p.startsWith(base + '-')) return slug;
   }
   return null;
 }
