@@ -216,7 +216,7 @@ function render(){
         '</div>'+
         (g.memo?'<div class="memo">📝 '+g.memo+'</div>':'')+
         '<div class="actions">'+
-          '<button class="btn play" onclick="play(\''+g.file+'\')">▶ 플레이</button>'+
+          '<button class="btn play" onclick="play(\''+g.id+'\')">▶ 플레이</button>'+
           '<button class="btn edit" '+(isAuthed?'':'disabled')+' onclick="openEdit(\''+g.id+'\')">✎ 편집</button>'+
         '</div>'+
       '</div>'+
@@ -224,7 +224,9 @@ function render(){
   }).join('');
 }
 
-function play(f){ window.open(f,'_blank'); }
+// 게임은 항상 접속 게이트(/play/{id})를 통해 연다.
+// 세션 쿠키가 있으면 게이트가 알아서 게임으로 넘겨준다.
+function play(id){ window.open('/play/'+id,'_blank'); }
 
 function openEdit(id){
   if(!isAuthed) return;
