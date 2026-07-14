@@ -5,6 +5,7 @@
 // 실패는 항상 명확한 메시지로 끝난다 (무한 로딩 금지)
 // ============================================================
 import { GAMES, validSession, redeemToken, sessionCookie } from '../_lib/gate.js';
+import { validAdmin } from '../_lib/admin.js';
 
 const esc = (s) => String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
 
@@ -64,6 +65,11 @@ export async function onRequestGet(context) {
   const slug = params.game;
   const game = GAMES[slug];
   if (!game) return notFound();
+
+  // 관리자로 로그인돼 있으면 입장 코드 없이 바로 게임으로 (검수·테스트용)
+  if (await validAdmin(env, request)) {
+    return Response.redirect(new URL('/' + game.file, request.url).toString(), 302);
+  }
 
   if (env.DB && await validSession(env, slug, request)) {
     return Response.redirect(new URL('/' + game.file, request.url).toString(), 302);

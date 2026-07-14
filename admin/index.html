@@ -94,6 +94,11 @@ td.code{font-family:Consolas,monospace;font-weight:700}
 
 <div id="tokenView" style="display:none">
   <div class="card2">
+    <h2>게임 바로 열기 <span style="font-weight:400;color:var(--dim);font-size:12px">— 관리자는 입장 코드 없이 열립니다 (검수용)</span></h2>
+    <div id="quickPlay" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+  </div>
+
+  <div class="card2">
     <h2>토큰 발급</h2>
     <div class="frow">
       <div class="f" style="flex:2;min-width:220px">
@@ -356,6 +361,8 @@ function initTokenView(){
   const opts=PLATFORM_GAMES.map(([id,label])=>`<option value="${id}">${esc(label)}</option>`).join('');
   $('#tkGame').innerHTML=opts;
   $('#fGame').innerHTML='<option value="">전체</option>'+opts;
+  $('#quickPlay').innerHTML=PLATFORM_GAMES.map(([id,label])=>
+    `<button onclick="window.open('/play/${id}','_blank')" title="/play/${id}">${esc(label)}</button>`).join('');
   $('#tkIssue').onclick=issueTokens;
   $('#fRefresh').onclick=loadTokens;
   loadTokens();
