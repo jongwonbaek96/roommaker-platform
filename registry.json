@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-13",
+  "updatedAt": "2026-07-15",
   "games": [
     {
       "id": "sugar-melts",
@@ -138,7 +138,7 @@
       "genre": "판타지",
       "file": "games/magic-school.html",
       "status": "완성",
-      "puzzles": 0,
+      "puzzles": 15,
       "accent": "#ffd700",
       "bg": "#0d0520",
       "emoji": "🎓",
@@ -151,7 +151,7 @@
       "genre": "감성 미스터리",
       "file": "games/your-letter.html",
       "status": "완성",
-      "puzzles": 0,
+      "puzzles": 21,
       "accent": "#e8637a",
       "bg": "#fff8f5",
       "emoji": "💌",

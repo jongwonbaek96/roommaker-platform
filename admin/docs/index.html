@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>제작 MD — 룸메이커 관리자</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0d0d16;--panel:#151522;--panel2:#1d1d30;--line:#2a2a45;--tx:#e8e8f2;--dim:#8a8aa8;--ac:#7c5cff;--ok:#3ecf8e;--warn:#ffb04b;--err:#ff5c7a}
+body{background:var(--bg);color:var(--tx);font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;font-size:14px}
+a{color:var(--ac)}
+button{background:var(--panel2);border:1px solid var(--line);color:var(--tx);padding:5px 10px;border-radius:6px;cursor:pointer;font-size:12px}
+button:hover{border-color:var(--ac)}
+button.pri{background:var(--ac);border-color:var(--ac);color:#fff;font-weight:600}
+button.mini{padding:2px 7px;font-size:11px}
+button.danger:hover{border-color:var(--err);color:var(--err)}
+button:disabled{opacity:.45;cursor:default}
+.tab{padding:6px 12px}
+#top{display:flex;align-items:center;gap:10px;padding:12px 18px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+#top h1{font-size:16px}
+#top .sp{flex:1}
+#layout{display:flex;min-height:calc(100vh - 53px)}
+#side{width:290px;border-right:1px solid var(--line);padding:14px;flex-shrink:0;overflow:auto}
+#main{flex:1;padding:18px;min-width:0}
+.warnbar{background:#2b1a0d;border:1px solid #5c3a18;color:#ffc98a;padding:9px 14px;border-radius:9px;font-size:12px;margin:14px 18px 0}
+.gcard{display:flex;gap:10px;align-items:center;padding:9px 10px;border:1px solid var(--line);border-radius:10px;margin-bottom:7px;cursor:pointer;background:var(--panel)}
+.gcard:hover{border-color:var(--ac)}
+.gcard.sel{border-color:var(--ac);background:var(--panel2)}
+.gcard .em{font-size:20px}
+.gcard .t{font-weight:600;font-size:13px}
+.gcard .s{color:var(--dim);font-size:11px;margin-top:2px;display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.chip{display:inline-block;padding:1px 7px;border-radius:99px;font-size:10px;border:1px solid var(--line);color:var(--dim);white-space:nowrap}
+.chip.ok{color:var(--ok);border-color:var(--ok)}
+.chip.miss{color:var(--err);border-color:var(--err)}
+.chip.pend{color:var(--warn);border-color:var(--warn)}
+.card2{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px}
+h2{font-size:15px;margin-bottom:10px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line)}
+th{color:var(--dim);font-weight:500;font-size:11px}
+tr.frow{cursor:pointer}
+tr.frow:hover td{background:var(--panel2)}
+tr.frow.sel td{background:var(--panel2)}
+.bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.bar .sp{flex:1}
+.dim{color:var(--dim)}
+.small{font-size:11px}
+#viewer{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+#vhd{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--panel2);border-bottom:1px solid var(--line);flex-wrap:wrap}
+#vhd .fn{font-weight:600}
+#vbody{padding:18px 22px;max-height:70vh;overflow:auto}
+#raw{width:100%;min-height:60vh;background:#0b0b12;color:#cfd0e0;border:0;border-top:1px solid var(--line);
+  padding:16px;font-family:ui-monospace,Consolas,monospace;font-size:12.5px;line-height:1.65;resize:vertical;outline:none;display:none}
+/* 마크다운 렌더 */
+.md{line-height:1.75;font-size:13.5px;color:#dcdcea}
+.md h1{font-size:22px;margin:22px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.md h2{font-size:18px;margin:20px 0 10px;color:#fff}
+.md h3{font-size:15px;margin:16px 0 8px;color:#c9bfff}
+.md h4{font-size:13.5px;margin:13px 0 6px;color:var(--dim)}
+.md p{margin:9px 0}
+.md ul,.md ol{margin:9px 0 9px 22px}
+.md li{margin:3px 0}
+.md code{background:#26263f;padding:1.5px 5px;border-radius:4px;font-family:ui-monospace,Consolas,monospace;font-size:12px;color:#ffd9a0}
+.md pre{background:#0b0b12;border:1px solid var(--line);border-radius:8px;padding:12px;overflow:auto;margin:11px 0}
+.md pre code{background:0;padding:0;color:#cfd0e0}
+.md blockquote{border-left:3px solid var(--ac);padding:2px 0 2px 12px;margin:11px 0;color:var(--dim)}
+.md table{margin:12px 0;font-size:12.5px}
+.md th{background:var(--panel2);color:var(--tx);font-weight:600}
+.md td,.md th{border:1px solid var(--line);padding:7px 9px}
+.md hr{border:0;border-top:1px solid var(--line);margin:20px 0}
+.md a{color:#8fb4ff}
+.md strong{color:#fff}
+.md img{max-width:100%;border-radius:8px}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--panel2);border:1px solid var(--ac);
+  padding:9px 16px;border-radius:9px;font-size:12px;opacity:0;transition:.2s;pointer-events:none;z-index:99}
+#toast.on{opacity:1}
+.empty{padding:50px 20px;text-align:center;color:var(--dim)}
+</style>
+</head>
+<body>
+<div id="top">
+  <h1>🧩 룸메이커 관리자</h1>
+  <a href="/admin"><button class="tab">← 대시보드</button></a>
+  <button class="tab on" style="background:var(--ac);border-color:var(--ac);color:#fff;font-weight:600">📄 제작 MD</button>
+  <span class="sp"></span>
+  <a href="/admin/logout"><button>로그아웃</button></a>
+</div>
+
+<div class="warnbar">
+  🔒 이 문서들에는 <b>모든 정답</b>이 들어 있습니다. 관리자 전용이며 구매자 화면에는 어떤 경로로도 노출되지 않습니다.
+  MD를 고쳐 올려도 <b>게임 HTML은 자동으로 바뀌지 않습니다</b> — 수정 후 “미반영” 표시가 뜨며, AI 세션에서 게임을 다시 빌드한 뒤 “반영 완료”를 눌러 주세요.
+</div>
+
+<div id="layout">
+  <div id="side">
+    <div class="bar">
+      <b class="small">게임 <span id="gcount" class="dim"></span></b>
+      <span class="sp"></span>
+      <button class="mini" onclick="load()">새로고침</button>
+    </div>
+    <div id="gameList"></div>
+  </div>
+
+  <div id="main">
+    <div id="pane" class="empty">왼쪽에서 게임을 선택하세요.</div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let DATA = null, STD = [], curFile = null, curContent = '', rawMode = false;
+// 게임 편집 화면(/admin)에서 "이 게임 제작 MD"로 넘어오면 ?game=id 로 바로 연다
+let curGame = new URLSearchParams(location.search).get('game') || null;
+
+function toast(m){ const t=$('#toast'); t.textContent=m; t.className='on'; setTimeout(()=>t.className='',1900); }
+const kb = b => !b ? '—' : (b < 1024 ? b + ' B' : (b/1024).toFixed(1) + ' KB');
+
+async function api(path, opt){
+  const r = await fetch('/api/docs' + path, { credentials:'same-origin', ...opt });
+  if (r.status === 401) { location.href = '/admin/login'; throw new Error('401'); }
+  const ct = r.headers.get('content-type') || '';
+  if (!ct.includes('json')) return r;
+  const j = await r.json();
+  if (!r.ok) throw new Error(j.error || ('오류 ' + r.status));
+  return j;
+}
+
+// ─────────────────────────────────────────── 목록
+async function load(){
+  try {
+    const d = await api('');
+    DATA = d.games; STD = d.standard;
+    $('#gcount').textContent = '(' + DATA.length + ')';
+    $('#gameList').innerHTML = DATA.map(g => {
+      const chips = [];
+      if (!g.hasDocs) chips.push('<span class="chip miss">MD 없음</span>');
+      else if (g.missing.length) chips.push('<span class="chip miss">누락 ' + g.missing.length + '</span>');
+      else chips.push('<span class="chip ok">완비</span>');
+      if (g.pendingCount) chips.push('<span class="chip pend">미반영 ' + g.pendingCount + '</span>');
+      if (g.note) chips.push('<span class="chip">' + esc(g.note) + '</span>');
+      return `<div class="gcard${curGame===g.id?' sel':''}" onclick="pickGame('${g.id}')">
+        <div class="em">${esc(g.emoji||'🎮')}</div>
+        <div style="min-width:0;flex:1">
+          <div class="t">${esc(g.title)}</div>
+          <div class="s">${chips.join('')}<span>${g.fileCount}개</span></div>
+        </div></div>`;
+    }).join('');
+    if (curGame) pickGame(curGame, true);
+  } catch (e) { $('#gameList').innerHTML = '<div class="dim small">' + esc(e.message) + '</div>'; }
+}
+
+// ─────────────────────────────────────────── 게임 선택
+function pickGame(id, keep){
+  curGame = id;
+  if (!keep) { curFile = null; curContent = ''; }
+  document.querySelectorAll('.gcard').forEach(el => el.classList.remove('sel'));
+  load2();
+}
+
+function load2(){
+  const g = DATA.find(x => x.id === curGame);
+  if (!g) return;
+  document.querySelectorAll('.gcard').forEach((el,i) => el.classList.toggle('sel', DATA[i].id === curGame));
+
+  const missing = g.missing.length
+    ? `<div class="card2" style="border-color:#5c2530;background:#22131a">
+         <b style="color:var(--err)">표준 MD 누락 ${g.missing.length}개</b>
+         <div class="small dim" style="margin-top:5px">${g.missing.map(m=>esc(m)).join(' · ')}</div>
+       </div>` : '';
+
+  const rows = g.files.length ? g.files.map(f => `
+    <tr class="frow${curFile===f.name?' sel':''}" onclick="openFile('${esc(f.name)}')">
+      <td><b>${esc(f.name)}</b><div class="small dim">${esc(f.label||'')}</div></td>
+      <td>${kb(f.bytes)}</td>
+      <td class="small dim">${esc(f.updatedAt||'—')}</td>
+      <td>${f.pending ? '<span class="chip pend">미반영</span>' : (f.source==='db' ? '<span class="chip ok">반영됨</span>' : '<span class="chip">레포</span>')}</td>
+      <td><button class="mini" onclick="event.stopPropagation();dl('${esc(f.name)}')">⬇</button></td>
+    </tr>`).join('')
+    : '<tr><td colspan="5" class="dim" style="padding:20px;text-align:center">이 게임에는 제작 MD가 없습니다.</td></tr>';
+
+  $('#pane').className = '';
+  $('#pane').innerHTML = `
+    <div class="bar">
+      <h2 style="margin:0">${esc(g.emoji||'')} ${esc(g.title)}</h2>
+      <span class="chip">${esc(g.id)}</span>
+      <span class="sp"></span>
+      <button ${g.fileCount?'':'disabled'} onclick="dlzip()">📦 전체 zip 다운로드</button>
+    </div>
+    ${missing}
+    <div class="card2">
+      <table>
+        <tr><th>파일</th><th>크기</th><th>최종 수정</th><th>상태</th><th></th></tr>
+        ${rows}
+      </table>
+    </div>
+    <div id="viewerWrap"></div>`;
+
+  if (curFile) openFile(curFile);
+}
+
+// ─────────────────────────────────────────── 열람
+async function openFile(name){
+  curFile = name;
+  load2Highlight();
+  $('#viewerWrap').innerHTML = '<div class="empty">불러오는 중…</div>';
+  try {
+    const d = await api('/' + curGame + '/' + encodeURIComponent(name));
+    curContent = d.content;
+    renderViewer(d);
+  } catch (e) { $('#viewerWrap').innerHTML = '<div class="empty">' + esc(e.message) + '</div>'; }
+}
+function load2Highlight(){
+  document.querySelectorAll('tr.frow').forEach(tr => {
+    tr.classList.toggle('sel', tr.querySelector('b').textContent === curFile);
+  });
+}
+
+function renderViewer(d){
+  $('#viewerWrap').innerHTML = `
+    <div id="viewer">
+      <div id="vhd">
+        <span class="fn">${esc(d.file)}</span>
+        <span class="chip">${kb(d.bytes)}</span>
+        ${d.pending ? '<span class="chip pend">미반영 — 게임에 아직 안 들어감</span>' : ''}
+        <span class="chip">${d.source === 'db' ? '수정본(D1)' : '레포 원본'}</span>
+        <span class="sp" style="flex:1"></span>
+        <button class="mini" id="btnToggle" onclick="toggleRaw()">✏️ 편집(원문)</button>
+        <button class="mini" onclick="dl('${esc(d.file)}')">⬇ 원본 받기</button>
+        <button class="mini" id="btnDlEdited" onclick="dlEdited()" style="display:none">⬇ 수정본 받기</button>
+        <button class="mini" id="btnLoadFile" onclick="$('#fileIn').click()" style="display:none">📁 파일 불러오기</button>
+        <input type="file" id="fileIn" accept=".md,.markdown,.txt,text/markdown" style="display:none" onchange="loadFromFile(this)">
+        <button class="mini pri" id="btnSave" onclick="save()" style="display:none">💾 서버 저장</button>
+        ${d.source === 'db' ? `<button class="mini" onclick="markApplied()">✓ 반영 완료</button>
+                               <button class="mini danger" onclick="revert()">↩ 원본으로</button>` : ''}
+      </div>
+      <div id="vbody"><div class="md">${mdToHtml(d.content)}</div></div>
+      <textarea id="raw" spellcheck="false" oninput="dirtyCheck()"></textarea>
+      <div id="editHint" class="small dim" style="display:none;padding:8px 14px;border-top:1px solid var(--line)">
+        ✏️ 편집 중 — <b>⬇ 수정본 받기</b>로 지금 이 내용을 파일로 바로 내려받거나, <b>💾 서버 저장</b>으로 반영할 수 있습니다.
+        <span id="dirtyDot" style="color:var(--warn)"></span>
+      </div>
+    </div>`;
+  $('#raw').value = d.content;
+  rawMode = false;
+}
+
+function toggleRaw(){
+  rawMode = !rawMode;
+  $('#vbody').style.display = rawMode ? 'none' : 'block';
+  $('#raw').style.display = rawMode ? 'block' : 'none';
+  $('#editHint').style.display = rawMode ? 'block' : 'none';
+  $('#btnToggle').textContent = rawMode ? '👁 렌더 보기' : '✏️ 편집(원문)';
+  $('#btnSave').style.display = rawMode ? 'inline-block' : 'none';
+  $('#btnDlEdited').style.display = rawMode ? 'inline-block' : 'none';
+  $('#btnLoadFile').style.display = rawMode ? 'inline-block' : 'none';
+}
+
+// 외부 편집기에서 고친 .md 파일을 편집창으로 불러오기
+function loadFromFile(input){
+  const file = input.files && input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    $('#raw').value = reader.result;
+    dirtyCheck();
+    toast('파일을 편집창에 불러왔습니다 — 확인 후 💾 서버 저장을 누르세요');
+  };
+  reader.readAsText(file, 'utf-8');
+  input.value = '';
+}
+
+function dirtyCheck(){
+  const changed = $('#raw').value !== curContent;
+  $('#dirtyDot').textContent = changed ? '· 저장 안 된 변경 있음' : '';
+}
+
+// ─────────────────────────────────────────── 다운로드 / 업로드
+// 원본(또는 서버에 저장된 수정본) 받기 — 서버에서 내려받음
+function dl(name){ location.href = '/api/docs/' + curGame + '/' + encodeURIComponent(name) + '?dl=1'; }
+function dlzip(){ location.href = '/api/docs/' + curGame + '/zip'; }
+
+// 수정본 받기 — 지금 편집창에 있는 내용을 서버 저장 없이 바로 .md 파일로 (오프라인 편집용)
+function dlEdited(){
+  const text = $('#raw').value;
+  const blob = new Blob([text], { type: 'text/markdown;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = curGame + '_' + curFile;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  toast('수정본을 내려받았습니다 (' + curGame + '_' + curFile + ')');
+}
+
+async function save(){
+  const text = $('#raw').value;
+  if (!text.trim()) return toast('내용이 비어 있습니다');
+  if (text === curContent) return toast('바뀐 내용이 없습니다');
+  if (!confirm(curFile + ' 을(를) 덮어씁니다.\n\n이전 내용은 변경 이력에 남습니다.\n저장해도 게임 HTML은 바뀌지 않습니다("미반영"으로 표시됨).')) return;
+  try {
+    const j = await api('/' + curGame + '/' + encodeURIComponent(curFile), {
+      method: 'PUT', headers: { 'content-type': 'text/plain; charset=utf-8' }, body: text,
+    });
+    toast('저장됨 — ' + j.message);
+    curContent = text;
+    await load();
+    openFile(curFile);
+  } catch (e) { toast('실패: ' + e.message); }
+}
+
+async function markApplied(){
+  if (!confirm('이 MD의 내용이 실제 게임에 반영됐습니까?\n"미반영" 표시가 사라집니다.')) return;
+  try { await api('/' + curGame + '/' + encodeURIComponent(curFile) + '/applied', { method: 'POST' });
+    toast('반영 완료로 표시했습니다'); await load(); openFile(curFile);
+  } catch (e) { toast('실패: ' + e.message); }
+}
+
+async function revert(){
+  if (!confirm('수정본을 버리고 레포 원본으로 되돌립니다. 계속할까요?')) return;
+  try { await api('/' + curGame + '/' + encodeURIComponent(curFile) + '/revert', { method: 'POST' });
+    toast('원본으로 되돌렸습니다'); await load(); openFile(curFile);
+  } catch (e) { toast('실패: ' + e.message); }
+}
+
+// ─────────────────────────────────────────── 미니 마크다운 렌더러
+// (외부 CDN 없이 자체 처리 — 관리자 화면이 네트워크에 의존하지 않게)
+function mdToHtml(src){
+  const lines = String(src).replace(/\r\n/g, '\n').split('\n');
+  let out = '', i = 0, inCode = false, codeBuf = [], listStack = [];
+
+  const closeLists = () => { while (listStack.length) out += '</' + listStack.pop() + '>'; };
+  const inline = (t) => {
+    t = esc(t);
+    t = t.replace(/`([^`]+)`/g, (m, c) => '<code>' + c + '</code>');
+    t = t.replace(/\*\*\*([^*]+)\*\*\*/g, '<strong><em>$1</em></strong>');
+    t = t.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    t = t.replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>');
+    t = t.replace(/~~([^~]+)~~/g, '<del>$1</del>');
+    t = t.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img alt="$1" src="$2">');
+    t = t.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+    return t;
+  };
+
+  while (i < lines.length) {
+    const line = lines[i];
+
+    // 코드블록
+    const fence = line.match(/^\s*```(.*)$/);
+    if (fence) {
+      if (!inCode) { closeLists(); inCode = true; codeBuf = []; }
+      else { inCode = false; out += '<pre><code>' + esc(codeBuf.join('\n')) + '</code></pre>'; }
+      i++; continue;
+    }
+    if (inCode) { codeBuf.push(line); i++; continue; }
+
+    // 표
+    if (/\|/.test(line) && i + 1 < lines.length && /^\s*\|?[\s:|-]+\|[\s:|-]*$/.test(lines[i + 1]) && /-/.test(lines[i + 1])) {
+      closeLists();
+      const cells = r => r.replace(/^\s*\|/, '').replace(/\|\s*$/, '').split('|').map(c => c.trim());
+      const head = cells(line);
+      i += 2;
+      let body = '';
+      while (i < lines.length && /\|/.test(lines[i]) && lines[i].trim()) {
+        body += '<tr>' + cells(lines[i]).map(c => '<td>' + inline(c) + '</td>').join('') + '</tr>';
+        i++;
+      }
+      out += '<table><thead><tr>' + head.map(c => '<th>' + inline(c) + '</th>').join('') + '</tr></thead><tbody>' + body + '</tbody></table>';
+      continue;
+    }
+
+    // 제목
+    const h = line.match(/^(#{1,6})\s+(.*)$/);
+    if (h) { closeLists(); out += `<h${h[1].length}>${inline(h[2])}</h${h[1].length}>`; i++; continue; }
+
+    // 구분선
+    if (/^\s*(-{3,}|\*{3,}|_{3,})\s*$/.test(line)) { closeLists(); out += '<hr>'; i++; continue; }
+
+    // 인용
+    if (/^\s*>\s?/.test(line)) {
+      closeLists();
+      let buf = [];
+      while (i < lines.length && /^\s*>\s?/.test(lines[i])) { buf.push(lines[i].replace(/^\s*>\s?/, '')); i++; }
+      out += '<blockquote>' + inline(buf.join(' ')) + '</blockquote>';
+      continue;
+    }
+
+    // 목록 (체크박스 포함)
+    const ul = line.match(/^(\s*)[-*+]\s+(.*)$/);
+    const ol = line.match(/^(\s*)\d+[.)]\s+(.*)$/);
+    if (ul || ol) {
+      const tag = ul ? 'ul' : 'ol';
+      if (!listStack.length || listStack[listStack.length - 1] !== tag) { closeLists(); listStack.push(tag); out += '<' + tag + '>'; }
+      let txt = (ul || ol)[2];
+      const cb = txt.match(/^\[([ xX])\]\s+(.*)$/);
+      if (cb) txt = (cb[1].trim() ? '✅ ' : '⬜ ') + cb[2];
+      out += '<li>' + inline(txt) + '</li>';
+      i++; continue;
+    }
+
+    // 빈 줄 / 문단
+    if (!line.trim()) { closeLists(); i++; continue; }
+    closeLists();
+    let para = [line];
+    i++;
+    while (i < lines.length && lines[i].trim() && !/^(#{1,6}\s|\s*[-*+]\s|\s*\d+[.)]\s|\s*>|\s*```)/.test(lines[i]) && !/\|/.test(lines[i])) {
+      para.push(lines[i]); i++;
+    }
+    out += '<p>' + para.map(inline).join('<br>') + '</p>';
+  }
+  closeLists();
+  if (inCode) out += '<pre><code>' + esc(codeBuf.join('\n')) + '</code></pre>';
+  return out;
+}
+
+load();
+</script>
+</body>
+</html>
