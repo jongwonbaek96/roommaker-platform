@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>거인의 자장가 3부 — 하프가 부른 이름</title>
+<style>
+:root{
+  --bgA:#160f2e; --bgB:#3a2b5f; --acc:#d4af37; --acc2:#f0e2a8;
+  --ink:#f3ead8; --dim:rgba(243,234,216,.62);
+  --panel:rgba(10,12,24,.88); --line:rgba(243,234,216,.16);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+  background:var(--bgA);color:var(--ink);overflow:hidden;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+button{font-family:inherit;color:inherit;background:none;border:none;cursor:pointer}
+.scr{position:fixed;inset:0;display:none;flex-direction:column}
+.scr.on{display:flex}
+/* ---------- 배경 ---------- */
+.stage{position:absolute;inset:0;overflow:hidden}
+.stage .sky{position:absolute;inset:0;transition:opacity 1.2s}
+.stage svg.scape{position:absolute;left:0;right:0;bottom:0;width:100%;height:62%;pointer-events:none}
+.stars{position:absolute;inset:0;pointer-events:none}
+.stars i{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff;opacity:.7;animation:tw 3s infinite alternate}
+@keyframes tw{from{opacity:.15}to{opacity:.85}}
+.floaties{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.floaties i{position:absolute;bottom:-12px;border-radius:50%;background:var(--acc2);opacity:.25;animation:rise linear infinite}
+@keyframes rise{to{transform:translateY(-110vh);opacity:0}}
+.vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 42%,transparent 45%,rgba(0,0,0,.55) 100%)}
+/* ---------- HUD ---------- */
+#hud{position:absolute;top:0;left:0;right:0;z-index:40;display:flex;align-items:center;gap:8px;
+  padding:calc(10px + env(safe-area-inset-top)) 14px 10px;background:linear-gradient(rgba(0,0,0,.45),transparent)}
+#hud .ttl{font-size:11px;letter-spacing:.12em;color:var(--dim)}
+#hud .sub{font-size:12.5px;font-weight:700;color:var(--acc2)}
+#hud .sp{flex:1}
+.hbtn{min-width:34px;height:34px;border-radius:17px;border:1px solid var(--line);background:rgba(0,0,0,.35);
+  font-size:14px;color:var(--acc2);display:flex;align-items:center;justify-content:center;padding:0 9px}
+#hintBadge{font-size:11px;color:var(--dim);border:1px solid var(--line);border-radius:20px;padding:4px 10px;background:rgba(0,0,0,.35)}
+/* ---------- 타이틀 ---------- */
+#scrTitle{align-items:center;justify-content:center;text-align:center;z-index:5}
+#scrTitle .inner{position:relative;z-index:2;padding:24px;display:flex;flex-direction:column;align-items:center;gap:10px;max-width:420px}
+.series{font-size:13px;letter-spacing:.5em;color:var(--dim);text-indent:.5em}
+.h1{font-size:34px;font-weight:800;letter-spacing:.06em;color:var(--acc2);text-shadow:0 0 24px rgba(0,0,0,.6);line-height:1.25;white-space:pre-line}
+.epi{font-size:15px;color:var(--acc);letter-spacing:.14em;margin-top:2px}
+.meta{font-size:12px;color:var(--dim);margin-top:6px;line-height:1.8}
+.tbtns{display:flex;flex-direction:column;gap:10px;margin-top:26px;width:230px}
+.big{padding:14px 0;border-radius:14px;font-size:16px;font-weight:700;letter-spacing:.12em;
+  border:1px solid var(--acc);color:var(--acc2);background:rgba(0,0,0,.35);transition:transform .12s}
+.big:active{transform:scale(.96)}
+.big.ghost{border-color:var(--line);color:var(--dim);font-weight:400;font-size:14px}
+/* ---------- 스토리 ---------- */
+#scrStory{z-index:6}
+#storyTap{position:absolute;inset:0;z-index:3}
+.dlg{position:absolute;left:12px;right:12px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:4;
+  background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 18px 20px;
+  backdrop-filter:blur(6px);box-shadow:0 8px 30px rgba(0,0,0,.45)}
+.dlg .who{display:inline-block;font-size:12px;font-weight:700;color:var(--acc);letter-spacing:.14em;
+  border:1px solid var(--acc);border-radius:20px;padding:3px 12px;margin-bottom:10px;background:rgba(0,0,0,.3)}
+.dlg .tx{font-size:15.5px;line-height:1.85;min-height:58px;white-space:pre-line}
+.dlg .cue{position:absolute;right:16px;bottom:10px;font-size:11px;color:var(--dim);animation:bob 1.2s infinite}
+@keyframes bob{50%{transform:translateY(3px)}}
+/* ---------- 게임 씬(허브) ---------- */
+#scrGame{z-index:6}
+#objBar{position:absolute;top:calc(56px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:38;
+  font-size:12.5px;color:var(--ink);background:rgba(0,0,0,.5);border:1px solid var(--line);
+  border-radius:20px;padding:7px 16px;max-width:88%;text-align:center}
+.hs{position:absolute;z-index:30;display:flex;flex-direction:column;align-items:center;gap:4px;transform:translate(-50%,-50%)}
+.hs .dot{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:19px;background:rgba(0,0,0,.38);border:1.5px solid var(--acc);color:var(--acc2);animation:pulse 2s infinite}
+.hs.done .dot{border-color:var(--line);color:var(--dim);animation:none;opacity:.55}
+.hs .lb{font-size:11px;color:var(--ink);background:rgba(0,0,0,.55);border-radius:10px;padding:2px 8px;white-space:nowrap}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(232,165,75,.45)}70%{box-shadow:0 0 0 14px rgba(232,165,75,0)}100%{box-shadow:0 0 0 0 rgba(232,165,75,0)}}
+#roomNav{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom));z-index:37;
+  display:none;gap:8px;background:rgba(0,0,0,.5);border:1px solid var(--line);border-radius:26px;padding:6px}
+#roomNav button{padding:9px 16px;border-radius:20px;font-size:13px;color:var(--dim);border:1px solid transparent}
+#roomNav button.cur{color:var(--acc2);border-color:var(--acc);background:rgba(232,165,75,.12);font-weight:700}
+#nextFab{position:absolute;left:50%;bottom:calc(74px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:39;
+  display:none;padding:13px 34px;border-radius:26px;border:1px solid var(--acc);
+  background:rgba(0,0,0,.6);color:var(--acc2);font-size:15px;font-weight:700;letter-spacing:.1em;animation:bob 1.4s infinite}
+#nextFab.on{display:block}
+/* ---------- 토스트 ---------- */
+#toast{position:fixed;left:50%;top:24%;transform:translate(-50%,0);z-index:80;display:none;
+  background:var(--panel);border:1px solid var(--acc);border-radius:14px;padding:12px 22px;
+  font-size:14px;line-height:1.7;color:var(--acc2);text-align:center;box-shadow:0 6px 24px rgba(0,0,0,.5);max-width:86%}
+#toast.on{display:block;animation:tin .3s ease}
+@keyframes tin{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
+/* ---------- 모달 ---------- */
+#mdWrap{position:fixed;inset:0;z-index:60;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.55)}
+#mdWrap.on{display:flex}
+#md{width:100%;max-width:520px;max-height:88%;overflow-y:auto;background:var(--panel);
+  border:1px solid var(--line);border-bottom:none;border-radius:22px 22px 0 0;
+  padding:20px 20px calc(24px + env(safe-area-inset-bottom));backdrop-filter:blur(8px)}
+#md h3{font-size:17px;color:var(--acc2);letter-spacing:.06em;margin-bottom:4px}
+#md .tag{font-size:11px;color:var(--dim);letter-spacing:.2em;margin-bottom:12px}
+#md .body{font-size:14.5px;line-height:1.8;color:var(--ink)}
+#md .paper{background:rgba(243,234,216,.07);border:1px dashed var(--line);border-radius:12px;
+  padding:14px 16px;margin:10px 0;font-size:14px;line-height:1.9;white-space:pre-line}
+#md input[type=text]{width:100%;margin-top:12px;padding:13px 14px;border-radius:12px;border:1px solid var(--acc);
+  background:rgba(0,0,0,.4);color:var(--ink);font-size:16px;text-align:center;letter-spacing:.1em;outline:none}
+.mrow{display:flex;gap:8px;margin-top:12px}
+.mbtn{flex:1;padding:13px 0;border-radius:12px;font-size:15px;font-weight:700;letter-spacing:.08em;
+  border:1px solid var(--acc);color:var(--acc2);background:rgba(0,0,0,.3)}
+.mbtn.sub{border-color:var(--line);color:var(--dim);font-weight:400}
+.mbtn:active{transform:scale(.97)}
+.mbtn[disabled]{opacity:.35}
+.hintrow{display:flex;gap:6px;margin-top:16px;flex-wrap:wrap}
+.hbtn2{font-size:12px;padding:8px 12px;border-radius:18px;border:1px solid var(--line);color:var(--dim)}
+.hbtn2.hot{border-color:var(--acc);color:var(--acc)}
+.hinttx{margin-top:10px;font-size:13px;line-height:1.75;color:var(--acc2);background:rgba(232,165,75,.08);
+  border-left:3px solid var(--acc);border-radius:0 10px 10px 0;padding:10px 12px;display:none;white-space:pre-line}
+.hinttx.on{display:block}
+.mstat{text-align:center;font-size:13px;color:var(--dim);margin-top:10px;min-height:20px;line-height:1.6}
+/* 키패드 */
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.pad button{padding:14px 0;border-radius:12px;border:1px solid var(--line);font-size:19px;color:var(--ink);background:rgba(0,0,0,.3)}
+.pad button:active{background:rgba(232,165,75,.2)}
+.padview{margin-top:14px;text-align:center;font-size:30px;letter-spacing:.4em;text-indent:.4em;color:var(--acc2);
+  border:1px solid var(--line);border-radius:12px;padding:12px 0;min-height:58px;background:rgba(0,0,0,.35)}
+.dualwin{display:flex;gap:10px;justify-content:center;margin-top:8px}
+.dualwin .dw{flex:1;text-align:center}
+.dualwin .dw .sym{font-size:20px;color:var(--acc)}
+.dualwin .dw .win{border:1px solid var(--line);border-radius:10px;padding:8px 0;font-size:26px;letter-spacing:.3em;text-indent:.3em;color:var(--acc2);background:rgba(0,0,0,.35);min-height:46px}
+/* 기억(컵) */
+.cups{display:flex;gap:10px;justify-content:center;margin:18px 0 6px;flex-wrap:wrap}
+.cup{width:64px;height:76px;border-radius:12px 12px 20px 20px;border:2px solid var(--acc);
+  background:linear-gradient(rgba(0,0,0,.25),rgba(0,0,0,.5));display:flex;align-items:flex-end;justify-content:center;
+  padding-bottom:8px;font-size:12px;color:var(--dim);transition:all .12s}
+.cup.lit{background:var(--acc);color:#221503;box-shadow:0 0 22px var(--acc)}
+/* 타이밍 */
+.tmwrap{margin-top:16px}
+.tmbar{position:relative;height:46px;border-radius:23px;border:1px solid var(--line);overflow:hidden;background:#5a6b85}
+.tmzone{position:absolute;top:0;bottom:0;background:#f6f2e7;transition:left .3s,width .3s}
+.tmneedle{position:absolute;top:0;bottom:0;width:5px;background:var(--acc);border-radius:3px;box-shadow:0 0 12px var(--acc);z-index:2}
+.tmdots{display:flex;gap:7px;justify-content:center;margin-top:12px}
+.tmdots i{width:12px;height:12px;border-radius:50%;border:1px solid var(--line)}
+.tmdots i.ok{background:var(--acc);border-color:var(--acc)}
+/* 회전 고리 */
+.rings{display:flex;flex-direction:column;gap:9px;margin-top:14px}
+.ring{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:14px;padding:9px 14px;background:rgba(0,0,0,.3)}
+.ring .cur{flex:1;text-align:center;font-size:21px;font-weight:800;color:var(--acc2);letter-spacing:.2em}
+.ring .rb{width:42px;height:42px;border-radius:50%;border:1px solid var(--acc);color:var(--acc2);font-size:18px}
+/* 그리드 */
+.gridN{display:grid;gap:5px;margin-top:14px}
+.gcell{aspect-ratio:1;border-radius:9px;border:1px solid var(--line);background:rgba(0,0,0,.3);
+  display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--dim)}
+.gcell.path{background:rgba(232,165,75,.35);border-color:var(--acc)}
+.gcell.start{border-color:var(--acc2);box-shadow:0 0 10px rgba(232,165,75,.5)}
+.gcell.bad{animation:shake .3s}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+/* 하프 */
+.harp{display:flex;gap:12px;justify-content:center;margin-top:16px;align-items:flex-end}
+.hstr{width:44px;border-radius:10px;border:1.5px solid var(--acc);background:rgba(0,0,0,.3);
+  display:flex;align-items:flex-end;justify-content:center;padding:8px 0;color:var(--dim);font-size:11px}
+.hstr.lit{background:var(--acc);color:#221503;box-shadow:0 0 18px var(--acc)}
+.h1s{height:126px}.h2s{height:112px}.h3s{height:98px}.h4s{height:84px}.h5s{height:70px}
+/* 별자리 잇기 */
+.connwrap{position:relative;margin:12px auto 0;width:min(86vw,300px)}
+.connwrap svg{width:100%;background:radial-gradient(ellipse at 50% 30%,rgba(60,70,120,.35),rgba(0,0,0,.5));border:1px solid var(--line);border-radius:14px}
+.connwrap .cl{stroke:var(--acc2);stroke-width:1.6;opacity:.85}
+.connwrap.glow .cl{stroke:#ffd769;stroke-width:2.6;filter:drop-shadow(0 0 4px #ffd769)}
+/* 망원경 */
+.scopewrap{margin-top:12px}
+.scopeview{position:relative;width:min(80vw,280px);aspect-ratio:1;margin:0 auto;border-radius:50%;
+  border:6px solid #1a1424;background:radial-gradient(circle,#101830 0%,#060a18 80%);overflow:hidden}
+.scopeview svg{width:100%;height:100%;transition:filter .3s}
+.dials{display:flex;gap:8px;justify-content:center;margin-top:12px}
+.dials button{width:74px;padding:10px 0;border-radius:12px;border:1px solid var(--acc);color:var(--acc2);font-size:13px;background:rgba(0,0,0,.3)}
+/* 조합판 */
+.frags{display:flex;gap:8px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+.frag{width:54px;height:64px;border-radius:10px;border:1.5px solid var(--acc);background:rgba(0,0,0,.35);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--acc2)}
+.frag b{font-size:21px}
+.frag small{font-size:9px;color:var(--acc);letter-spacing:.05em}
+.frag.used{opacity:.25}
+.aslots{display:flex;gap:8px;justify-content:center;margin-top:14px}
+.aslot{width:50px;height:60px;border-radius:10px;border:1.5px dashed var(--line);display:flex;align-items:center;justify-content:center;font-size:21px;font-weight:800;color:var(--acc2);background:rgba(0,0,0,.25)}
+.aslot.fill{border-style:solid;border-color:var(--acc)}
+/* 조사 뷰 */
+.insp{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:12px 0;font-size:26px}
+.insp span{opacity:.95}
+.insp span.off{opacity:.3;position:relative}
+.insp span.off::after{content:'✕';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:14px;color:#e06a5a}
+.inslabel{text-align:center;font-size:15px;color:var(--acc);border:1px solid var(--acc);border-radius:10px;display:table;margin:6px auto;padding:5px 16px;background:rgba(0,0,0,.35)}
+/* 카드/선택/엔딩 */
+#cardWrap{position:fixed;inset:0;z-index:70;display:none;align-items:center;justify-content:center;background:rgba(2,3,8,.92);text-align:center;padding:30px}
+#cardWrap.on{display:flex}
+#cardWrap .in{max-width:420px}
+#cardWrap .k{font-size:12px;letter-spacing:.4em;color:var(--dim);text-indent:.4em;margin-bottom:14px}
+#cardWrap .t{font-size:24px;font-weight:800;color:var(--acc2);line-height:1.6;white-space:pre-line}
+#cardWrap .d{font-size:14px;color:var(--dim);line-height:2;margin-top:16px;white-space:pre-line}
+#cardWrap .go{margin-top:30px;padding:12px 36px;border-radius:24px;border:1px solid var(--acc);color:var(--acc2);font-size:14px;letter-spacing:.1em}
+body.flashing #cardWrap{animation:flash .5s}
+@keyframes flash{from{background:rgba(243,234,216,.9)}to{background:rgba(2,3,8,.92)}}
+#scrChoice{z-index:8;align-items:center;justify-content:center;padding:22px}
+#scrChoice .in{position:relative;z-index:2;width:100%;max-width:420px;text-align:center}
+#scrChoice .q{font-size:17px;line-height:1.8;margin-bottom:22px;white-space:pre-line}
+.chc{display:block;width:100%;text-align:left;border:1px solid var(--line);border-radius:16px;background:var(--panel);padding:16px 18px;margin-bottom:12px}
+.chc:active{transform:scale(.97)}
+.chc b{display:block;font-size:16px;color:var(--acc2);margin-bottom:4px}
+.chc span{font-size:12.5px;color:var(--dim);line-height:1.6}
+.chc.seen{border-color:var(--acc)}
+.chc .badge{float:right;font-size:10px;color:var(--acc);border:1px solid var(--acc);border-radius:10px;padding:1px 8px}
+#scrEnd{z-index:9;align-items:center;justify-content:center;text-align:center;padding:22px;overflow-y:auto}
+#scrEnd .in{position:relative;z-index:2;max-width:420px;width:100%;padding:30px 0}
+#scrEnd .k{font-size:12px;letter-spacing:.4em;color:var(--dim);text-indent:.4em}
+#scrEnd .t{font-size:27px;font-weight:800;color:var(--acc2);margin:12px 0 6px;line-height:1.5}
+#scrEnd .stars{font-size:24px;color:var(--acc);letter-spacing:.2em;margin:8px 0}
+#scrEnd .stat{font-size:13px;color:var(--dim);line-height:2}
+#scrEnd .epl{font-size:14px;line-height:2;color:var(--ink);background:rgba(0,0,0,.35);border:1px solid var(--line);border-radius:14px;padding:16px;margin:18px 0;white-space:pre-line;text-align:left}
+.nextcard{border:1px dashed var(--acc);border-radius:14px;padding:14px;margin:6px 0 18px;background:rgba(232,165,75,.06)}
+.nextcard .nk{font-size:11px;color:var(--acc);letter-spacing:.3em;margin-bottom:6px}
+.nextcard .nt{font-size:15px;font-weight:700;color:var(--acc2)}
+.nextcard .nd{font-size:12.5px;color:var(--dim);margin-top:6px;line-height:1.7}
+#scrEnd .btns{display:flex;flex-direction:column;gap:10px;margin-top:8px}
+@media (min-width:520px){ .dlg{left:50%;right:auto;transform:translateX(-50%);width:500px} }
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <div class="sky" id="sky"></div>
+  <div class="stars" id="stars"></div>
+  <svg class="scape" id="scape" viewBox="0 0 360 220" preserveAspectRatio="xMidYMax slice"></svg>
+  <div class="floaties" id="floaties"></div>
+  <div class="vig"></div>
+</div>
+
+<div id="hud" style="display:none">
+  <div><div class="ttl">거인의 자장가</div><div class="sub" id="hudSub"></div></div>
+  <div class="sp"></div>
+  <button class="hbtn" id="btnNote">✎ 수첩</button>
+  <button class="hbtn" id="btnMute">♪</button>
+</div>
+
+<section class="scr on" id="scrTitle">
+  <div class="inner">
+    <div class="series">거 인 의  자 장 가</div>
+    <div class="h1" id="tTitle"></div>
+    <div class="epi" id="tEpi"></div>
+    <div class="meta" id="tMeta"></div>
+    <div class="tbtns">
+      <button class="big" id="btnStart">처음부터</button>
+      <button class="big ghost" id="btnCont" style="display:none">이어서 하기</button>
+    </div>
+    <div class="meta" style="margin-top:18px;opacity:.7">이 게임에는 소리로만 풀 수 있는 문제가 있어요 ♪</div>
+  </div>
+</section>
+
+<section class="scr" id="scrStory">
+  <div id="storyTap"></div>
+  <div class="dlg"><div class="who" id="dWho"></div><div class="tx" id="dTx"></div><div class="cue">▼ 탭</div></div>
+</section>
+
+<section class="scr" id="scrGame">
+  <div id="objBar"></div>
+  <div id="hsLayer" style="position:absolute;inset:0"></div>
+  <button id="nextFab">다음으로 →</button>
+  <div id="roomNav"></div>
+</section>
+
+<section class="scr" id="scrChoice">
+  <div class="in"><div class="q" id="chQ"></div><div id="chList"></div></div>
+</section>
+
+<section class="scr" id="scrEnd">
+  <div class="in">
+    <div class="k" id="endK"></div>
+    <div class="t" id="endT"></div>
+    <div class="stars" id="endStars"></div>
+    <div class="stat" id="endStat"></div>
+    <div class="epl" id="endEpl"></div>
+    <div class="nextcard" id="nextCard"></div>
+    <div class="btns">
+      <button class="big" id="btnAgain">처음부터 다시</button>
+      <button class="big ghost" id="btnOther" style="display:none">다른 선택 보기</button>
+    </div>
+  </div>
+</section>
+
+<div id="cardWrap"><div class="in">
+  <div class="k" id="cardK"></div><div class="t" id="cardT"></div><div class="d" id="cardD"></div>
+  <button class="go" id="cardGo">계속</button>
+</div></div>
+
+<div id="mdWrap"><div id="md"></div></div>
+<div id="toast"></div>
+
+<script>
+'use strict';
+/* ================= ENGINE v2 ================= */
+var $=function(s){return document.querySelector(s)};
+var G=null, EP=null, curBG='plain', curHub=null;
+function defState(){return {bi:0, room:null, solved:{}, flags:{}, notes:[], frag:{}, hintS:{}, ansS:{}, listen:{}, start:Date.now(), muted:false, ends:[], lastEnd:null};}
+function save(){ try{ localStorage.setItem(EP.id, JSON.stringify(G)); }catch(e){} }
+function load(){ try{ var s=localStorage.getItem(EP.id); return s?JSON.parse(s):null; }catch(e){ return null; } }
+function show(id){ document.querySelectorAll('.scr').forEach(function(s){s.classList.remove('on')}); $(id).classList.add('on'); }
+function toast(msg,ms){ var t=$('#toast'); t.innerHTML=msg; t.classList.remove('on'); void t.offsetWidth; t.classList.add('on');
+  clearTimeout(toast._t); toast._t=setTimeout(function(){t.classList.remove('on')}, ms||2400); }
+function hintCount(){ var n=0,k; for(k in G.hintS){ if(G.hintS[k]>0) n++; } for(k in G.ansS){ if(G.ansS[k] && !(G.hintS[k]>0)) n++; } return n; }
+function updHud(){ $('#btnMute').textContent=G.muted?'✕':'♪'; }
+function norm(s){ return (s||'').toString().trim().toLowerCase().replace(/\s+/g,''); }
+function note(t){ if(G.notes.indexOf(t)<0){ G.notes.push(t); save(); } }
+function addFrag(L,st){ if(G.frag[L]) return; G.frag[L]=st; save(); SFX.get();
+  toast('놋쇠 글자 조각 <b>'+L+'</b>을(를) 챙겼다.<br><span style="color:var(--acc)">'+'★'.repeat(st)+'</span> 각인이 새겨져 있다.',2800);
+  note('놋쇠 글자 조각 '+L+' ('+'★'.repeat(st)+')'); }
+function fragCount(){ return Object.keys(G.frag).length; }
+
+/* ---------- 배경 ---------- */
+function setBG(key){
+  var sc = SCENES[key] || SCENES.plain;
+  $('#sky').style.background = sc.sky;
+  $('#scape').innerHTML = sc.svg || '';
+  var st=$('#stars'); st.innerHTML='';
+  if(sc.stars){ for(var i=0;i<sc.stars;i++){ var s=document.createElement('i');
+    s.style.left=(Math.random()*100)+'%'; s.style.top=(Math.random()*55)+'%';
+    s.style.animationDelay=(Math.random()*3)+'s'; if(Math.random()<.2){s.style.width='3px';s.style.height='3px';} st.appendChild(s);} }
+  var fl=$('#floaties'); fl.innerHTML='';
+  if(sc.float){ for(var j=0;j<sc.float;j++){ var f=document.createElement('i');
+    var sz=3+Math.random()*5; f.style.width=sz+'px'; f.style.height=sz+'px';
+    f.style.left=(Math.random()*100)+'%'; f.style.animationDuration=(9+Math.random()*10)+'s';
+    f.style.animationDelay=(Math.random()*9)+'s'; fl.appendChild(f);} }
+}
+
+/* ---------- 흐름 ---------- */
+function runBeat(){
+  var b = EP.flow[G.bi];
+  if(!b) return;
+  if(b.t==='story') runStory(b);
+  else if(b.t==='hub') runHub(b);
+  else if(b.t==='slot'){
+    curHub=null; curBG=b.bg||curBG; setBG(curBG); show('#scrGame');
+    $('#objBar').textContent=b.obj||''; $('#nextFab').classList.remove('on'); $('#roomNav').style.display='none';
+    var layer=$('#hsLayer'); layer.innerHTML='';
+    var el=document.createElement('button'); el.className='hs';
+    el.style.left=(b.hx||50)+'%'; el.style.top=(b.hy||55)+'%';
+    el.innerHTML='<span class="dot">'+(b.icon||'●')+'</span><span class="lb">'+(b.hsLabel||'살펴본다')+'</span>';
+    el.addEventListener('click',function(){ AudioBoot(); openSlot(b.slot,function(){ next(); }); });
+    layer.appendChild(el);
+    openSlot(b.slot, function(){ next(); });
+  }
+  else if(b.t==='card'){ showCard(b.k,b.title,b.d,function(){ next(); }, b.flash); }
+  else if(b.t==='choice') runChoice(b);
+  else if(b.t==='end') runEnd(b);
+}
+function next(){ G.bi++; G.room=null; save(); runBeat(); }
+
+/* ---------- 스토리 ---------- */
+var stLines=null, stIdx=0, stDone=null;
+function runStory(b){
+  curHub=null; curBG=b.bg||curBG; setBG(curBG); show('#scrStory');
+  stLines=b.lines; stIdx=0; stDone=function(){ next(); };
+  renderLine();
+}
+function renderLine(){
+  var L=stLines[stIdx];
+  $('#dWho').textContent=L.sp||'';
+  $('#dWho').style.display=L.sp?'inline-block':'none';
+  $('#dTx').textContent=L.tx;
+  if(L.bg){ curBG=L.bg; setBG(L.bg); }
+  if(L.sfx && SFX[L.sfx]) SFX[L.sfx]();
+  if(L.motif) playMotif(L.motif);
+}
+$('#storyTap').addEventListener('click',function(){
+  AudioBoot(); SFX.tick();
+  if(!stLines) return;
+  stIdx++;
+  if(stIdx>=stLines.length){ var d=stDone; stDone=null; if(d) d(); }
+  else renderLine();
+});
+
+/* ---------- 허브(방 이동) ---------- */
+function runHub(b){
+  curHub=b;
+  var keys=b.rooms.map(function(r){return r.key});
+  if(!G.room || keys.indexOf(G.room)<0) G.room=b.startRoom||b.rooms[0].key;
+  drawScene();
+}
+function drawScene(){
+  var b=curHub; if(!b) return;
+  var room=null; b.rooms.forEach(function(r){ if(r.key===G.room) room=r; });
+  if(!room) room=b.rooms[0];
+  var bg=(typeof room.bg==='function')?room.bg():room.bg;
+  curBG=bg; setBG(bg); show('#scrGame');
+  $('#objBar').textContent=b.obj||'';
+  var layer=$('#hsLayer'); layer.innerHTML='';
+  room.hotspots.forEach(function(h){
+    if(h.showIf && !h.showIf()) return;
+    var el=document.createElement('button'); el.className='hs'+((h.doneIf&&h.doneIf())?' done':'');
+    el.style.left=h.x+'%'; el.style.top=h.y+'%';
+    el.innerHTML='<span class="dot">'+(h.icon||'●')+'</span><span class="lb">'+h.label+'</span>';
+    el.addEventListener('click',function(){ AudioBoot(); h.on(); });
+    layer.appendChild(el);
+  });
+  var nav=$('#roomNav'); nav.innerHTML='';
+  if(b.rooms.length>1){
+    nav.style.display='flex';
+    b.rooms.forEach(function(r){
+      var bt=document.createElement('button');
+      bt.textContent=r.label; if(r.key===G.room) bt.className='cur';
+      bt.addEventListener('click',function(){ if(G.room===r.key) return; AudioBoot(); SFX.tr(); G.room=r.key; save(); drawScene();
+        if(r.enterMsg && !G.flags['ent_'+r.key]){ G.flags['ent_'+r.key]=1; save(); toast(r.enterMsg,2600); } });
+      nav.appendChild(bt);
+    });
+  } else nav.style.display='none';
+  if(b.doneIf()) $('#nextFab').classList.add('on'); else $('#nextFab').classList.remove('on');
+}
+$('#nextFab').addEventListener('click',function(){ SFX.tr(); next(); });
+
+/* ---------- 카드 ---------- */
+function showCard(k,t,d,cb,flash){
+  $('#cardK').textContent=k||''; $('#cardT').textContent=t||''; $('#cardD').textContent=d||'';
+  $('#cardWrap').classList.add('on');
+  if(flash){ document.body.classList.add('flashing'); setTimeout(function(){document.body.classList.remove('flashing')},520); }
+  $('#cardGo').onclick=function(){ SFX.tick(); $('#cardWrap').classList.remove('on'); if(cb)cb(); };
+}
+
+/* ---------- 조사 뷰(수첩·오브젝트) ---------- */
+function openInspect(title,tag,html,onFirst,noteTx){
+  var md=$('#md');
+  md.innerHTML='<h3>'+title+'</h3><div class="tag">'+(tag||'조사')+'</div><div class="body">'+html+'</div>'
+    +'<div class="mrow"><button class="mbtn sub" id="inX">닫기</button></div>';
+  $('#inX').addEventListener('click',function(){ $('#mdWrap').classList.remove('on'); SFX.tick(); });
+  $('#mdWrap').classList.add('on');
+  if(noteTx) note(noteTx);
+  if(onFirst && !G.flags['insp_'+title]){ G.flags['insp_'+title]=1; save(); onFirst(); }
+}
+$('#btnNote').addEventListener('click',function(){
+  AudioBoot();
+  var h='';
+  if(G.notes.length===0) h='<div class="paper">아직 적어 둔 것이 없다.</div>';
+  else { h='<div class="paper">'; G.notes.forEach(function(n){ h+='· '+n+'\n'; }); h+='</div>'; }
+  var fl=Object.keys(G.frag);
+  if(fl.length){
+    h+='<div style="font-size:12px;color:var(--dim);margin-top:8px">모은 글자 조각</div><div class="frags">';
+    fl.sort().forEach(function(L){ h+='<div class="frag"><b>'+L+'</b><small>'+'★'.repeat(G.frag[L])+'</small></div>'; });
+    h+='</div>';
+  }
+  openInspect('수첩','기록은 흔적만 남는다 — 모양과 숫자는 눈으로 다시 확인할 것',h);
+});
+
+/* ---------- 슬롯 ---------- */
+var mdWin=null;
+function openSlot(id, onWin){
+  var S=EP.slots[id];
+  if(G.solved[id]){ if(onWin) onWin(); return; }
+  mdWin=function(){
+    G.solved[id]=1; save(); updHud();
+    $('#mdWrap').classList.remove('on');
+    SFX.ok();
+    if(S.successMsg) toast(S.successMsg,2600);
+    setTimeout(function(){ if(S.onSolve) S.onSolve(); if(onWin) onWin(); else drawScene(); }, S.successMsg?900:250);
+  };
+  var md=$('#md');
+  var bodyHtml = (typeof S.body==='function')?S.body():S.body;
+  var html='<h3>'+S.name+'</h3><div class="tag">'+(S.kind==='quiz'?'QUIZ':'MISSION')+' · '+S.tag+'</div>';
+  html+='<div class="body">'+bodyHtml+'</div><div id="mdGame"></div>';
+  html+='<div class="hintrow"><button class="hbtn2" id="hX" style="margin-left:auto">닫기</button></div>';
+  md.innerHTML=html;
+  $('#hX').addEventListener('click',function(){ $('#mdWrap').classList.remove('on'); SFX.tick(); });
+  BUILD[S.type](S, $('#mdGame'));
+  $('#mdWrap').classList.add('on');
+}
+function wrong(S,msg){ SFX.no(); toast(msg||S.wrongMsg||'…아닌 것 같다.'); }
+
+/* ---------- 퍼즐 빌더 ---------- */
+var BUILD={
+  text:function(S,box){
+    box.innerHTML='<input type="text" id="txIn" placeholder="'+(S.ph||'정답 입력')+'" autocomplete="off">'
+      +'<div class="mrow"><button class="mbtn" id="txGo">확인</button></div>';
+    function chk(){
+      var v=norm($('#txIn').value); if(!v) return;
+      if(S.answers.indexOf(v)>=0){ mdWin(); return; }
+      if(S.nears && S.nears[v]){ SFX.no(); toast(S.nears[v],3000); return; }
+      wrong(S);
+    }
+    $('#txGo').addEventListener('click',chk);
+    $('#txIn').addEventListener('keydown',function(e){ if(e.key==='Enter') chk(); });
+  },
+  pad:function(S,box){
+    var cur='';
+    var extra=S.dual?'<div class="dualwin"><div class="dw"><div class="sym">'+S.dual[0]+'</div><div class="win" id="dw0">··</div></div>'
+      +'<div class="dw"><div class="sym">'+S.dual[1]+'</div><div class="win" id="dw1">··</div></div></div>':'<div class="padview" id="pv">&nbsp;</div>';
+    box.innerHTML=extra+'<div class="pad" id="pd"></div>';
+    function paint(){
+      if(S.dual){ $('#dw0').textContent=(cur.slice(0,2)||'··'); $('#dw1').textContent=(cur.slice(2,4)||'··'); }
+      else $('#pv').textContent=cur||' ';
+    }
+    var pd=$('#pd');
+    ['1','2','3','4','5','6','7','8','9','지움','0','확인'].forEach(function(k){
+      var b=document.createElement('button'); b.textContent=k;
+      if(k==='지움'||k==='확인') b.style.fontSize='14px';
+      b.addEventListener('click',function(){
+        SFX.tick();
+        if(k==='지움'){ cur=''; }
+        else if(k==='확인'){ if(cur===S.code) { mdWin(); return; } wrong(S); cur=''; }
+        else if(cur.length<S.code.length){ cur+=k; }
+        paint();
+      });
+      pd.appendChild(b);
+    });
+  },
+  memory2:function(S,box){
+    var round=0, seq=[], expect=[], inp=[], busy=false;
+    box.innerHTML='<div class="cups" id="cups"></div><div class="mstat" id="mst">[순서 보기]로 시작하세요</div>'
+      +'<div class="mrow"><button class="mbtn" id="mmGo">순서 보기</button></div>';
+    function buildCups(){
+      var R=S.rounds[round], cups=$('#cups'); cups.innerHTML='';
+      for(var i=0;i<R.cups;i++){ (function(i){
+        var c=document.createElement('div'); c.className='cup'; c.textContent=(i+1);
+        c.addEventListener('click',function(){ tap(i,c); }); cups.appendChild(c);
+      })(i); }
+    }
+    function lit(i,cb,fast){ var c=$('#cups').children[i]; c.classList.add('lit'); SFX.note(392+i*66,.15);
+      setTimeout(function(){ c.classList.remove('lit'); setTimeout(cb,fast?70:160); }, fast?185:380); }
+    function playSeq(){
+      var R=S.rounds[round];
+      busy=true; inp=[]; seq=R.seq;
+      expect=R.reverse?seq.slice().reverse():seq.slice();
+      $('#mst').innerHTML=(round+1)+' / '+S.rounds.length+' 라운드'+(R.fast?' — <b>훨씬 빠르다!</b>':'')+' 잘 보세요';
+      var i=0;
+      (function step(){ if(i>=seq.length){ busy=false;
+          $('#mst').innerHTML=R.reverse?'노인: "이번엔— 콩이 걸어온 길을 <b>거꾸로</b> 짚어라!"':'순서대로 탭!';
+          return; } lit(seq[i++],step,R.fast); })();
+    }
+    function tap(i,c){
+      if(busy) return;
+      c.classList.add('lit'); SFX.note(392+i*66,.1); setTimeout(function(){c.classList.remove('lit')},180);
+      inp.push(i);
+      var k=inp.length-1;
+      if(expect[k]!==i){ wrong(S); inp=[]; busy=true;
+        $('#mst').textContent='노인이 껄껄 웃는다. "눈이 흔들렸구나!" — 같은 판을 다시!';
+        setTimeout(function(){ busy=false; playSeq(); },1000); return; }
+      if(inp.length===expect.length){
+        round++;
+        if(round>=S.rounds.length){ mdWin(); }
+        else { $('#mst').textContent='좋아요! 다음 판…'; SFX.get(); busy=true; setTimeout(function(){ buildCups(); playSeq(); },900); }
+      }
+    }
+    $('#mmGo').addEventListener('click',function(){ if(!busy) playSeq(); });
+    buildCups();
+  },
+  timing2:function(S,box){
+    var pos=0, dir=1, speed=S.speed||1.2, ok=0, t=0, timer=null, alive=true, dblArmed=false, dblAt=0;
+    box.innerHTML='<div class="tmwrap"><div class="tmbar" id="tb"><div class="tmzone" id="tz"></div><div class="tmneedle" id="tn"></div></div>'
+      +'<div class="tmdots" id="td"></div><div class="mstat" id="tst">하얗게 굳는 자리에서, 정확히.</div>'
+      +'<div class="mrow"><button class="mbtn" id="tGo">밟는다!</button></div></div>';
+    var td=$('#td'); for(var i=0;i<S.steps.length;i++){ td.appendChild(document.createElement('i')); }
+    function zone(){ var st=S.steps[Math.min(ok,S.steps.length-1)];
+      var c=st.c + (st.drift? 8*Math.sin(t*0.045) : 0);
+      return {c:c, w:st.w, dbl:!!st.dbl};
+    }
+    function paintDots(){ for(var i=0;i<S.steps.length;i++){ td.children[i].className = i<ok?'ok':''; } }
+    timer=setInterval(function(){
+      if(!alive) return;
+      t++;
+      pos+=dir*speed; if(pos>=100){pos=100;dir=-1;} if(pos<=0){pos=0;dir=1;}
+      $('#tn').style.left='calc('+pos+'% - 2px)';
+      var z=zone();
+      $('#tz').style.left=(z.c-z.w/2)+'%'; $('#tz').style.width=z.w+'%';
+      if(dblArmed && (Date.now()-dblAt)>1500){ dblArmed=false; ok=Math.max(0,ok-1); paintDots();
+        $('#tst').textContent='두 번째 발이 늦었다! 한 걸음 미끄러졌다.'; SFX.no(); }
+    },16);
+    var obs=new MutationObserver(function(){ if(!document.body.contains(box)){ clearInterval(timer); obs.disconnect(); } });
+    obs.observe(document.body,{childList:true,subtree:true});
+    $('#tGo').addEventListener('click',function(){
+      if(!alive) return;
+      var z=zone();
+      var hit = Math.abs(pos-z.c) <= z.w/2;
+      if(!hit){ SFX.no(); ok=Math.max(0,ok-2); dblArmed=false; paintDots();
+        $('#tst').textContent='발이 구름을 뚫었다…! 두 걸음 미끄러져 내려왔다.'; return; }
+      if(z.dbl && !dblArmed){ dblArmed=true; dblAt=Date.now(); SFX.tick();
+        $('#tst').innerHTML='마지막 발판이 갈라진다 — <b>한 번 더!</b>'; return; }
+      ok++; dblArmed=false; SFX.get(); paintDots();
+      speed+=S.accel||0.22;
+      $('#tst').textContent='단단하다! ('+ok+'/'+S.steps.length+')';
+      if(ok>=S.steps.length){ alive=false; clearInterval(timer); mdWin(); }
+    });
+  },
+  rings:function(S,box){
+    var cur=S.startAt.slice();
+    box.innerHTML='<div class="rings" id="rg"></div><div class="mrow"><button class="mbtn" id="rGo">자물쇠 확인</button></div>';
+    var rg=$('#rg');
+    S.ringSets.forEach(function(set,ri){
+      var d=document.createElement('div'); d.className='ring';
+      d.innerHTML='<span style="font-size:11px;color:var(--dim)">'+(ri+1)+'번</span><span class="cur" id="rc'+ri+'">'+set[cur[ri]]+'</span>';
+      var b=document.createElement('button'); b.className='rb'; b.textContent='⟳';
+      b.addEventListener('click',function(){ SFX.tick(); cur[ri]=(cur[ri]+1)%set.length; $('#rc'+ri).textContent=set[cur[ri]]; });
+      d.appendChild(b); rg.appendChild(d);
+    });
+    $('#rGo').addEventListener('click',function(){
+      var okAll=S.targets.every(function(tg,i){ return S.ringSets[i][cur[i]]===tg; });
+      if(okAll) mdWin(); else wrong(S);
+    });
+  },
+  grid:function(S,box){
+    var stepIdx=0, N=S.cols*S.rows;
+    box.innerHTML='<div class="gridN" id="gd" style="grid-template-columns:repeat('+S.cols+',1fr)"></div>'
+      +'<div class="mstat" id="gst">희미하게 빛나는 타일이 하나 있다.</div>';
+    var gd=$('#gd');
+    for(var i=0;i<N;i++){ (function(i){
+      var c=document.createElement('div'); c.className='gcell';
+      if(i===S.path[0]){ c.classList.add('start'); c.textContent='★'; }
+      c.addEventListener('click',function(){
+        SFX.tick();
+        if(i===S.path[stepIdx]){ c.classList.add('path'); c.textContent='✦'; stepIdx++;
+          if(stepIdx>=S.path.length){ mdWin(); } }
+        else { c.classList.add('bad'); setTimeout(function(){c.classList.remove('bad')},350);
+          SFX.no(); stepIdx=0; $('#gst').textContent='빛이 꺼졌다… 처음 별부터 다시.';
+          for(var j=0;j<N;j++){ gd.children[j].classList.remove('path'); gd.children[j].textContent=(j===S.path[0])?'★':''; } }
+      });
+      gd.appendChild(c);
+    })(i); }
+  },
+  rhythm2:function(S,box){
+    var inp=[], mode='free', fails=0;
+    var lst = G.listen[S.id2]||0;
+    box.innerHTML='<div class="harp" id="hp"></div>'
+      +'<div class="mstat" id="hst"></div>'
+      +'<div class="mrow"><button class="mbtn sub" id="hDemo">노래 듣기 (<span id="hCnt"></span>)</button><button class="mbtn" id="hTry">연주 도전</button></div>';
+    var hp=$('#hp');
+    S.notes.forEach(function(f,i){
+      var d=document.createElement('div'); d.className='hstr h'+(i+1)+'s';
+      d.addEventListener('click',function(){
+        d.classList.add('lit'); SFX.pluck(f); setTimeout(function(){d.classList.remove('lit')},220);
+        if(mode==='try') judge(i);
+      });
+      hp.appendChild(d);
+    });
+    function cnt(){ $('#hCnt').textContent=(S.maxListen-(G.listen[S.id2]||0))+'회 남음'; }
+    function stat(){
+      var m = G.muted?'<b style="color:#e06a5a">⚠ 소리를 켜야 풀 수 있는 문제입니다.</b><br>':'';
+      $('#hst').innerHTML=m+(mode==='free'
+        ?'줄을 자유롭게 튕겨 음을 귀에 익히세요. (무제한)'
+        :'도전 중 — 들은 노래를 그대로 연주! ('+inp.length+'/'+S.seq.length+')');
+    }
+    $('#hDemo').addEventListener('click',function(){
+      var used=G.listen[S.id2]||0;
+      if(used>=S.maxListen){ toast('하프가 목이 쉰 듯 조용하다.<br>더는 들려주지 않을 모양이다.'); return; }
+      G.listen[S.id2]=used+1; save(); cnt();
+      mode='free'; inp=[]; stat();
+      $('#hst').innerHTML='듣는 중… <b>(빛나지 않는다 — 소리에 집중!)</b>';
+      var i=0;(function step(){ if(i>=S.seq.length){ stat(); return; }
+        SFX.pluck(S.notes[S.seq[i++]]); setTimeout(step,600); })();
+    });
+    $('#hTry').addEventListener('click',function(){ mode='try'; inp=[]; stat(); });
+    function judge(i){
+      inp.push(i); var k=inp.length-1;
+      if(S.seq[k]!==i){ wrong(S); inp=[]; fails++;
+        if(fails>=5){ fails=0; G.listen[S.id2]=Math.max(0,(G.listen[S.id2]||0)-1); save(); cnt();
+          toast('하프가 안쓰러운 듯 한숨을 쉰다.<br><b>듣기 1회가 되살아났다.</b>',2800); }
+        mode='free'; stat(); return; }
+      stat();
+      if(inp.length===S.seq.length){ setTimeout(mdWin,300); }
+    }
+    cnt(); stat();
+  },
+  assemble:function(S,box){
+    var placed=[];
+    var letters=Object.keys(G.frag).sort();
+    if(letters.length<5){
+      box.innerHTML='<div class="paper">하프가 나직이 운다.\n『 이름이 아직 조각나 있구나.\n놋쇠 조각… '+letters.length+' / 5. 』</div>'
+        +'<div class="mstat">성 어딘가에, 남은 조각이 숨어 있다.</div>';
+      return;
+    }
+    box.innerHTML='<div class="mstat">조각의 각인을 살펴 순서대로 놓자.</div>'
+      +'<div class="frags" id="fr"></div><div class="aslots" id="as"></div>'
+      +'<div class="mrow"><button class="mbtn sub" id="aRe">비우기</button><button class="mbtn" id="aGo">이름을 부른다</button></div>';
+    var fr=$('#fr'), as=$('#as');
+    function paint(){
+      fr.innerHTML='';
+      letters.forEach(function(L){
+        var d=document.createElement('div'); d.className='frag'+(placed.indexOf(L)>=0?' used':'');
+        d.innerHTML='<b>'+L+'</b><small>'+'★'.repeat(G.frag[L])+'</small>';
+        d.addEventListener('click',function(){ if(placed.indexOf(L)>=0||placed.length>=5) return; SFX.tick(); placed.push(L); paint(); });
+        fr.appendChild(d);
+      });
+      as.innerHTML='';
+      for(var i=0;i<5;i++){ (function(i){
+        var s=document.createElement('div'); s.className='aslot'+(placed[i]?' fill':'');
+        s.textContent=placed[i]||'';
+        s.addEventListener('click',function(){ if(!placed[i]) return; SFX.tick(); placed.splice(i,1); paint(); });
+        as.appendChild(s);
+      })(i); }
+    }
+    $('#aRe') && paint();
+    $('#aRe').addEventListener('click',function(){ placed=[]; paint(); SFX.tick(); });
+    $('#aGo').addEventListener('click',function(){
+      if(placed.length<5){ toast('아직 자리가 비어 있다.'); return; }
+      if(placed.join('')===S.answer){ mdWin(); }
+      else { SFX.no(); toast('하프가 어긋난 화음을 낸다.<br>『 글자는 맞다. …순서가 아니야. 』',2800); }
+    });
+  }
+};
+
+/* ---------- 별자리 잇기 ---------- */
+function openConn(C){
+  var doneKey='conn_'+C.key, idx=0;
+  var md=$('#md');
+  var W=110,H=140;
+  var html='<h3>'+C.name+'</h3><div class="tag">밤하늘 · 별과 별을 잇는다</div>'
+    +'<div class="body">'+ (C.desc||'가장 밝은 별에서 시작해, 별을 순서대로 이어 보자.<br>흐린 별은 별자리의 별이 아니다.') +'</div>'
+    +'<div class="connwrap" id="cw"><svg id="cs" viewBox="0 0 '+W+' '+H+'"></svg></div>'
+    +'<div class="mstat" id="cst"></div>'
+    +'<div class="mrow"><button class="mbtn sub" id="cX">닫기</button></div>';
+  md.innerHTML=html;
+  var svg=$('#cs'), wrap=$('#cw');
+  function seg(a,b){ var l=document.createElementNS('http://www.w3.org/2000/svg','line');
+    l.setAttribute('x1',a[0]); l.setAttribute('y1',a[1]); l.setAttribute('x2',b[0]); l.setAttribute('y2',b[1]);
+    l.setAttribute('class','cl'); svg.appendChild(l); }
+  function reset(){ idx=0; svg.innerHTML=''; wrap.classList.remove('glow'); drawStars(); $('#cst').textContent='빛나는 별부터.'; }
+  function complete(){
+    wrap.classList.add('glow'); $('#cst').innerHTML='선이 금빛으로 타오른다…!<br><b>무언가의 모양이 떠올랐다.</b>';
+    if(!G.flags[doneKey]){ G.flags[doneKey]=1; save(); SFX.reveal(); note(C.name+'을(를) 이었다 — 모양은 눈에 새겨 두자'); }
+    else SFX.get();
+  }
+  function drawStars(){
+    C.stars.forEach(function(p,i){
+      var c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      c.setAttribute('cx',p[0]); c.setAttribute('cy',p[1]);
+      c.setAttribute('r', i===C.path[0]?4.6:3.2);
+      c.setAttribute('fill', i===C.path[0]?'#ffe9a8':'#f0e2b8');
+      if(i===C.path[0]) c.setAttribute('style','filter:drop-shadow(0 0 3px #ffd769)');
+      svg.appendChild(c);
+    });
+    C.decoys.forEach(function(p){
+      var c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      c.setAttribute('cx',p[0]); c.setAttribute('cy',p[1]); c.setAttribute('r',2.6);
+      c.setAttribute('fill','#f0e2b8'); c.setAttribute('opacity','.38'); svg.appendChild(c);
+    });
+    /* 탭 타깃 */
+    C.stars.forEach(function(p,i){ tapC(p,function(){ tapStar(i); }); });
+    C.decoys.forEach(function(p){ tapC(p,function(){ SFX.no(); $('#cst').textContent='…흐린 별이다. 선이 흩어졌다.'; svgLinesClear(); idx=0; }); });
+  }
+  function svgLinesClear(){ Array.prototype.slice.call(svg.querySelectorAll('line')).forEach(function(l){l.remove()}); wrap.classList.remove('glow'); }
+  function tapC(p,fn){
+    var c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx',p[0]); c.setAttribute('cy',p[1]); c.setAttribute('r',9);
+    c.setAttribute('fill','transparent'); c.setAttribute('style','cursor:pointer');
+    c.addEventListener('click',fn); svg.appendChild(c);
+  }
+  function tapStar(i){
+    if(G.flags[doneKey] && idx===0){ /* 완성 후 재열람 시에도 다시 이어볼 수 있음 */ }
+    if(i===C.path[idx]){
+      SFX.note(520+idx*40,.12);
+      if(idx>0) seg(C.stars[C.path[idx-1]], C.stars[C.path[idx]]);
+      idx++;
+      if(idx>=C.path.length) complete();
+      else $('#cst').textContent='…이어진다. ('+idx+'/'+C.path.length+')';
+    } else if(idx>0){ SFX.no(); $('#cst').textContent='선이 어긋나 흩어졌다. 처음 별부터.'; svgLinesClear(); idx=0; }
+    else { SFX.no(); $('#cst').textContent='이 별은 시작이 아니다. 가장 밝은 별부터.'; }
+  }
+  $('#cX').addEventListener('click',function(){ $('#mdWrap').classList.remove('on'); SFX.tick(); });
+  if(G.flags[doneKey]){
+    drawStars();
+    for(var k=1;k<C.path.length;k++) seg(C.stars[C.path[k-1]],C.stars[C.path[k]]);
+    wrap.classList.add('glow'); $('#cst').innerHTML='한 번 이어 본 별자리다.<br><b>모양이 다시 금빛으로 떠오른다.</b>';
+  } else { drawStars(); $('#cst').textContent='빛나는 별부터.'; }
+  $('#mdWrap').classList.add('on');
+}
+
+/* ---------- 망원경 ---------- */
+function openScope(SC){
+  var md=$('#md');
+  var cur=G.flags.scopeDial||[0,0,0];
+  function blurPx(){ var b=0; for(var i=0;i<3;i++){ b+=Math.abs(cur[i]-SC.targets[i]); } return b*2.2; }
+  function constSvg(){
+    var pts=SC.path.map(function(ci){ var r=Math.floor(ci/SC.cols), c=ci%SC.cols; return [(c*15)+13,(r*15)+13]; });
+    var s='<svg id="scv" viewBox="0 0 105 105">';
+    s+='<polyline points="'+pts.map(function(p){return p.join(',')}).join(' ')+'" fill="none" stroke="#ffd769" stroke-width="1.4" opacity=".8"/>';
+    pts.forEach(function(p,i){ s+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+(i===0?4:2.6)+'" fill="'+(i===0?'#ffe9a8':'#f0e2b8')+'"/>'; });
+    for(var i=0;i<10;i++){ s+='<circle cx="'+((i*37)%100+3)+'" cy="'+((i*53)%100+2)+'" r="1" fill="#f0e2b8" opacity=".3"/>'; }
+    s+='</svg>';
+    return s;
+  }
+  var focused = G.flags.scope===1;
+  var html='<h3>거대한 망원경</h3><div class="tag">천문실 · '+(focused?'또렷하다':'초점이 나가 있다')+'</div>'
+    +'<div class="body">'+(focused?'렌즈 너머, 별자리 하나가 또렷하다.<br><b>거인자리</b> — 별 아홉이 이어진 모양을 눈에 새기자.':'렌즈 세 개의 고리가 제멋대로 돌아가 있다.')+'</div>'
+    +'<div class="scopewrap"><div class="scopeview">'+constSvg()+'</div>'
+    +(focused?'':'<div class="dials" id="dl"></div>')
+    +'<div class="mstat" id="sst"></div></div>'
+    +'<div class="mrow"><button class="mbtn sub" id="scX">닫기</button></div>';
+  md.innerHTML=html;
+  function paint(){ $('#scv').style.filter='blur('+blurPx()+'px)';
+    $('#sst').textContent = blurPx()===0?'':'…흐릿하다. 고리를 돌려 초점을 맞추자.'; }
+  if(!focused){
+    var dl=$('#dl');
+    for(var i=0;i<3;i++){ (function(i){
+      var b=document.createElement('button'); b.textContent=(i+1)+'번 고리 ⟳';
+      b.addEventListener('click',function(){ SFX.tick(); cur[i]=(cur[i]+1)%4; G.flags.scopeDial=cur; save(); paint();
+        if(blurPx()===0){ G.flags.scope=1; save(); SFX.reveal(); note('망원경으로 거인자리를 보았다 — 모양은 눈에 새겨 두자');
+          $('#sst').innerHTML='<b>초점이 맞았다! 거인자리가 또렷하다.</b>'; $('#dl').style.display='none';
+          $('#md h3').nextElementSibling.textContent='천문실 · 또렷하다'; drawScene(); $('#mdWrap').classList.add('on'); } });
+      dl.appendChild(b);
+    })(i); }
+  }
+  paint();
+  $('#scX').addEventListener('click',function(){ $('#mdWrap').classList.remove('on'); SFX.tick(); });
+  $('#mdWrap').classList.add('on');
+}
+
+/* ---------- 선택/엔딩 ---------- */
+function runChoice(b){
+  curHub=null; curBG=b.bg||curBG; setBG(curBG); show('#scrChoice');
+  $('#chQ').textContent=b.q;
+  var list=$('#chList'); list.innerHTML='';
+  b.options.forEach(function(op){
+    var el=document.createElement('button'); el.className='chc'+(G.ends.indexOf(op.key)>=0?' seen':'');
+    el.innerHTML=(G.ends.indexOf(op.key)>=0?'<span class="badge">본 엔딩</span>':'')+'<b>'+op.t+'</b><span>'+op.d+'</span>';
+    el.addEventListener('click',function(){
+      SFX.tr();
+      if(G.ends.indexOf(op.key)<0) G.ends.push(op.key);
+      G.lastEnd=op.key; G.bi=op.goto; save(); runBeat();
+    });
+    list.appendChild(el);
+  });
+}
+function fmtTime(ms){ var s=Math.floor(ms/1000); return Math.floor(s/60)+'분 '+(s%60)+'초'; }
+function runEnd(b){
+  curHub=null; curBG=b.bg||curBG; setBG(curBG); show('#scrEnd');
+  playMotif('harp');
+  $('#endK').textContent=b.k||'ESCAPE COMPLETE';
+  $('#endT').textContent=b.title;
+  $('#endStars').style.display='none';
+  $('#endStat').innerHTML='플레이 시간 '+fmtTime(Date.now()-G.start)
+    +(EP.epn===3?('<br>수집한 엔딩 '+G.ends.length+' / 3'):'');
+  $('#endEpl').textContent=b.epl;
+  var nc=$('#nextCard');
+  if(b.next){ nc.style.display='block';
+    nc.innerHTML='<div class="nk">NEXT EPISODE</div><div class="nt">'+b.next.t+'</div><div class="nd">'+b.next.d+'</div>';
+  } else nc.style.display='none';
+  $('#btnOther').style.display=(b.otherGoto!=null && G.ends.length<3)?'block':'none';
+  $('#btnOther').onclick=function(){ G.bi=b.otherGoto; save(); runBeat(); };
+  save();
+}
+$('#btnAgain').addEventListener('click',function(){
+  var ends=G?G.ends:[]; G=defState(); G.ends=ends; save(); startPlay();
+});
+
+/* ================= AUDIO ================= */
+var AC=null, master=null, ambTimer=null;
+function AudioBoot(){
+  if(AC) return;
+  try{
+    AC=new (window.AudioContext||window.webkitAudioContext)();
+    master=AC.createGain(); master.gain.value=G&&G.muted?0:0.5; master.connect(AC.destination);
+    startAmb();
+  }catch(e){}
+}
+function tone(f,dur,type,vol,delay,slide){
+  if(!AC||!master) return;
+  var t=AC.currentTime+(delay||0);
+  var o=AC.createOscillator(), g=AC.createGain();
+  o.type=type||'sine'; o.frequency.setValueAtTime(f,t);
+  if(slide) o.frequency.exponentialRampToValueAtTime(slide,t+dur);
+  g.gain.setValueAtTime(0,t);
+  g.gain.linearRampToValueAtTime(vol||.18,t+.02);
+  g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  o.connect(g); g.connect(master); o.start(t); o.stop(t+dur+.05);
+}
+var SFX={
+  tick:function(){ tone(880,.06,'square',.05); },
+  ok:function(){ tone(523.25,.14,'triangle',.2); tone(659.25,.16,'triangle',.2,.1); tone(783.99,.3,'triangle',.22,.2); },
+  no:function(){ tone(196,.22,'sawtooth',.12); tone(185,.28,'sawtooth',.1,.12); },
+  get:function(){ tone(659.25,.1,'triangle',.18); tone(880,.22,'triangle',.2,.09); },
+  tr:function(){ tone(329.63,.3,'sine',.16,0,392); },
+  boom:function(){ tone(70,.9,'sine',.4,0,45); tone(90,.7,'triangle',.2,.05,50); },
+  axe:function(){ tone(120,.1,'square',.25); tone(60,.4,'sine',.3,.03,40); },
+  reveal:function(){ [261.63,329.63,392,523.25,659.25].forEach(function(f,i){ tone(f,1.2,'triangle',.14,i*.14); }); },
+  note:function(f,d){ tone(f,d||.2,'triangle',.2); },
+  pluck:function(f){ tone(f,.7,'triangle',.28); tone(f*2,.4,'sine',.08,.01); }
+};
+var MOTIF=[440,392,329.63,392,440,523.25,440]; /* 라솔미솔라도라 */
+function playMotif(inst){
+  if(!AC) return;
+  MOTIF.forEach(function(f,i){
+    if(inst==='piri') tone(f*2,.34,'triangle',.14,i*.42);
+    else if(inst==='hum') tone(f/2,.5,'sine',.16,i*.46);
+    else tone(f,.9,'triangle',.2,i*.44);
+  });
+}
+function startAmb(){
+  if(ambTimer) return;
+  var padNotes=[110,130.81,164.81,146.83], pi=0;
+  ambTimer=setInterval(function(){
+    if(!AC||(G&&G.muted)) return;
+    var f=padNotes[pi++%padNotes.length];
+    tone(f,5.5,'sine',.045); tone(f*1.5,5.5,'sine',.025,.1);
+  },6000);
+  tone(padNotes[0],5.5,'sine',.045);
+}
+$('#btnMute').addEventListener('click',function(){
+  G.muted=!G.muted; save(); updHud();
+  if(master) master.gain.value=G.muted?0:0.5;
+});
+
+/* ================= DATA ================= */
+/* ===== 거인의 자장가 v2 · 3부 「하프가 부른 이름」 ===== */
+var SCENES={
+  plain:{sky:'linear-gradient(#1d1233,#3a2b5f)',stars:20,svg:''},
+  night:{sky:'linear-gradient(#0d0a20 0%,#241a44 50%,#3a2b5f 100%)',stars:50,float:4,
+    svg:'<path d="M150 220 Q120 150 158 100 Q196 52 162 0 L200 0 Q226 60 188 116 Q152 168 196 220 Z" fill="#0a2013"/>'
+       +'<path d="M186 190 L206 196 M184 200 L204 206" stroke="#e0d5c0" stroke-width="3" opacity=".5"/>'
+       +'<ellipse cx="60" cy="170" rx="66" ry="16" fill="#bfb3d9" opacity=".18"/><ellipse cx="310" cy="140" rx="76" ry="18" fill="#bfb3d9" opacity=".15"/>'
+       +'<circle cx="60" cy="46" r="16" fill="#f0e2a8" opacity=".9"/>'},
+  hall:{sky:'linear-gradient(#141026 0%,#241a44 55%,#38285c 100%)',stars:0,float:6,
+    svg:'<rect x="20" y="0" width="26" height="220" fill="#0c081a"/><rect x="314" y="0" width="26" height="220" fill="#0c081a"/>'
+       +'<rect x="100" y="0" width="20" height="220" fill="#0c081a" opacity=".8"/><rect x="240" y="0" width="20" height="220" fill="#0c081a" opacity=".8"/>'
+       +'<path d="M0 40 Q180 10 360 40 L360 52 Q180 22 0 52 Z" fill="#0c081a"/>'
+       +'<path d="M110 0 L124 60 M250 20 L242 90" stroke="#060412" stroke-width="2" opacity=".8"/>'
+       +'<g fill="#d4af37" opacity=".35"><circle cx="150" cy="196" r="2.5"/><circle cx="172" cy="178" r="2.5"/><circle cx="196" cy="160" r="2.5"/><circle cx="220" cy="142" r="2.5"/></g>'},
+  obs:{sky:'linear-gradient(#0c0a22 0%,#1a1440 55%,#2c2160 100%)',stars:44,float:4,
+    svg:'<path d="M0 220 L0 120 Q180 60 360 120 L360 220 Z" fill="#0e0a1e"/>'
+       +'<path d="M60 120 Q180 66 300 120 L300 132 Q180 80 60 132 Z" fill="#171130"/>'
+       +'<rect x="150" y="70" width="60" height="18" rx="8" fill="#0a0716" transform="rotate(-24 180 79)"/>'
+       +'<rect x="164" y="86" width="32" height="80" rx="8" fill="#0a0716" transform="rotate(-24 180 126)"/>'
+       +'<rect x="120" y="160" width="120" height="14" rx="6" fill="#0a0716"/>'
+       +'<circle cx="286" cy="46" r="14" fill="#f0e2a8" opacity=".85"/>'},
+  study:{sky:'linear-gradient(#1a1226 0%,#2c1e3a 50%,#443050 100%)',stars:0,float:6,
+    svg:'<rect x="10" y="20" width="110" height="200" rx="6" fill="#120c1c"/><rect x="24" y="36" width="82" height="24" fill="#241832"/><rect x="24" y="72" width="82" height="24" fill="#241832"/><rect x="24" y="108" width="82" height="24" fill="#241832"/><rect x="24" y="144" width="82" height="24" fill="#241832"/>'
+       +'<rect x="150" y="130" width="140" height="16" fill="#0e0916"/><rect x="162" y="146" width="12" height="74" fill="#0e0916"/><rect x="266" y="146" width="12" height="74" fill="#0e0916"/>'
+       +'<rect x="180" y="90" width="70" height="40" rx="4" fill="#2c2138"/><rect x="196" y="102" width="38" height="20" rx="3" fill="#48355c"/>'
+       +'<rect x="310" y="40" width="40" height="180" rx="8" fill="#120c1c"/><circle cx="330" cy="120" r="10" fill="#d4af37" opacity=".5"/>'},
+  tower:{sky:'linear-gradient(#160f2e 0%,#2c1c50 45%,#4a3372 100%)',stars:40,float:8,
+    svg:'<path d="M0 220 Q180 190 360 220 L360 220 L0 220 Z" fill="#0c081a"/>'
+       +'<path d="M148 220 L148 140 Q180 110 212 140 L212 220 Z" fill="#1a1030"/>'
+       +'<path d="M164 214 Q160 150 180 132 Q186 128 190 134 L190 214 Z" fill="none" stroke="#d4af37" stroke-width="5"/>'
+       +'<g stroke="#f0e2a8" stroke-width="1.6" opacity=".85"><line x1="170" y1="150" x2="170" y2="212"/><line x1="176" y1="142" x2="176" y2="212"/><line x1="182" y1="138" x2="182" y2="212"/><line x1="187" y1="136" x2="187" y2="212"/></g>'
+       +'<circle cx="290" cy="40" r="18" fill="#f0e2a8" opacity=".9"/>'},
+  reveal:{sky:'linear-gradient(#4a2c1a 0%,#8a5a2b 50%,#d99a4e 100%)',stars:0,float:12,
+    svg:'<path d="M0 220 Q180 190 360 220 Z" fill="#2c1708"/>'
+       +'<ellipse cx="80" cy="80" rx="70" ry="18" fill="#ffe9c9" opacity=".4"/><ellipse cx="300" cy="60" rx="80" ry="20" fill="#ffe9c9" opacity=".35"/>'
+       +'<circle cx="180" cy="70" r="26" fill="#fff2d4" opacity=".9"/>'},
+  dusk:{sky:'linear-gradient(#2c1c50 0%,#6b3a52 45%,#d97a4e 100%)',stars:16,float:8,
+    svg:'<path d="M150 220 Q120 150 158 100 Q196 52 162 0 L200 0 Q226 60 188 116 Q152 168 196 220 Z" fill="#0a2013"/>'
+       +'<ellipse cx="70" cy="120" rx="70" ry="17" fill="#ffd9b0" opacity=".3"/><ellipse cx="300" cy="90" rx="80" ry="19" fill="#ffd9b0" opacity=".26"/>'}
+};
+var SCOPE={cols:6, path:[30,25,19,14,8,3,10,16,23], targets:[2,1,3]};
+function obsRoom(){
+  return {key:'obs', label:'천문실', bg:'obs', enterMsg:'둥근 지붕의 방. 거대한 망원경이 하늘을 향해 있다.',
+    hotspots:[
+      {id:'scope', x:44, y:46, label:'망원경', icon:'◎',
+        doneIf:function(){return !!G.flags.scope;},
+        on:function(){ openScope(SCOPE); }},
+      {id:'starmap', x:78, y:36, label:'별지도', icon:'✦',
+        on:function(){ openInspect('벽의 별지도','천문실 · 낡은 양피지',
+          '<div class="paper">별지도의 뒤편에, 찢긴 책장 반쪽이 끼워져 있다.\n\n『 —<b>예순 밤</b>째 처음 피어난다.\n그리고 백 밤이면, 하늘에 닿는다. 』</div>'
+          +'여백에는 다른 필적의 낙서.\n<i>『 콩이 백 밤이라면… 나는. 』</i>',null,'별지도 뒤에서 찢긴 책장 반쪽을 보았다 (…예순 밤째 피어난다)'); }},
+      {id:'tube', x:30, y:66, label:'경통 밑', icon:'▾',
+        showIf:function(){ return !!G.flags.scope; },
+        doneIf:function(){ return !!G.frag.H; },
+        on:function(){ if(G.frag.H){ toast('경통 밑은 이제 비어 있다.'); return; } addFrag('H',3); drawScene(); }}
+    ]};
+}
+function hallRoom(){
+  return {key:'hall', label:'대회랑', bg:'hall',
+    hotspots:[
+      {id:'tiles', x:50, y:70, label:'별 타일 바닥', icon:'✦',
+        doneIf:function(){return !!G.solved.S1;},
+        on:function(){ if(G.solved.S1){ toast('타일이 금빛 길을 이루고 있다.'); return; } openSlot('S1'); }},
+      {id:'pillar', x:16, y:44, label:'기둥의 문장', icon:'▣',
+        doneIf:function(){ return !!G.frag.T; },
+        on:function(){ if(G.frag.T){ toast('문장 뒤 틈새는 비어 있다.'); return; }
+          toast('기둥에 새겨진 낡은 문장(紋章).\n틈새에 손을 넣자— 무언가 잡힌다.');
+          setTimeout(function(){ addFrag('T',2); drawScene(); },900); }},
+      {id:'crack', x:84, y:36, label:'벽의 균열', icon:'⚡'.replace('⚡','丨'),
+        on:function(){ toast('성벽의 균열이 어제보다 넓어 보인다.\n균열 틈으로— 지상의 <b>횃불</b>이 내려다보인다.'); }}
+    ]};
+}
+function studyRoom(){
+  return {key:'study', label:'서재', bg:'study',
+    hotspots:[
+      {id:'diary', x:60, y:50, label:'낡은 일기', icon:'▤',
+        on:function(){ openInspect('낡은 일기','책상 · 사람 손 크기','<div class="paper">표지의 이름은 완전히 번져 읽을 수 없다.\n\n『 이 성에 온 지 이레째 밤.\n입고 온 옷의 소매가— 짧아졌다.\n\n여든여덟 번째 밤.\n반지가 손가락에 들어가지 않는다.\n\n아흔아홉 번째 밤.\n글씨가 자꾸 커진다. 내 글씨가 이만할 때,\n마지막으로 적어 둔다. 』</div>사람의 글씨다. …갈수록 커지는 글씨.',null,'낡은 일기: 7·88·99번째 밤의 기록 (마지막 장은 찢김)'); }},
+      {id:'almanac', x:22, y:38, label:'구름 농사 일지', icon:'▥',
+        on:function(){ openInspect('구름 농사 일지','책장 · 두꺼운 책',
+          '<div class="paper">『 콩은 심은 지 <b>스무 밤</b>이면 싹을 틔운다.\n꽃은— 』\n\n…여기서 페이지가 찢겨 나갔다.</div>'
+          +'갈피에서 무언가 툭, 떨어졌다.',
+          function(){ setTimeout(function(){ addFrag('A',4); },600); },
+          '농사 일지: 콩은 스무 밤이면 싹튼다 (꽃 페이지는 찢김)'); }},
+      {id:'safe', x:60, y:78, label:'금고', icon:'⌗',
+        doneIf:function(){return !!G.solved.S2;},
+        on:function(){ if(G.solved.S2){ toast('금고는 열려 있다.'); return; } openSlot('S2'); }},
+      {id:'stair', x:88, y:56, label:'탑 계단', icon:'≡',
+        on:function(){ if(!G.solved.S2){ toast('계단 문이 잠겨 있다.\n열쇠 구멍에 <b>줄감개</b> 문양이 새겨져 있다.'); return; }
+          toast('줄감개를 꽂자 계단 문이 열렸다.\n나선 계단 위에서 하프 소리가 쏟아진다.'); }}
+    ]};
+}
+var EP={
+  id:'gl2_ep3', epn:3,
+  pageTitle:'거인의 자장가 3부 — 하프가 부른 이름',
+  title:'하프가\n부른 이름',
+  epi:'제 3 부 · 完',
+  meta:'난이도 ★★★★ · 15~20분 · 퀴즈 2 + 미션 2<br>판타지 방탈출 3부작 · 엔딩 3종',
+  titleBG:'tower',
+  slots:{
+    S1:{ kind:'mission', name:'별의 회랑', tag:'대회랑 · 바닥 미로', type:'grid',
+      body:'서른여섯 장의 별 타일이 깔린 회랑.\n희미하게 빛나는 타일 하나 외에는— 아무 표식도 없다.\n잘못 밟으면 빛이 꺼지고 시작으로 되돌아온다.\n\n…하늘 어딘가에, 길이 그려져 있을 것만 같다.',
+      cols:6, rows:6, path:[30,25,19,14,8,3,10,16,23],
+      hints:['회랑에는 답이 없다. 별을 "보는 방"을 찾아가자.','천문실의 망원경 — 초점을 맞추면 별자리 하나가 또렷해진다. 그 모양이 곧 길이다.','빛나는 타일에서: 오른위, 위, 오른위, 위, 오른위, 오른아래, 아래, 오른아래 순서다.'],
+      reveal:'거인자리의 모양 그대로 — 좌하단 ★에서 지그재그로 올라갔다가 오른쪽 아래로 꺾여 내려온다.',
+      wrongMsg:'타일의 빛이 꺼졌다…',
+      successMsg:'서른여섯 타일이 금빛 길이 되었다! 회랑 끝 문이 열린다.' },
+    S2:{ kind:'quiz', name:'서재의 금고', tag:'서재 · 두 개의 창', type:'pad',
+      dual:['싹','꽃'],
+      body:'책상 아래 금고.\n다이얼 창이 <b>앞 두 자리, 뒤 두 자리</b>로 나뉘어 있고\n각 창 위에 작은 문양이 새겨져 있다 —\n앞 창엔 <b>새싹</b>, 뒤 창엔 <b>꽃</b>.\n그 외에는 아무 글귀도 없다.',
+      code:'2060',
+      hints:['서가의 책들 중, 콩을 기르는 책이 있다.','일지의 문장이 중간에 끊겨 있다 — 나머지 반쪽은 별을 보는 방에.','싹 트는 밤 수와 꽃 피는 밤 수. 스물, 그리고 예순.'],
+      reveal:'2060 — 콩은 스무 밤에 싹트고(20), 예순 밤째 꽃핀다(60). 일기의 88·99와 "백 밤"은 함정.',
+      wrongMsg:'금고는 침묵한다…',
+      successMsg:'금고가 열렸다.',
+      onSolve:function(){ G.flags.plate=1; save();
+        setTimeout(function(){ toast('금고 안— 하프의 <b>줄감개</b>,\n마모된 명판 조각 『 정원사 ■■, 백 번째 밤에 잠들다 』<br>그리고… <b>놋쇠 글자 조각</b> 하나.',3800);
+          note('금고: 줄감개 + 명판 「정원사 ■■, 백 번째 밤에 잠들다」'); },1000);
+        setTimeout(function(){ addFrag('E',1); },4200); } },
+    S3:{ kind:'mission', name:'황금 하프', tag:'탑 꼭대기 · 귀로 듣고, 손으로', type:'rhythm2', id2:'S3',
+      body:'탑 꼭대기, 스스로 우는 황금 하프.\n잭이 다가서자, 하프가 노래 한 소절을 들려주었다—\n<b>소리뿐이다. 어느 줄이 울렸는지는 보이지 않는다.</b>'
+        +'<div class="paper">줄은 다섯. 왼쪽이 낮고, 오른쪽이 높다.\n노래는 일곱 음.\n\n귀에 익은 노래다. …아주, 익은 노래.</div>',
+      notes:[329.63,392,440,523.25,587.33],
+      seq:[2,1,0,1,2,3,2],
+      maxListen:3,
+      hints:['먼저 다섯 줄을 하나씩 튕겨, 소리의 높낮이를 귀에 익히세요.','노래는 가운데 음에서 시작해 두 걸음 내려갔다가, 되짚어 올라와 한 번 더 높이 뛰고, 제자리로 돌아옵니다.','3번, 2번, 1번, 2번, 3번, 4번, 3번 줄입니다.'],
+      reveal:'가운데(3번) 줄에서 시작: 3·2·1·2·3·4·3. 어머니의 자장가, 한 소절.',
+      wrongMsg:'하프 줄이 슬프게 어긋났다…',
+      successMsg:'일곱 음이 탑을 가득 채운다—' },
+    S4:{ kind:'quiz', name:'하프가 부른 이름', tag:'탑 꼭대기 · 다섯 조각', type:'assemble',
+      answer:'ETHAN',
+      body:'연주가 끝나자, 하프의 울림이 말이 되어 흘렀다.'
+        +'<div class="paper">『 좋은 연주였어.\n이 노래를 아는 사람은, 세상에 셋뿐이란다.\n\n나를 만든 이의 <b>이름</b>을 불러줘.\n그러면— 이 성의 진짜 주인을 깨워 줄게. 』</div>',
+      hints:['성 곳곳에 놋쇠 글자 조각이 숨어 있다 — 모두 다섯 개다. (회랑 기둥, 천문실, 서재, 그리고 이 탑)','조각의 별 각인이 자리다. 별 하나가 첫 글자.','E(★) T(★★) H(★★★) A(★★★★) N(★★★★★) — 별 순서대로.'],
+      reveal:'ETHAN — 별 순서대로 늘어놓으면, 한 사람의 이름이 된다.',
+      wrongMsg:'하프는 가만히 기다린다…',
+      successMsg:'— 에단.' },
+    /* 별칭: assemble 미완 시에도 힌트 접근을 위해 동일 슬롯 사용 */
+    _:null
+  },
+  flow:[
+    /* 0 */
+    {t:'story', bg:'night', lines:[
+      {tx:'— 지난 이야기 —\n황금알로 빚은 갚았지만, 그림스의 도끼는 남았다.\n"내일 정오— 벤다."'},
+      {tx:'그날 밤. 어머니가 거위를 쓰다듬으며\n무심코 자장가를 흥얼거리다— 뚝, 멈췄다.'},
+      {sp:'어머니', tx:'…이상하지.\n이 노래를 아는 사람은, 세상에 셋뿐인데.'},
+      {sp:'잭', tx:'셋…? 엄마랑, 나랑—'},
+      {sp:'어머니', tx:'……아니야. 자자, 잭.'},
+      {tx:'어머니는 끝내 셋째를 말하지 않았다.\n그러나 잭의 심장은 이미 뛰고 있었다.'},
+      {sp:'잭', tx:'(하프. 그 하프가 부르던 노래.\n…확인해야 해. 정오가 오기 전에.)'},
+      {tx:'마지막 등반.\n이번엔 부엌이 아니라— 하프 소리가 새어 나오던,\n성의 가장 깊은 곳으로.', bg:'hall'}
+    ]},
+    /* 1 — 대회랑·천문실 */
+    {t:'hub', obj:'회랑의 별 타일을 건너자 — 길은 회랑에 없다', startRoom:'hall',
+      doneIf:function(){ return !!G.solved.S1; },
+      rooms:[ hallRoom(), obsRoom() ]},
+    /* 2 */
+    {t:'story', bg:'hall', lines:[
+      {tx:'회랑 끝의 문이 열리자, 작은 서재가 나타났다.'},
+      {tx:'거인의 성에 어울리지 않는—\n사람 크기의 책상과, 사람 크기의 의자.', bg:'study'},
+      {sp:'잭', tx:'여기만… 우리 집 같아.'}
+    ]},
+    /* 3 — 서재·천문실 */
+    {t:'hub', obj:'서재를 살펴 탑으로 오르는 길을 찾자', startRoom:'study',
+      doneIf:function(){ return !!G.solved.S2; },
+      rooms:[ studyRoom(), obsRoom() ]},
+    /* 4 */
+    {t:'story', bg:'tower', lines:[
+      {tx:'나선 계단을 오르고 또 올라—\n탑 꼭대기, 달빛 아래.'},
+      {tx:'황금 하프가 혼자서 울고 있었다.', motif:'harp'},
+      {sp:'잭', tx:'…네가 밤마다 노래하던 아이구나.'}
+    ]},
+    /* 5 — 탑(전 구역 왕복) */
+    {t:'hub', obj:'하프의 노래에 화답하고, 이름을 완성하자', startRoom:'tower',
+      doneIf:function(){ return G.solved.S3 && G.solved.S4; },
+      rooms:[
+        {key:'tower', label:'탑', bg:'tower',
+         hotspots:[
+          {id:'harp', x:50, y:52, label:'황금 하프', icon:'♪',
+            doneIf:function(){return !!G.solved.S4;},
+            on:function(){ if(!G.solved.S3){ openSlot('S3'); return; }
+              if(!G.solved.S4){ openSlot('S4'); return; }
+              toast('하프가 잔잔히 울리고 있다.'); }},
+          {id:'base', x:36, y:74, label:'하프 받침', icon:'▾',
+            doneIf:function(){ return !!G.frag.N; },
+            on:function(){ if(G.frag.N){ toast('받침 아래는 비어 있다.'); return; }
+              toast('받침 아래 틈에— 반짝, 하는 것이 있다.');
+              setTimeout(function(){ addFrag('N',5); drawScene(); },900); }},
+          {id:'ledge', x:80, y:36, label:'난간', icon:'◱',
+            on:function(){ toast('구름 틈으로 지상이 보인다.\n콩나무 밑— <b>도끼날이 아침 해를 받아 번뜩인다.</b>\n…정오가 가까워지고 있다.'); }}
+         ]},
+        hallRoom(), obsRoom(), studyRoom()
+      ]},
+    /* 6 */
+    {t:'card', k:'REVEAL', title:'— 에단 —', d:'다섯 조각이 하나의 이름이 된 순간,\n성 전체가 낮게 울었다.', flash:true},
+    /* 7 — 리빌 */
+    {t:'story', bg:'reveal', lines:[
+      {tx:'쿵. 쿵. 쿵.\n계단을 오르는 발소리.\n그러나 잭은— 이상하게도, 무섭지 않았다.', sfx:'boom'},
+      {tx:'탑 위로 올라온 거인이,\n잭을 내려다보았다.'},
+      {sp:'거인', tx:'……잭.'},
+      {sp:'거인', tx:'…많이 컸구나. 우리 잭.', motif:'hum'},
+      {tx:'노인이 잭의 이름을 알던 것도—\n궤짝 속, 큰 손바닥 위에 잠든 아기 그림도—', sfx:'reveal'},
+      {tx:'성에 고이 모셔진 사람 크기의 컵과 의자도—\n정성껏 닦인 장화도— 잭을 따르던 거위도—'},
+      {tx:'"또 헛것"이라던 체념도—\n갈수록 커지던 일기의 글씨도—\n하프의 자장가도—\n\n전부, 한 사람을 가리키고 있었다.'},
+      {sp:'아버지', tx:'사흘이면 돌아올 줄 알았단다.\n씨앗지기 노인에게 콩을 받아, 이 빈 성에 올라왔지.\n금화를— 딱 한 자루만 가져가려 했어.'},
+      {sp:'아버지', tx:'그런데 이 성은…\n백 밤을 지새운 사람을, 거인으로 만들더구나.'},
+      {sp:'아버지', tx:'이 몸으로 콩나무를 밟으면 줄기가 부러진다.\n너와 네 엄마가 있는 곳으로…\n내려갈 수가, 없었어.'},
+      {sp:'아버지', tx:'그래서 콩을 던졌다. 거위를 길렀다.\n하프에게 자장가를 가르쳤단다.\n…언젠가 네가, 이 노래를 따라올 것 같아서.'},
+      {sp:'잭', tx:'………아빠.'},
+      {tx:'잭은 커다란 손가락에 얼굴을 묻고,\n일곱 해 만에 소리 내어 울었다.'},
+      {tx:'그때—', sfx:'axe'},
+      {tx:'쩌엉—!\n지상에서 도끼 소리가 하늘까지 울렸다.\n콩나무가 크게 휘청이고, 성의 균열이 벌어진다.', sfx:'boom'},
+      {sp:'아버지', tx:'잭. 시간이 없다.\n…무엇을 가지고, 내려가겠니.'},
+      {tx:'잭은 품 안의 것들을 꺼내 보았다.\n아버지의 피리. 노래하는 하프.\n그리고— 심지 않고 남겨 둔 마지막 콩 한 알.'}
+    ]},
+    /* 8 — 선택 */
+    {t:'choice', bg:'reveal',
+      q:'도끼 소리가 두 번째로 울린다.\n잭은 아버지에게, 무엇을 내밀까.',
+      options:[
+        {key:'A', t:'아버지의 피리', d:'말 대신, 노래로 — 도끼를 든 손들에게 들리도록.', goto:9},
+        {key:'B', t:'노래하는 하프', d:'이 노래를 어머니에게 — 진실을 지상으로.', goto:11},
+        {key:'C', t:'마지막 콩 한 알', d:'구름 위에 심으면, 아래로 자란다는 옛이야기처럼.', goto:13}
+      ]},
+    /* 9 — 엔딩 A */
+    {t:'story', bg:'dusk', lines:[
+      {tx:'잭은 피리를 꺼내 들었다.\n아버지의 손가락은 이제 피리를 쥘 수 없다.'},
+      {sp:'잭', tx:'그럼— 내가 불게요. 내려가면서, 계속.\n아빠는 노래해요. 도끼 소리보다 크게!'},
+      {tx:'잭은 줄기를 미끄러져 내려가며 피리를 불었다.\n구름 위에서— 거인의 허밍이 화답했다.', motif:'piri'},
+      {tx:'하늘에서 내려오는 이중주에\n도끼가, 하나— 또 하나— 땅에 떨어졌다.', sfx:'axe'},
+      {sp:'지주 그림스', tx:'…이, 이 노래는.\n…어머니가, 불러 주시던…'},
+      {tx:'마을에서 가장 사나운 사내가\n밭두렁에 주저앉아 하늘을 올려다보았다.\n\n그날, 콩나무는 베이지 않았다.'},
+      {sp:'잭', tx:'내일도 올게요. 모레도.\n백 밤이고 천 밤이고— 매일 밤 올게요.'},
+      {tx:'그날부터 잭의 마을 사람들은\n저녁마다 하늘에서 내려오는\n이상하고 따뜻한 자장가를 듣게 되었다.'}
+    ]},
+    /* 10 */
+    {t:'end', bg:'dusk', k:'ENDING A', title:'두 사람의 자장가',
+      epl:'어떤 약속은 말로 하지 않는다.\n도끼를 내려놓게 한 것은 힘이 아니라,\n저녁마다 구름 위에서 내려오는 노래였다.\n\n— 3부작 · 끝 —',
+      otherGoto:8},
+    /* 11 — 엔딩 B */
+    {t:'story', bg:'dusk', lines:[
+      {tx:'잭은 하프를 안았다.\n하프는 놀랄 만큼— 가벼웠다.'},
+      {sp:'아버지', tx:'…데려가렴.\n그 노래는 원래, 네 엄마의 것이었으니까.'},
+      {tx:'잭이 땅에 닿았을 때, 도끼 부대는\n이미 줄기에 세 번째 날을 박아 넣고 있었다.', sfx:'axe'},
+      {tx:'잭은 도끼와 줄기 사이에 하프를 내려놓았다.\n하프가— 스스로 노래하기 시작했다.', motif:'harp'},
+      {tx:'한 소절 만에, 어머니가 군중을 헤치고 나왔다.'},
+      {sp:'어머니', tx:'……에단.\n이건, 에단의 노래야. 그이가— 살아 있어.'},
+      {tx:'도끼가 멎었다.\n"요물"이라 불리던 나무는 그날부터\n"기다림의 나무"로 불리게 되었다.'},
+      {tx:'다음 날 새벽, 콩나무 아래.\n어머니는 하늘을 향해 소리쳤고—\n구름 위에서, 낮고 커다란 웃음이 대답했다.'}
+    ]},
+    /* 12 */
+    {t:'end', bg:'dusk', k:'ENDING B', title:'어머니에게 들려줄 노래',
+      epl:'진실은 무겁지만, 나누면 노래가 된다.\n비밀은 세 사람의 것이 되었고—\n이윽고, 마을 전체의 것이 되었다.\n\n— 3부작 · 끝 —',
+      otherGoto:8},
+    /* 13 — 엔딩 C */
+    {t:'story', bg:'dusk', lines:[
+      {tx:'잭은 마지막 콩 한 알을 꺼냈다.'},
+      {sp:'잭', tx:'아빠, 옛날에 얘기해 줬죠.\n구름 위에 심으면— 아래로 자라는 콩 이야기.'},
+      {sp:'아버지', tx:'…그건 그냥, 아비가 지어낸 옛이야기인데.'},
+      {sp:'잭', tx:'아빠가 던진 콩도 하룻밤에 하늘까지 자랐어요.\n지어낸 이야기인지 아닌지는—\n심어 보면 알죠.'},
+      {tx:'무너져 가는 성의 정원.\n두 사람은 구름 흙을 파고, 콩을 심었다.\n거인의 눈물 한 방울이 물이 되었다.', sfx:'get'},
+      {tx:'…우르릉.\n도끼에 상한 옛 줄기를 휘감으며—\n거인도 밟을 수 있을 만큼 굵고 단단한 줄기가\n<b>아래로, 아래로</b> 자라기 시작했다.', sfx:'boom'},
+      {tx:'지상의 도끼 부대는 도망쳤고,\n그림스는 그날 밤 처음으로 문을 걸지 않고 잤다.\n무서운 것은 나무가 아니었음을— 본 것이다.'},
+      {sp:'아버지', tx:'……잭.\n아비가, 곧 내려가마.'},
+      {tx:'지상에서 백 밤을 보낸 거인이\n다시 사람의 크기로 돌아온다는 것을,\n두 사람은 아직 모른다.\n\n…그건, 또 다음 이야기.'}
+    ]},
+    /* 14 */
+    {t:'end', bg:'dusk', k:'ENDING C', title:'거꾸로 자라는 콩나무',
+      epl:'희망은 콩 한 알만 하다.\n하지만 하룻밤이면 하늘에 닿고,\n어쩌면— 하늘에서 땅까지도.\n\n— 3부작 · 끝 —',
+      otherGoto:8}
+  ]
+};
+delete EP.slots._;
+
+
+/* ================= BOOT ================= */
+function startPlay(){
+  $('#hud').style.display='flex';
+  $('#hudSub').textContent=EP.epi.replace(/\s/g,'')+' '+EP.title.replace(/\n/g,' ');
+  updHud();
+  runBeat();
+}
+(function boot(){
+  document.title=EP.pageTitle;
+  $('#tTitle').textContent=EP.title;
+  $('#tEpi').textContent=EP.epi;
+  $('#tMeta').style.display='none';
+  setBG(EP.titleBG);
+  var sv=load();
+  if(sv && sv.bi>0 && !sv.lastEnd){ $('#btnCont').style.display='block'; }
+  $('#btnStart').addEventListener('click',function(){
+    AudioBoot(); SFX.tr();
+    var ends=sv?sv.ends:[];
+    G=defState(); G.ends=ends||[]; save(); startPlay();
+  });
+  $('#btnCont').addEventListener('click',function(){
+    AudioBoot(); SFX.tr();
+    G=sv; save(); startPlay();
+  });
+  G=sv||defState();
+  window.GL={get G(){return G}, EP:EP, next:next, openSlot:openSlot, openConn:openConn, openScope:openScope, runBeat:runBeat, save:save, drawScene:drawScene};
+})();
+</script>
+</body>
+</html>
