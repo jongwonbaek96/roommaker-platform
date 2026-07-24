@@ -21,7 +21,7 @@ if %errorlevel%==0 (
 
 echo [3/4] Commit...
 git add -A
-git commit -m "Add production docs viewer (/admin/docs): view/edit/download game MD"
+git commit -m "docs: mobile-responsive editor + MD-only editing (manifest union) + last-train/abandoned-ward docs + last-train seed sql"
 
 echo [4/4] Push...
 git push

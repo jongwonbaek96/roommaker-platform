@@ -33,7 +33,25 @@ async function allGames(env) {
   const r = await env.DB.prepare(
     `SELECT id, title, emoji, status FROM games ORDER BY sort_order, updated_at DESC`
   ).all();
-  return r.results || [];
+  const rows = r.results || [];
+  const seen = new Set(rows.map(g => g.id));
+
+  // 레포에 제작 MD만 있는 초안(=D1 games 행이 없는 것)도 편집기에 노출한다.
+  // 이래야 "게임 HTML 없이 MD만 올려 편집"이 가능하다(폐병동 기획서 등).
+  for (const [gid, man] of Object.entries(DOCS_MANIFEST)) {
+    if (seen.has(gid)) continue;
+    rows.push({ id: gid, title: man.title || gid, emoji: man.emoji || '📝', status: man.status || 'draft', docsOnly: true });
+    seen.add(gid);
+  }
+
+  // 레포에도 games 행에도 없고 D1 game_docs 로만 올라온 순수 업로드본도 포함한다.
+  const dr = await env.DB.prepare(`SELECT DISTINCT game_id FROM game_docs`).all();
+  for (const row of (dr.results || [])) {
+    if (seen.has(row.game_id)) continue;
+    rows.push({ id: row.game_id, title: row.game_id, emoji: '📝', status: 'draft', docsOnly: true });
+    seen.add(row.game_id);
+  }
+  return rows;
 }
 
 export async function onRequest(context) {

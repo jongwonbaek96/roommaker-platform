@@ -76,6 +76,35 @@ tr.frow.sel td{background:var(--panel2)}
   padding:9px 16px;border-radius:9px;font-size:12px;opacity:0;transition:.2s;pointer-events:none;z-index:99}
 #toast.on{opacity:1}
 .empty{padding:50px 20px;text-align:center;color:var(--dim)}
+#backList{display:none}
+/* ───────── 모바일 반응형 (지시: 모바일 편집 화면 정상화) ───────── */
+@media(max-width:768px){
+  body{font-size:15px}
+  #top{padding:9px 12px;gap:6px;flex-wrap:wrap}
+  #top h1{font-size:15px}
+  #top .tab{padding:6px 9px;font-size:12px}
+  .warnbar{margin:10px 12px 0;padding:9px 11px;font-size:11.5px;line-height:1.6}
+  #layout{flex-direction:column;min-height:auto}
+  #side{width:100%;border-right:0;border-bottom:1px solid var(--line);max-height:44vh;padding:12px}
+  #main{padding:12px}
+  /* 게임을 고르면 목록을 접고 편집 화면만 크게 — 좁은 폭에서 겹침 방지 */
+  body.editing #side{display:none}
+  body.editing #backList{display:inline-flex;align-items:center}
+  #vhd{gap:6px;padding:9px 11px}
+  #vhd .fn{font-size:14px}
+  #vhd button.mini{padding:6px 9px;font-size:12.5px}
+  #vbody{padding:14px 14px;max-height:none}
+  /* iOS가 16px 미만 입력창에서 자동 확대하는 것 방지 */
+  #raw{min-height:56vh;font-size:16px;line-height:1.7;padding:14px}
+  table{font-size:13px}
+  th,td{padding:9px 5px}
+  /* 좁은 폭에서는 '최종 수정' 열을 숨겨 파일명/상태에 공간을 준다 */
+  #main table th:nth-child(3),#main table td:nth-child(3){display:none}
+  .gcard{padding:11px 11px}
+  .gcard .t{font-size:14px}
+  button{padding:7px 11px;font-size:13px}
+  button.mini{padding:4px 8px;font-size:12px}
+}
 </style>
 </head>
 <body>
@@ -158,8 +187,11 @@ function pickGame(id, keep){
   curGame = id;
   if (!keep) { curFile = null; curContent = ''; }
   document.querySelectorAll('.gcard').forEach(el => el.classList.remove('sel'));
+  document.body.classList.add('editing'); // 모바일: 목록 접고 편집 화면 표시
   load2();
 }
+// 모바일에서 게임 목록으로 돌아가기
+function backToList(){ document.body.classList.remove('editing'); window.scrollTo(0,0); }
 
 function load2(){
   const g = DATA.find(x => x.id === curGame);
@@ -185,6 +217,7 @@ function load2(){
   $('#pane').className = '';
   $('#pane').innerHTML = `
     <div class="bar">
+      <button class="tab" id="backList" onclick="backToList()">← 게임 목록</button>
       <h2 style="margin:0">${esc(g.emoji||'')} ${esc(g.title)}</h2>
       <span class="chip">${esc(g.id)}</span>
       <span class="sp"></span>

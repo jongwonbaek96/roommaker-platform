@@ -1,6 +1,19 @@
 {
-  "updatedAt": "2026-07-15",
+  "updatedAt": "2026-07-23",
   "games": [
+    {
+      "id": "last-train",
+      "title": "막차: 내리실 역은 없습니다",
+      "subtitle": "심야 시리즈 #2 · 서환선 7788편성 막차",
+      "genre": "공포",
+      "file": "games/last-train.html",
+      "status": "완성",
+      "puzzles": 35,
+      "accent": "#FF9F1C",
+      "bg": "#0B0E14",
+      "emoji": "🚇",
+      "createdAt": "2026-07-23"
+    },
     {
       "id": "sugar-melts",
       "title": "설탕은 녹는다",

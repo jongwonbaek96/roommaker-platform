@@ -128,7 +128,9 @@ export async function docsOverview(env, games) {
       };
     });
 
-    const missing = STANDARD_NAMES.filter(n => !names.has(n));
+    // standard:false 로 표시된 게임(통짜 기획서·초안)은 표준 5종 누락을 따지지 않는다.
+    const wantStandard = !(man && man.standard === false);
+    const missing = wantStandard ? STANDARD_NAMES.filter(n => !names.has(n)) : [];
     const pendingCount = files.filter(f => f.pending).length;
 
     return {

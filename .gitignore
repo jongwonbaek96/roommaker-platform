@@ -3,3 +3,7 @@ Thumbs.db
 .vercel
 node_modules
 *.log
+
+# 임시 검증 스크립트(자동 생성, 무시)
+_t.mjs
+_*.mjs

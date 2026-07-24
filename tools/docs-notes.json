@@ -6,5 +6,7 @@
   "dragon-heart": "역추출",
   "midnight-frequency": "역추출",
   "magic-school": "역추출",
-  "your-letter": "역추출"
+  "your-letter": "역추출",
+  "last-train": { "title": "막차: 내리실 역은 없습니다", "emoji": "🚇", "standard": false, "note": "세부기획서(통짜) · 게임 완성작" },
+  "abandoned-ward": { "title": "폐병동: 마지막 촬영 (기획서)", "emoji": "🏚️", "status": "draft", "standard": false, "note": "기획 초안 · 편집용 문서(게임 아님)" }
 }

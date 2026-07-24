@@ -1,7 +1,21 @@
 // ⚠️ 자동 생성 파일 — 직접 고치지 말 것.
-//    생성: node tools/gen-docs-manifest.mjs   (생성 시각: 2026-07-15 11:58:31)
+//    생성: node tools/gen-docs-manifest.mjs   (생성 시각: 2026-07-24 13:30:35)
 //    games/{id}/docs/*.md 목록 스냅샷. Functions는 디렉터리를 못 읽으므로 이 파일이 필요하다.
 export const DOCS_MANIFEST = {
+  "abandoned-ward": {
+    "files": [
+      {
+        "name": "01_plan.md",
+        "bytes": 39568,
+        "mtime": "2026-07-24 13:18:33"
+      }
+    ],
+    "title": "폐병동: 마지막 촬영 (기획서)",
+    "emoji": "🏚️",
+    "status": "draft",
+    "standard": false,
+    "note": "기획 초안 · 편집용 문서(게임 아님)"
+  },
   "colorless-blue": {
     "files": [
       {
@@ -180,6 +194,20 @@ export const DOCS_MANIFEST = {
       }
     ]
   },
+  "dont-blink": {
+    "files": [
+      {
+        "name": "01_story.md",
+        "bytes": 2776,
+        "mtime": "2026-07-15 16:05:21"
+      },
+      {
+        "name": "02_quiz.md",
+        "bytes": 2224,
+        "mtime": "2026-07-15 16:05:44"
+      }
+    ]
+  },
   "dragon-heart": {
     "files": [
       {
@@ -209,6 +237,47 @@ export const DOCS_MANIFEST = {
       }
     ],
     "note": "역추출"
+  },
+  "forty-nine": {
+    "files": [
+      {
+        "name": "01_story.md",
+        "bytes": 5752,
+        "mtime": "2026-07-20 13:42:28"
+      },
+      {
+        "name": "02_quiz.md",
+        "bytes": 10497,
+        "mtime": "2026-07-20 13:50:57"
+      }
+    ]
+  },
+  "fourth-period": {
+    "files": [
+      {
+        "name": "01_story.md",
+        "bytes": 2681,
+        "mtime": "2026-07-15 16:08:23"
+      },
+      {
+        "name": "02_quiz.md",
+        "bytes": 1978,
+        "mtime": "2026-07-15 16:08:42"
+      }
+    ]
+  },
+  "last-train": {
+    "files": [
+      {
+        "name": "01_plan.md",
+        "bytes": 44897,
+        "mtime": "2026-07-24 13:18:33"
+      }
+    ],
+    "title": "막차: 내리실 역은 없습니다",
+    "emoji": "🚇",
+    "standard": false,
+    "note": "세부기획서(통짜) · 게임 완성작"
   },
   "light-first": {
     "files": [
@@ -335,6 +404,34 @@ export const DOCS_MANIFEST = {
         "name": "06_현황점검_20260715.md",
         "bytes": 14985,
         "mtime": "2026-07-14 19:08:05"
+      }
+    ]
+  },
+  "the-collector": {
+    "files": [
+      {
+        "name": "01_story.md",
+        "bytes": 2771,
+        "mtime": "2026-07-15 16:09:24"
+      },
+      {
+        "name": "02_quiz.md",
+        "bytes": 2071,
+        "mtime": "2026-07-15 16:09:43"
+      }
+    ]
+  },
+  "uninvited": {
+    "files": [
+      {
+        "name": "01_story.md",
+        "bytes": 2615,
+        "mtime": "2026-07-15 16:06:26"
+      },
+      {
+        "name": "02_quiz.md",
+        "bytes": 2070,
+        "mtime": "2026-07-15 16:06:45"
       }
     ]
   },

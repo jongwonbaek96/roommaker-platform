@@ -33,7 +33,10 @@ for (const entry of await readdir(GAMES, { withFileTypes: true })) {
     files.push({ name: f, bytes: s.size, mtime: s.mtime.toISOString().slice(0, 19).replace('T', ' ') });
   }
   if (!files.length) continue;
-  manifest[entry.name] = { files, ...(notes[entry.name] ? { note: notes[entry.name] } : {}) };
+  // notes[id] 는 문자열(=비고) 또는 객체({title,emoji,status,standard,note})를 허용한다.
+  const meta = notes[entry.name];
+  const extra = (meta && typeof meta === 'object') ? meta : (meta ? { note: meta } : {});
+  manifest[entry.name] = { files, ...extra };
 }
 
 const body = `// ⚠️ 자동 생성 파일 — 직접 고치지 말 것.
