@@ -1,6 +1,19 @@
 {
-  "updatedAt": "2026-07-19",
+  "updatedAt": "2026-09-15",
   "games": [
+    {
+      "id": "start-recording",
+      "title": "촬영을 시작합니다",
+      "subtitle": "준형이 편 — 폐병원에서 찍은 마지막 영상",
+      "genre": "공포 / 파운드푸티지",
+      "file": "games/start-recording.html",
+      "status": "완성",
+      "puzzles": 12,
+      "accent": "#67e8c6",
+      "bg": "#0a0e0d",
+      "emoji": "🎥",
+      "createdAt": "2026-09-15"
+    },
     {
       "id": "giant-lullaby-3",
       "title": "거인의 자장가 3부 : 하프가 부른 이름",
