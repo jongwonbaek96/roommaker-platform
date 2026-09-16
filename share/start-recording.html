@@ -181,6 +181,29 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',system-ui,-a
 40%{filter:invert(.15) contrast(2);transform:translateX(5px)}
 60%{filter:hue-rotate(-40deg);transform:translateX(-2px) skewX(-2deg)}}
 .glitching #scene{animation:gl .5s}
+/* --- 귀신이 화면을 낚아채는 컷 --- */
+@keyframes grabin{from{opacity:0}to{opacity:1}}
+@keyframes grabrush{0%{transform:scale(.3) translateY(30%);opacity:.2;filter:blur(11px)}
+55%{transform:scale(1.05) translateY(2%);opacity:.96;filter:blur(3px)}
+100%{transform:scale(2.7) translateY(-10%);opacity:1;filter:blur(1px)}}
+@keyframes grabhand{0%{transform:translate(48%,72%) rotate(28deg) scale(.55);opacity:0}
+24%{opacity:1}
+72%{transform:translate(2%,6%) rotate(-4deg) scale(1.35);opacity:1}
+100%{transform:translate(-4%,-6%) rotate(-10deg) scale(1.9);opacity:1}}
+@keyframes grabclaw{0%{opacity:0;transform:translateX(34%) scaleX(.2)}
+40%{opacity:.95}
+100%{opacity:0;transform:translateX(-30%) scaleX(1.6)}}
+.grabov{position:absolute;inset:0;z-index:79;overflow:hidden;pointer-events:auto;
+  background:radial-gradient(ellipse at 50% 42%,rgba(150,200,195,.26) 0%,rgba(10,17,16,.82) 34%,#000 76%);
+  animation:grabin .12s forwards}
+.grabglow{position:absolute;left:50%;top:36%;width:86%;aspect-ratio:1;transform:translate(-50%,-50%);
+  border-radius:50%;background:radial-gradient(circle,rgba(200,240,235,.30),rgba(200,240,235,0) 68%);filter:blur(6px)}
+.grabfig{position:absolute;inset:0;transform-origin:50% 62%;animation:grabrush .62s cubic-bezier(.22,.9,.3,1) forwards}
+.grabhand{position:absolute;left:0;top:0;width:100%;height:100%;transform-origin:50% 62%;
+  animation:grabhand .5s cubic-bezier(.3,.7,.2,1) .40s both}
+.grabclaw{position:absolute;left:-10%;width:120%;height:8px;border-radius:8px;
+  background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,238,238,.92),rgba(255,110,110,.3),rgba(255,255,255,0));
+  filter:blur(1.5px);animation:grabclaw .42s ease-out .62s both}
 #toast{position:absolute;left:50%;bottom:110px;transform:translateX(-50%);z-index:78;
   background:rgba(8,16,14,.92);border:1px solid rgba(160,210,200,.28);border-radius:10px;
   padding:9px 15px;font-size:12.5px;color:#dff0ec;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap}
@@ -364,7 +387,35 @@ const AudioFX = {
   unlock(){ this.tone(520, 0.1, 'triangle', 0.14); setTimeout(()=>this.tone(880, 0.22, 'triangle', 0.13), 100); },
   thud(){ this.noise(0.35, 0.42, 190, 'lowpass', true); this.tone(58, 0.3, 'sine', 0.22, 34); },  // 쾅
   bang(){ this.thud(); setTimeout(()=>this.thud(), 180); setTimeout(()=>this.thud(), 340); },
-  bell(){ this.tone(2300, 0.5, 'triangle', 0.09); setTimeout(()=>this.tone(3100, 0.35, 'triangle', 0.06), 40); },
+  bell(v){ const k = v || 1; this.tone(2300, 0.5, 'triangle', 0.09*k); setTimeout(()=>this.tone(3100, 0.35, 'triangle', 0.06*k), 40); },
+  roar(){                                                             // 굉음
+    if(!this.ready) return;
+    this.noise(1.2, 0.5, 240, 'lowpass', true);
+    const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+    o.type = 'sawtooth'; o.frequency.setValueAtTime(230, this.t());
+    o.frequency.exponentialRampToValueAtTime(38, this.t()+1.0);
+    o.connect(g); g.connect(this.master); this.env(g, 0.01, 1.1, 0.34);
+    o.start(); o.stop(this.t()+1.25);
+    this.thud(); setTimeout(()=>this.thud(), 130); setTimeout(()=>this.thud(), 300);
+  },
+  scream(){                                                           // 끼아악
+    if(!this.ready) return;
+    const o = this.ctx.createOscillator(), g = this.ctx.createGain(),
+          lfo = this.ctx.createOscillator(), lg = this.ctx.createGain(),
+          f = this.ctx.createBiquadFilter();
+    o.type = 'sawtooth';
+    o.frequency.setValueAtTime(880, this.t());
+    o.frequency.exponentialRampToValueAtTime(1780, this.t()+0.18);
+    o.frequency.exponentialRampToValueAtTime(640, this.t()+0.95);
+    lfo.type = 'sine'; lfo.frequency.value = 23; lg.gain.value = 150;
+    lfo.connect(lg); lg.connect(o.frequency);
+    f.type = 'bandpass'; f.frequency.value = 1500; f.Q.value = 1.1;
+    o.connect(f); f.connect(g); g.connect(this.master);
+    this.env(g, 0.02, 1.0, 0.3);
+    o.start(); lfo.start(); o.stop(this.t()+1.15); lfo.stop(this.t()+1.15);
+    this.noise(0.9, 0.22, 2400, 'highpass');
+    this.thud();
+  },
   step(){ this.noise(0.13, 0.16, 420, 'lowpass', true); },
   stat(){ this.noise(0.5, 0.16, 5200, 'highpass'); },                 // 지지직
   stinger(){
@@ -432,6 +483,46 @@ function jumpscare(scale){
     D('left:57%;top:38%;width:11px;height:11px;border-radius:50%;background:#fff;box-shadow:0 0 22px 7px rgba(255,255,255,.55)');
   $('#phone').appendChild(ov);
   setTimeout(()=>ov.remove(), 900);
+}
+/* 귀신이 화면을 낚아채는 컷 — 굉음(또는 비명) → 형체가 달려들고 손이 화면을 긁는다 */
+function clawHand(){
+  const cl = 'fill:#04080d;stroke:rgba(205,245,238,.55);stroke-width:1.1;stroke-linejoin:round';
+  return `<div class="grabhand"><svg viewBox="0 0 100 120" preserveAspectRatio="xMidYMax meet"
+      style="width:100%;height:100%;filter:blur(1.8px) drop-shadow(0 0 26px rgba(0,0,0,.95))">
+      <path style="${cl}" d="M11 120 L11 74 Q50 62 89 74 L89 120 Z"/>
+      <path style="${cl}" d="M11 78 Q10 54 3 27 Q12 24 18 50 Q24 66 27 74 Z"/>
+      <path style="${cl}" d="M27 74 Q24 46 21 12 Q31 9 34 44 Q36 62 45 72 Z"/>
+      <path style="${cl}" d="M45 72 Q46 40 47 3 Q57 3 57 40 Q58 60 63 73 Z"/>
+      <path style="${cl}" d="M63 73 Q68 44 74 14 Q84 17 78 48 Q76 63 81 76 Z"/>
+      <path style="${cl}" d="M85 80 Q94 62 99 48 Q104 56 94 78 Q90 88 87 95 Z"/>
+    </svg></div>`;
+}
+function ghostGrab(opt){
+  opt = opt || {};
+  return new Promise(res => {
+    AudioFX.resume();
+    if(opt.scream) AudioFX.scream(); else AudioFX.roar();
+    glitchFX(900); shake(true); vibrate([130,60,240]); noiseBurst(520);
+    const ov = document.createElement('div');
+    ov.className = 'grabov';
+    ov.innerHTML =
+      `<div class="grabglow"></div>` +
+      `<div class="grabfig">` +
+        ghostFigure({ scale:1.35, top:24, blur:6, opacity:.98, ribbon:true, eyes:true }) +
+      `</div>` +
+      clawHand() +
+      `<div class="grabclaw" style="top:34%"></div>` +
+      `<div class="grabclaw" style="top:49%;animation-delay:.66s"></div>` +
+      `<div class="grabclaw" style="top:63%;animation-delay:.70s"></div>`;
+    $('#phone').appendChild(ov);
+    setTimeout(()=>{ AudioFX.thud(); whiteflash(); redpulse(); shake(true); vibrate(160); }, 640);
+    setTimeout(()=>{ fadeToBlack(200); }, 900);
+    setTimeout(()=>{
+      ov.remove(); fadeFromBlack(420);
+      if(opt.toast) toast(opt.toast);
+      res();
+    }, 1280);
+  });
 }
 let toastT = null;
 function toast(msg, ms){
@@ -577,9 +668,15 @@ function ghostFigure(o){
   h += SIL(`left:${x}%;top:${top + bh*0.05}%;width:${bw*1.75}%;height:${bh*0.22}%;transform:translateX(-50%);
     filter:blur(${blur*1.15}px);opacity:${(o.opacity || .96)*0.92};border-radius:52% 52% 38% 38%`);
   /* 머리 (목 간격을 두고 확실히 분리) */
-  h += D(`left:${x}%;top:${top - hd*0.92}%;transform:translateX(-50%);width:${hd}%;aspect-ratio:.86;border-radius:50%;
+  const headBox = `left:${x}%;top:${top - hd*0.92}%;transform:translateX(-50%);width:${hd}%;aspect-ratio:.86;`;
+  h += D(headBox + `border-radius:50%;
     background:#03050a;filter:blur(${blur*0.55}px);box-shadow:0 0 0 2px rgba(160,220,210,.12),0 0 14px 2px rgba(0,0,0,.55)`);
-  if(o.ribbon) h += ribbonMock(x + hd*0.5, top - hd*0.62, hd * 1.9);
+  /* 눈 (머리 박스 기준 — 크기·위치가 항상 얼굴에 맞는다) */
+  if(o.eyes){
+    const eye = 'width:19%;aspect-ratio:1;border-radius:50%;background:#fff;box-shadow:0 0 16px 6px rgba(255,235,235,.75)';
+    h += D(headBox, D('left:20%;top:42%;' + eye) + D('left:61%;top:42%;' + eye));
+  }
+  if(o.ribbon) h += ribbonMock(x + hd*0.72, top - hd*1.30, hd * 1.25);
   return h;
 }
 function ribbonMock(x, y, w){
@@ -1259,8 +1356,9 @@ PZ.DIR4 = { node:'choice-2', enter(){ return new Promise(async resolve => {
   await directionSeq({
     steps:4, answer:['R','L','R','L'], key:'choice2', render,
     onWrong(){
-      AudioFX.bang(); jumpscare(0.8); blackout(360);
-      toast('막다른 길 — 되돌아왔다');
+      $('#choices').classList.remove('on');
+      ghostGrab({ toast:'낚아채였다 — 갈림길 처음으로' })
+        .then(()=>{ const c = $('#choices'); if(c) c.classList.add('on'); });
     }
   });
   clearSub();
@@ -1456,9 +1554,12 @@ PZ.M2_BELLS = { node:'corridor-1', enter(){ return new Promise(resolve => {
     if(failed) return;
     failed = true; dragging = false;
     bells.forEach(b => b.p = 1);
-    AudioFX.bell(); AudioFX.bang(); shake(true); redpulse(); vibrate([60,40,90]);
-    S.wrongCounts.M2 = (S.wrongCounts.M2||0) + 1;
-    setTimeout(()=>{ toStart(); failed = false; }, 620);
+    AudioFX.bell(1.6);
+    S.wrongCounts.M2 = (S.wrongCounts.M2||0) + 1; save();
+    ghostGrab({ toast:'끌려갈 뻔했다 — 처음부터' }).then(()=>{
+      if(done || !document.body.contains(cv)) return;
+      toStart(); failed = false;
+    });
   };
   const succeed = () => {
     done = true; dragging = false;
@@ -1543,7 +1644,7 @@ PZ.M3_BLOCKS = { node:'odd-door', enter(){ return new Promise(resolve => {
   const PIECE_OPT = { friction:.92, frictionStatic:1.3, restitution:0, density:.002, slop:.02 };
   const rnd = (a,b) => a + Math.random()*(b-a);
   let pieces = [], cur = null, left = TOTAL, settle = 0, waitT = 0,
-      done = false, waiting = false, lastThud = 0, camY = 0;
+      done = false, waiting = false, lastThud = 0, camY = 0, bellLv = 0, bellIv = null;
 
   /* 쌓인 더미의 최고점 (놓인 조각만) */
   const towerTop = () => {
@@ -1575,13 +1676,12 @@ PZ.M3_BLOCKS = { node:'odd-door', enter(){ return new Promise(resolve => {
   };
   const clearAll = () => { pieces.forEach(b => M.Composite.remove(world, b)); pieces = []; cur = null; };
   const resetRun = () => {
-    const fails = (S.wrongCounts.M3 || 0) + 1;
-    S.wrongCounts.M3 = fails; save();
-    AudioFX.bang(); shake(true); vibrate(90);
-    toast('무너졌다 — 다시');
-    if(fails % 15 === 0) setTimeout(()=>jumpscare(1.0), 260);
-    clearAll(); left = TOTAL; camY = 0;
-    setTimeout(()=>{ if(!done) spawn(); }, 700);
+    S.wrongCounts.M3 = (S.wrongCounts.M3 || 0) + 1; save();
+    clearAll(); left = TOTAL; camY = 0; bellLv = 0; updateN();
+    /* 끼아악 — 귀신을 마주하고 처음부터 */
+    ghostGrab({ scream:true, toast:'무너졌다 — 다시' }).then(()=>{
+      if(!done && document.body.contains(cv)) spawn();
+    });
   };
   const settled = () => pieces.every(b => b.isStatic || b.isSleeping || (b.speed < .5 && b.angularSpeed < .05));
 
@@ -1680,6 +1780,7 @@ PZ.M3_BLOCKS = { node:'odd-door', enter(){ return new Promise(resolve => {
           waiting = false;
           if(towerTop() <= GOAL_Y){
             done = true;
+            if(bellIv){ clearInterval(bellIv); bellIv = null; }
             AudioFX.unlock(); toast('창문까지 닿았다');
             setTimeout(()=>{ clearPZ(); resolve(); }, 900);
             return;
@@ -1691,9 +1792,21 @@ PZ.M3_BLOCKS = { node:'odd-door', enter(){ return new Promise(resolve => {
     requestAnimationFrame(loop);
   };
   spawn(); loop();
+  /* 10초마다 방울 소리가 점점 가까워진다 */
+  bellIv = setInterval(() => {
+    if(done || !document.body.contains(cv)){ clearInterval(bellIv); bellIv = null; return; }
+    bellLv++;
+    AudioFX.bell(Math.min(1 + bellLv*0.55, 3.6));
+    if(bellLv >= 3) vibrate(40);
+    if(bellLv >= 5){ redpulse(); shake(false); }
+    if(bellLv === 1) toast('어디선가 방울 소리', 1200);
+    else if(bellLv === 3) toast('방울 소리가 가까워진다', 1200);
+    else if(bellLv >= 5) toast('바로 뒤다', 1100);
+  }, 10000);
   /* 개발 테스트용 훅 (?debug=1 일 때만) */
   if(typeof DEBUG !== 'undefined' && DEBUG) window.__m3 = {
     drop, rot: () => $('#m3rot').onclick(),
+    starve: () => { left = 1; updateN(); },
     moveTo: x => { if(cur) M.Body.setPosition(cur, { x: clamp(x, 24, W-24), y: holdY() }); },
     state: () => {
       let topB = null;
