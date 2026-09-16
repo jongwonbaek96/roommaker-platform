@@ -1344,7 +1344,7 @@ PZ.M2_BELLS = { node:'corridor-1', enter(){ return new Promise(resolve => {
   pzStage(`
     <div class="pz-title">MISSION · 방울길</div>
     <canvas id="m2cv" style="position:absolute;left:4%;right:4%;top:13%;bottom:17%;width:92%;height:70%"></canvas>
-    <div class="pz-help">스치기만 해도 울린다. 손을 떼도 처음부터.</div>`);
+    <div class="pz-help">스치기만 해도 울린다. 손을 떼면 그 자리에서 멈춘다.</div>`);
   const cv = $('#m2cv');
   const C = fitCanvas(cv);
   const W = C.w, H = C.h;
@@ -1359,8 +1359,8 @@ PZ.M2_BELLS = { node:'corridor-1', enter(){ return new Promise(resolve => {
     { x:W*0.76, y:H*0.25 },
     { x:W*0.50, y:H*0.05 }
   ];
-  const ROAD = Math.max(24, W*0.070);   /* 통로 폭 : 이전의 약 60% */
-  const BALL = 6;
+  const ROAD = Math.max(28, W*0.082);   /* 통로 폭 (난이도 하향 : 0.070 → 0.082) */
+  const BALL = 5.5;
   /* 통로를 더 조이는 돌출부 */
   const pinch = [];
   for(let i=1;i<pts.length;i++){
@@ -1371,7 +1371,7 @@ PZ.M2_BELLS = { node:'corridor-1', enter(){ return new Promise(resolve => {
     [0.38, 0.70].forEach((t, k) => {
       const px = a.x + (b.x-a.x)*t, py = a.y + (b.y-a.y)*t;
       const s = k ? -side : side;
-      pinch.push({ x: px + nx*s*(ROAD*0.60), y: py + ny*s*(ROAD*0.60), r: ROAD*0.34 });
+      pinch.push({ x: px + nx*s*(ROAD*0.64), y: py + ny*s*(ROAD*0.64), r: ROAD*0.28 });
     });
   }
   /* 판정 마스크 */
@@ -1483,13 +1483,13 @@ PZ.M2_BELLS = { node:'corridor-1', enter(){ return new Promise(resolve => {
   };
   cv.addEventListener('pointerdown', e => {
     const p = ptIn(e, cv);
-    if(Math.hypot(p.x-ball.x, p.y-ball.y) < 30){ dragging = true; cv.setPointerCapture(e.pointerId); AudioFX.click(); }
+    if(Math.hypot(p.x-ball.x, p.y-ball.y) < 38){ dragging = true; cv.setPointerCapture(e.pointerId); AudioFX.click(); }
   });
   cv.addEventListener('pointermove', move);
   const release = () => {
     if(!dragging || done) return;
     dragging = false;
-    if(!failed){ AudioFX.bell(); toast('손을 뗐다 — 처음부터'); toStart(); }
+    if(!failed) toast('멈췄다 — 다시 잡고 이어서');   /* 손을 떼도 그 자리에서 재시작 */
   };
   cv.addEventListener('pointerup', release);
   cv.addEventListener('pointercancel', release);
