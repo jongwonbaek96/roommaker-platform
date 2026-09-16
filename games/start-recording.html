@@ -1505,8 +1505,8 @@ PZ.M2_BELLS = { node:'corridor-1', enter(){ return new Promise(resolve => {
 
 /* ---------------------------------------------------------
    MISSION 3 — 이상한 문 앞 「쌓아 올리기」  (물리 엔진 · matter-js)
-   제각각 크기·모양의 잔해를 실제 물리로 쌓아 창문 높이까지 올린다.
-   흔들리고 미끄러지고 무너진다. 균형을 잡아야 한다.
+   놓으면 실제로 떨어진다. 제각각인 잔해가 흔들리고 미끄러지고 무너진다.
+   탑이 높아지면 카메라가 따라 올라가므로 낙하 높이는 항상 일정하다.
 --------------------------------------------------------- */
 PZ.M3_BLOCKS = { node:'odd-door', enter(){ return new Promise(resolve => {
   setScene('odd-door', MOCK.debrisRoom());
@@ -1517,29 +1517,42 @@ PZ.M3_BLOCKS = { node:'odd-door', enter(){ return new Promise(resolve => {
       <button class="btn" id="m3rot" style="padding:9px 15px;font-size:13px">돌리기</button>
       <button class="btn" id="m3drop" style="padding:9px 17px;font-size:13px">놓기</button>
     </div>
-    <div class="pz-help">끌어서 자리를 잡고 놓는다 · 남은 잔해 <b id="m3n">0</b></div>`);
+    <div class="pz-help">끌어서 자리를 잡고 놓으면 그대로 떨어진다 · 남은 잔해 <b id="m3n">0</b></div>`);
 
   const M = window.Matter;
   const cv = $('#m3cv'), C = fitCanvas(cv), W = C.w, H = C.h;
-  const FLOOR_Y = H - 12, GOAL_Y = H * 0.46, HOLD_GAP = 46;
-  const TOTAL = 16;
+  const FLOOR_Y = H - 12;          /* 바닥 (월드 좌표) */
+  const TARGET_H = 250;            /* 창문까지 필요한 높이 */
+  const GOAL_Y = FLOOR_Y - TARGET_H;
+  const DROP_H = 100;              /* 탑 꼭대기에서 이만큼 위에서 떨어뜨린다 */
+  const TOTAL = 20;
 
   const engine = M.Engine.create();
   engine.gravity.y = 1.0;
   engine.positionIterations = 8;
   engine.velocityIterations = 8;
-  engine.enableSleeping = true;   /* 다 쌓이면 잠들게 해서 미세 떨림 정리 */
+  engine.enableSleeping = true;
   const world = engine.world;
   const wallOpt = { isStatic:true, friction:.95, restitution:0 };
   M.Composite.add(world, [
     M.Bodies.rectangle(W/2, FLOOR_Y + 30, W*1.6, 60, wallOpt),   /* 바닥 */
-    M.Bodies.rectangle(-40, H/2, 60, H*3, wallOpt),              /* 좌벽(화면 밖) */
-    M.Bodies.rectangle(W+40, H/2, 60, H*3, wallOpt)              /* 우벽 */
+    M.Bodies.rectangle(-40, FLOOR_Y - H*2, 60, H*6, wallOpt),    /* 좌벽 (위로 길게) */
+    M.Bodies.rectangle(W+40, FLOOR_Y - H*2, 60, H*6, wallOpt)    /* 우벽 */
   ]);
 
   const PIECE_OPT = { friction:.92, frictionStatic:1.3, restitution:0, density:.002, slop:.02 };
   const rnd = (a,b) => a + Math.random()*(b-a);
-  let pieces = [], cur = null, left = TOTAL, settle = 0, waitT = 0, done = false, waiting = false, lastThud = 0;
+  let pieces = [], cur = null, left = TOTAL, settle = 0, waitT = 0,
+      done = false, waiting = false, lastThud = 0, camY = 0;
+
+  /* 쌓인 더미의 최고점 (놓인 조각만) */
+  const towerTop = () => {
+    let top = FLOOR_Y;
+    pieces.forEach(b => { if(!b.isStatic) top = Math.min(top, b.bounds.min.y); });
+    return top;
+  };
+  const holdY = () => Math.min(towerTop() - DROP_H, FLOOR_Y - DROP_H);
+  const wantCam = () => Math.min(0, towerTop() - H*0.52);   /* 탑이 높아지면 시야가 따라 올라간다 */
 
   const makePiece = (y) => {
     const t = Math.random(); let b;
@@ -1551,7 +1564,6 @@ PZ.M3_BLOCKS = { node:'odd-door', enter(){ return new Promise(resolve => {
     return b;
   };
   const updateN = () => { if($('#m3n')) $('#m3n').textContent = String(left); };
-  const holdY = () => clamp(towerTop() - HOLD_GAP, 26, FLOOR_Y - 70);
   const spawn = () => {
     if(done) return;
     cur = makePiece(holdY());
@@ -1561,24 +1573,15 @@ PZ.M3_BLOCKS = { node:'odd-door', enter(){ return new Promise(resolve => {
     waiting = false; settle = 0; waitT = 0;
     updateN();
   };
-  const clearAll = () => {
-    pieces.forEach(b => M.Composite.remove(world, b));
-    pieces = []; cur = null;
-  };
+  const clearAll = () => { pieces.forEach(b => M.Composite.remove(world, b)); pieces = []; cur = null; };
   const resetRun = () => {
     const fails = (S.wrongCounts.M3 || 0) + 1;
     S.wrongCounts.M3 = fails; save();
     AudioFX.bang(); shake(true); vibrate(90);
     toast('무너졌다 — 다시');
     if(fails % 15 === 0) setTimeout(()=>jumpscare(1.0), 260);
-    clearAll(); left = TOTAL;
+    clearAll(); left = TOTAL; camY = 0;
     setTimeout(()=>{ if(!done) spawn(); }, 700);
-  };
-  /* 쌓인 더미의 최고점 (놓인 조각만) */
-  const towerTop = () => {
-    let top = FLOOR_Y;
-    pieces.forEach(b => { if(!b.isStatic && b.position.y < FLOOR_Y + 40) top = Math.min(top, b.bounds.min.y); });
-    return top;
   };
   const settled = () => pieces.every(b => b.isStatic || b.isSleeping || (b.speed < .5 && b.angularSpeed < .05));
 
@@ -1594,6 +1597,7 @@ PZ.M3_BLOCKS = { node:'odd-door', enter(){ return new Promise(resolve => {
     if(done || !cur) return;
     AudioFX.click();
     M.Body.setStatic(cur, false);
+    M.Sleeping.set(cur, false);
     M.Body.setVelocity(cur, { x:0, y:0 });
     M.Body.setAngularVelocity(cur, rnd(-0.03, 0.03));
     cur = null; left--; updateN();
@@ -1603,17 +1607,13 @@ PZ.M3_BLOCKS = { node:'odd-door', enter(){ return new Promise(resolve => {
   $('#m3rot').onclick = () => { if(cur){ AudioFX.click(); M.Body.setAngle(cur, cur.angle + Math.PI/9); } };
 
   let dragging = false;
-  cv.addEventListener('pointerdown', e => {
+  const moveCur = e => {
     if(!cur) return;
-    dragging = true; cv.setPointerCapture(e.pointerId);
     const p = ptIn(e, cv);
     M.Body.setPosition(cur, { x: clamp(p.x, 24, W-24), y: holdY() });
-  });
-  cv.addEventListener('pointermove', e => {
-    if(!dragging || !cur) return;
-    const p = ptIn(e, cv);
-    M.Body.setPosition(cur, { x: clamp(p.x, 24, W-24), y: holdY() });
-  });
+  };
+  cv.addEventListener('pointerdown', e => { if(!cur) return; dragging = true; cv.setPointerCapture(e.pointerId); moveCur(e); });
+  cv.addEventListener('pointermove', e => { if(dragging) moveCur(e); });
   const upH = () => dragging = false;
   cv.addEventListener('pointerup', upH);
   cv.addEventListener('pointercancel', upH);
@@ -1632,33 +1632,51 @@ PZ.M3_BLOCKS = { node:'odd-door', enter(){ return new Promise(resolve => {
   const loop = () => {
     if(done || !document.body.contains(cv)) return;
     M.Engine.update(engine, 1000/60);
+    /* 떠 있는 조각은 항상 탑 위 일정 높이에 */
+    if(cur) M.Body.setPosition(cur, { x: cur.position.x, y: holdY() });
+    camY += (wantCam() - camY) * 0.08;
+
     C.ctx.clearRect(0,0,W,H);
-    /* 방 바닥 */
     C.ctx.fillStyle = 'rgba(4,9,8,.55)'; C.ctx.fillRect(0,0,W,H);
-    C.ctx.fillStyle = 'rgba(30,48,44,.9)'; C.ctx.fillRect(0, FLOOR_Y, W, H-FLOOR_Y);
+
+    C.ctx.save();
+    C.ctx.translate(0, -camY);                     /* 카메라 */
+    /* 바닥 */
+    C.ctx.fillStyle = 'rgba(30,48,44,.9)';
+    C.ctx.fillRect(0, FLOOR_Y, W, H + Math.abs(camY) + 60);
     /* 창문(목표) */
     C.ctx.fillStyle = 'rgba(150,210,235,.10)';
-    C.ctx.fillRect(W*0.56, GOAL_Y - 40, W*0.40, 40);
-    C.ctx.strokeStyle = 'rgba(170,225,235,.4)'; C.ctx.lineWidth = 1;
-    C.ctx.strokeRect(W*0.56, GOAL_Y - 40, W*0.40, 40);
-    C.ctx.setLineDash([5,5]); C.ctx.strokeStyle = 'rgba(170,225,235,.28)';
+    C.ctx.fillRect(W*0.56, GOAL_Y - 44, W*0.40, 44);
+    C.ctx.strokeStyle = 'rgba(170,225,235,.45)'; C.ctx.lineWidth = 1;
+    C.ctx.strokeRect(W*0.56, GOAL_Y - 44, W*0.40, 44);
+    C.ctx.setLineDash([5,5]); C.ctx.strokeStyle = 'rgba(170,225,235,.3)';
     C.ctx.beginPath(); C.ctx.moveTo(0, GOAL_Y); C.ctx.lineTo(W, GOAL_Y); C.ctx.stroke();
     C.ctx.setLineDash([]);
-    C.ctx.fillStyle = 'rgba(170,220,230,.55)'; C.ctx.font = '10px system-ui';
-    C.ctx.fillText('창문', W*0.56, GOAL_Y - 46);
+    C.ctx.fillStyle = 'rgba(170,220,230,.6)'; C.ctx.font = '10px system-ui';
+    C.ctx.fillText('창문', W*0.56, GOAL_Y - 50);
     /* 조각 */
     pieces.forEach(b => drawBody(b, b === cur));
+    /* 낙하 예상선 */
     if(cur){
       C.ctx.setLineDash([3,4]); C.ctx.strokeStyle = 'rgba(200,255,245,.35)';
-      C.ctx.beginPath(); C.ctx.moveTo(cur.position.x, cur.position.y + 16); C.ctx.lineTo(cur.position.x, FLOOR_Y); C.ctx.stroke();
+      C.ctx.beginPath(); C.ctx.moveTo(cur.position.x, cur.position.y + 18);
+      C.ctx.lineTo(cur.position.x, towerTop()); C.ctx.stroke();
       C.ctx.setLineDash([]);
     }
+    C.ctx.restore();
+
+    /* HUD — 높이 게이지(화면 고정) */
+    const prog = clamp((FLOOR_Y - towerTop()) / TARGET_H, 0, 1);
+    C.ctx.fillStyle = 'rgba(255,255,255,.12)'; C.ctx.fillRect(W-14, 14, 6, H-28);
+    C.ctx.fillStyle = 'rgba(103,232,198,.85)';
+    C.ctx.fillRect(W-14, 14 + (H-28)*(1-prog), 6, (H-28)*prog);
+
     /* 안정 판정 */
     if(waiting){
       waitT += 1/60;
-      if(settled() || waitT > 4){
+      if(settled() || waitT > 5){
         settle += 1/60;
-        if(settle > .6 || waitT > 4){
+        if(settle > .6 || waitT > 5){
           waiting = false;
           if(towerTop() <= GOAL_Y){
             done = true;
@@ -1680,8 +1698,8 @@ PZ.M3_BLOCKS = { node:'odd-door', enter(){ return new Promise(resolve => {
     state: () => {
       let topB = null;
       pieces.forEach(b => { if(!b.isStatic && (!topB || b.bounds.min.y < topB.bounds.min.y)) topB = b; });
-      return { left, top: towerTop(), goal: GOAL_Y, cur: !!cur, waiting,
-               topX: topB ? topB.position.x : W/2, floor: FLOOR_Y };
+      return { left, top: towerTop(), goal: GOAL_Y, cur: !!cur, waiting, camY,
+               holdY: holdY(), topX: topB ? topB.position.x : W/2, floor: FLOOR_Y };
     }
   };
 });}};
